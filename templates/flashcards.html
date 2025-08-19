@@ -1,0 +1,823 @@
+{% extends 'base.html' %}
+
+{% block title %}Флэшкарты - Счеты{% endblock %}
+
+{% block mycss %}
+<style>
+    /* Основные стили для игры */
+    .game-container {
+        min-height: 100vh;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease-out;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    .game-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 8px 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .game-body {
+        padding: 30px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Стили для полей формы */
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 1rem;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 18px center;
+        background-size: 18px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-control:hover {
+        border-color: #667eea;
+        transform: translateY(-1px);
+    }
+
+    /* Стили для кнопки */
+    .start-btn {
+        width: 100%;
+        padding: 16px 24px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .start-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .start-btn:hover::before {
+        left: 100%;
+    }
+
+    .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .start-btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* Стили для показа карточек */
+    .flashcard-display {
+        text-align: center;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .progress-info {
+        margin-bottom: 15px;
+    }
+
+    .card-counter {
+        display: block;
+        font-size: 1em;
+        margin-bottom: 10px;
+        opacity: 0.9;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+        transition: width 0.3s ease;
+    }
+
+    .abacus-display {
+        margin: 10px 0;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .abacus-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        min-height: 300px;
+    }
+
+    .abacus-frame {
+        background: linear-gradient(135deg, #8B4513, #A0522D);
+        border: 6px solid #654321;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+    
+    .abacus-rows-container {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    
+    .abacus-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        height: 100%;
+    }
+    
+    .abacus-label {
+        color: #F5DEB3;
+        font-weight: bold;
+        font-size: 1em;
+        min-width: 60px;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    
+    .abacus-rod {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        background: linear-gradient(135deg, #8B4513, #A0522D);
+        padding: 15px 10px;
+        border-radius: 12px;
+        border: 4px solid #654321;
+        height: 100%;
+        min-height: 300px;
+        position: relative;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    
+    .abacus-rod::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #654321, #8B4513, #654321);
+        border-radius: 2px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .abacus-bead {
+        width: 40px;
+        height: 40px;
+        /* Make beads diamond-shaped (rhomboid) */
+        transform: rotate(45deg);
+        background: linear-gradient(135deg, #D2B48C, #CD853F, #DEB887);
+        border: 3px solid #8B4513;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 2;
+        box-shadow: 
+            0 3px 12px rgba(0,0,0,0.3),
+            inset 0 2px 3px rgba(255,255,255,0.3),
+            inset 0 -2px 3px rgba(0,0,0,0.2);
+        /* Add wood grain effect */
+        background-image: 
+            linear-gradient(135deg, #D2B48C, #CD853F, #DEB887),
+            repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 3px,
+                rgba(139, 69, 19, 0.1) 3px,
+                rgba(139, 69, 19, 0.1) 6px
+            );
+    }
+    
+    .abacus-bead.upper {
+        background: linear-gradient(135deg, #CD853F, #A0522D, #8B4513);
+        border-color: #654321;
+        /* Wood grain for upper beads */
+        background-image: 
+            linear-gradient(135deg, #CD853F, #A0522D, #8B4513),
+            repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 3px,
+                rgba(101, 67, 33, 0.15) 3px,
+                rgba(101, 67, 33, 0.15) 6px
+            );
+    }
+    
+    .abacus-bead.lower {
+        background: linear-gradient(135deg, #D2B48C, #CD853F, #DEB887);
+        border-color: #8B4513;
+        /* Wood grain for lower beads */
+        background-image: 
+            linear-gradient(135deg, #D2B48C, #CD853F, #DEB887),
+            repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 3px,
+                rgba(139, 69, 19, 0.1) 3px,
+                rgba(139, 69, 19, 0.1) 6px
+            );
+    }
+    
+    .abacus-bead.active {
+        transform: rotate(45deg) translateX(8px);
+        box-shadow: 
+            0 5px 20px rgba(0,0,0,0.4),
+            inset 0 2px 3px rgba(255,255,255,0.4),
+            inset 0 -2px 3px rgba(0,0,0,0.3);
+    }
+    
+    .abacus-bead:not(.active) {
+        transform: rotate(45deg) translateX(0);
+        opacity: 0.6;
+        filter: grayscale(30%);
+    }
+    
+    .abacus-divider-rod {
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, #654321, #8B4513, #654321);
+        border-radius: 3px;
+        margin: 8px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Стили для таймера */
+    .timer-display {
+        margin: 10px 0;
+        font-size: 1.1em;
+        opacity: 0.8;
+        text-align: center;
+    }
+    
+    .countdown-timer {
+        font-size: 2em;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        margin-top: 10px;
+        padding: 10px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        display: inline-block;
+        min-width: 60px;
+    }
+
+    /* Стили для формы ответов */
+    .answers-form {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .answers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .answer-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .answer-item label {
+        color: #F5DEB3;
+        font-weight: bold;
+        font-size: 1em;
+        text-align: center;
+    }
+    
+    .answer-input {
+        padding: 10px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 8px;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        font-size: 1em;
+        text-align: center;
+    }
+    
+    .answer-input:focus {
+        outline: none;
+        border-color: #FFD700;
+        background: rgba(255,255,255,0.2);
+    }
+    
+    .answer-input::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+
+    /* Стили для результатов */
+    .game-results {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .results-summary {
+        margin-bottom: 20px;
+    }
+    
+    .score-display {
+        font-size: 2em;
+        font-weight: bold;
+        color: #FFD700;
+        margin: 15px 0;
+    }
+    
+    .results-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 20px 0;
+    }
+    
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        margin: 8px 0;
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        border-left: 4px solid transparent;
+    }
+    
+    .result-item.correct {
+        border-left-color: #2ecc71;
+        background: rgba(46, 204, 113, 0.1);
+    }
+    
+    .result-item.incorrect {
+        border-left-color: #e74c3c;
+        background: rgba(231, 76, 60, 0.1);
+    }
+    
+    .result-number {
+        font-weight: bold;
+        color: #F5DEB3;
+    }
+    
+    .result-answer {
+        color: white;
+    }
+    
+    .result-status {
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+    
+    .result-status.correct {
+        background: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+    }
+    
+    .result-status.incorrect {
+        background: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+    }
+
+    /* Кнопки управления */
+    .game-controls {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Анимации */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .game-container {
+            padding: 15px;
+        }
+        
+        .game-header {
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-size: 1.8rem;
+        }
+        
+        .game-body {
+            padding: 20px;
+        }
+        
+        .abacus-bead {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .abacus-rod {
+            min-height: 250px;
+            padding: 10px 8px;
+        }
+        
+        .abacus-rows-container {
+            gap: 20px;
+        }
+        
+        .answers-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="game-card">
+        <div class="game-header">
+            <h1 class="game-title">Флэшкарты - Счеты</h1>
+            <p class="game-subtitle">Тренируйте ментальную арифметику! Смотрите на расположение косточек на счетах и определяйте число.</p>
+        </div>
+        
+        <div class="game-body">
+            {% if mode == 1 %}
+            <!-- Настройка игры -->
+            <form method="POST" class="setup-form">
+                {% csrf_token %}
+                <input type="hidden" name="mode" value="1">
+                
+                <div class="form-group">
+                    <label for="difficulty" class="form-label">Сложность:</label>
+                    <select name="difficulty" id="difficulty" class="form-control">
+                        <option value="easy">Легко (1-20)</option>
+                        <option value="medium" selected>Средне (1-100)</option>
+                        <option value="hard">Сложно (1-1000)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="display_time" class="form-label">Время показа карточки (сек):</label>
+                    <select name="display_time" id="display_time" class="form-control">
+                        <option value="1">1 секунда</option>
+                        <option value="2">2 секунды</option>
+                        <option value="3" selected>3 секунды</option>
+                        <option value="5">5 секунд</option>
+                        <option value="10">10 секунд</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card_count" class="form-label">Количество карточек:</label>
+                    <select name="card_count" id="card_count" class="form-control">
+                        <option value="5">5 карточек</option>
+                        <option value="10" selected>10 карточек</option>
+                        <option value="15">15 карточек</option>
+                        <option value="20">20 карточек</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="start-btn">Начать игру</button>
+            </form>
+
+            {% elif mode == 2 %}
+            <!-- Показ карточки -->
+            <div class="flashcard-display">
+                <div class="progress-info">
+                    <span class="card-counter">Карточка {{ current_card }} из {{ total_cards }}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {% widthratio current_card total_cards 100 %}%"></div>
+                    </div>
+                </div>
+                
+                <div class="timer-display">
+                    <div>Следующая карточка через:</div>
+                    <div class="countdown-timer" id="countdown">{{ display_time }}</div>
+                </div>
+                
+                <div class="abacus-display">
+                    <div class="abacus-container">
+                        <div class="abacus-frame">
+                            <div class="abacus-rows-container">
+                                <!-- Сотни (для сложного уровня) -->
+                                {% if difficulty == 'hard' %}
+                                    <div class="abacus-column hundreds">
+                                        <div class="abacus-label">Сотни</div>
+                                        <div class="abacus-rod">
+                                            <!-- Верхние косточки (2 места) -->
+                                            <div class="abacus-bead upper {% if abacus_data.hundreds.upper.0 %}active{% endif %}"></div>
+                                            <div class="abacus-bead upper {% if abacus_data.hundreds.upper.1 %}active{% endif %}"></div>
+                                            <!-- Разделитель -->
+                                            <div class="abacus-divider-rod"></div>
+                                            <!-- Нижние косточки (5 мест) -->
+                                            <div class="abacus-bead lower {% if abacus_data.hundreds.lower.0 %}active{% endif %}"></div>
+                                            <div class="abacus-bead lower {% if abacus_data.hundreds.lower.1 %}active{% endif %}"></div>
+                                            <div class="abacus-bead lower {% if abacus_data.hundreds.lower.2 %}active{% endif %}"></div>
+                                            <div class="abacus-bead lower {% if abacus_data.hundreds.lower.3 %}active{% endif %}"></div>
+                                            <div class="abacus-bead lower {% if abacus_data.hundreds.lower.4 %}active{% endif %}"></div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Десятки -->
+                                <div class="abacus-column tens">
+                                    <div class="abacus-label">Десятки</div>
+                                    <div class="abacus-rod">
+                                        <!-- Верхние косточки (2 места) -->
+                                        <div class="abacus-bead upper {% if abacus_data.tens.upper.0 %}active{% endif %}"></div>
+                                        <div class="abacus-bead upper {% if abacus_data.tens.upper.1 %}active{% endif %}"></div>
+                                        <!-- Разделитель -->
+                                        <div class="abacus-divider-rod"></div>
+                                        <!-- Нижние косточки (5 мест) -->
+                                        <div class="abacus-bead lower {% if abacus_data.tens.lower.0 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.tens.lower.1 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.tens.lower.2 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.tens.lower.3 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.tens.lower.4 %}active{% endif %}"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Единицы -->
+                                <div class="abacus-column ones">
+                                    <div class="abacus-label">Единицы</div>
+                                    <div class="abacus-rod">
+                                        <!-- Верхние косточки (2 места) -->
+                                        <div class="abacus-bead upper {% if abacus_data.ones.upper.0 %}active{% endif %}"></div>
+                                        <div class="abacus-bead upper {% if abacus_data.ones.upper.1 %}active{% endif %}"></div>
+                                        <!-- Разделитель -->
+                                        <div class="abacus-divider-rod"></div>
+                                        <!-- Нижние косточки (5 мест) -->
+                                        <div class="abacus-bead lower {% if abacus_data.ones.lower.0 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.ones.lower.1 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.ones.lower.2 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.ones.lower.3 %}active{% endif %}"></div>
+                                        <div class="abacus-bead lower {% if abacus_data.ones.lower.4 %}active{% endif %}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <form method="POST" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="mode" value="4">
+                        <button type="submit" class="btn btn-primary">Следующая карточка</button>
+                    </form>
+                </div>
+            </div>
+
+            {% elif mode == 3 %}
+            <!-- Ввод ответов для всех карточек -->
+            <div class="answers-form">
+                <h2>Введите ответы для всех карточек</h2>
+                <p>Вспомните числа, которые вы видели на счетах, и введите их ниже:</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="mode" value="3">
+                    
+                    <div class="answers-grid">
+                        {% for i in total_cards|add:"-1"|add:"1" %}
+                            <div class="answer-item">
+                                <label for="answer_{{ forloop.counter0 }}">Карточка {{ forloop.counter }}:</label>
+                                <input type="number" 
+                                       name="answer_{{ forloop.counter0 }}" 
+                                       id="answer_{{ forloop.counter0 }}" 
+                                       class="answer-input" 
+                                       placeholder="Введите число"
+                                       required>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="game-controls">
+                        <button type="submit" class="btn btn-primary">Проверить ответы</button>
+                    </div>
+                </form>
+            </div>
+
+            {% elif mode == 4 %}
+            <!-- Результаты игры -->
+            <div class="game-results">
+                <div class="results-summary">
+                    <h2>Результаты игры</h2>
+                    <div class="score-display">
+                        Правильно: {{ correct_count }} из {{ total_cards }} ({{ percentage_correct }}%)
+                    </div>
+                    <p>Неправильных ответов: {{ incorrect_count }}</p>
+                </div>
+                
+                <div class="results-list">
+                    {% for answer in answers %}
+                        <div class="result-item {% if answer.correct %}correct{% else %}incorrect{% endif %}">
+                            <span class="result-number">Карточка {{ forloop.counter }}: {{ answer.number }}</span>
+                            <span class="result-answer">Ваш ответ: {{ answer.user_answer }}</span>
+                            <span class="result-status {% if answer.correct %}correct{% else %}incorrect{% endif %}">
+                                {% if answer.correct %}✓{% else %}✗{% endif %}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="game-controls">
+                    <a href="{% url 'flashcards' %}" class="btn btn-primary">Играть снова</a>
+                    <a href="{% url 'index' %}" class="btn btn-secondary">На главную</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    {% if mode == 2 %}
+    // Таймер обратного отсчета
+    let timeLeft = {{ display_time }};
+    const countdownElement = document.getElementById('countdown');
+    
+    const countdown = setInterval(() => {
+        timeLeft--;
+        countdownElement.textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            // Автоматически переходим к следующей карточке
+            document.querySelector('form[method="POST"]').submit();
+        }
+    }, 1000);
+    {% endif %}
+</script>
+{% endblock %}

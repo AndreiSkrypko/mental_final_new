@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    
+    <!-- Мета-теги для фавиконки -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-TileImage" content="/static/favicon.png">
+    
+    <!-- Фавиконка -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+
+    <!-- Подключение Bootstrap для стилизации -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+    <style>
+        /* Основные стили для страницы */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+
+        html {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+
+        /* Фон с полупрозрачностью */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/static/фон.jpg') no-repeat center center;
+            background-size: cover;
+            opacity: 0.08;
+            z-index: -1;
+        }
+
+        /* Современный хедер */
+        .modern-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+            width: 100%;
+            overflow: visible;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: visible;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            overflow: visible;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 6px 0;
+            transition: all 0.3s ease;
+            max-width: 100%;
+            flex-shrink: 1;
+        }
+
+        .logo-section:hover {
+            transform: translateX(5px);
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .logo-icon:hover::before {
+            left: 100%;
+        }
+
+        .logo-icon:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-icon i {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .logo-icon:hover i {
+            transform: scale(1.1);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .logo-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .logo-text:hover h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: translateX(3px);
+        }
+
+        .logo-text p {
+            margin: 3px 0 0 0;
+            font-size: 0.8rem;
+            color: #718096;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .logo-text:hover p {
+            color: #667eea;
+            opacity: 1;
+            transform: translateX(3px);
+        }
+
+        /* Навигация */
+        .nav-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            max-width: auto;
+            overflow: visible;
+            width: auto;
+            box-sizing: border-box;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            justify-content: center;
+            white-space: nowrap;
+            max-width: none;
+            box-sizing: border-box;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .nav-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            text-decoration: none;
+        }
+
+        .nav-button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            min-width: 140px;
+        }
+
+        .nav-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-button.logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.2);
+            min-width: 100px;
+        }
+
+        .nav-button.logout:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Выпадающее меню */
+        .dropdown {
+            position: relative;
+            max-width: 100%;
+            overflow: visible;
+            width: auto;
+        }
+
+        .dropdown-trigger {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            cursor: pointer;
+        }
+
+        .dropdown-trigger:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            min-width: 250px;
+            max-width: calc(100vw - 40px);
+            width: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            box-sizing: border-box;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .dropdown-content a {
+            color: #4a5568;
+            padding: 15px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .dropdown-content a i {
+            width: 16px;
+            color: #667eea;
+        }
+
+        /* Подменю */
+        .dropdown-sub {
+            position: relative;
+            max-width: 100%;
+        }
+
+        .dropdown-submenu {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            margin-left: 5px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            min-width: 250px;
+            max-width: calc(100vw - 40px);
+            width: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            box-sizing: border-box;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .dropdown-sub:hover .dropdown-submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1024px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px 0;
+            }
+
+            .nav-section {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .dropdown-content {
+                left: 50%;
+                transform: translateX(-50%) translateY(-10px);
+                max-width: calc(100vw - 40px);
+            }
+
+            .dropdown-submenu {
+                left: 50%;
+                transform: translateX(-50%) translateX(-10px);
+                max-width: calc(100vw - 40px);
+            }
+
+            .dropdown:hover .dropdown-content {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            .dropdown-sub:hover .dropdown-submenu {
+                transform: translateX(-50%) translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 15px;
+            }
+
+            .logo-text h1 {
+                font-size: 1.3rem;
+            }
+
+            .nav-button {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+
+            .dropdown-content {
+                min-width: 200px;
+                max-width: calc(100vw - 30px);
+                left: 50%;
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            .dropdown-submenu {
+                left: 50%;
+                transform: translateX(-50%) translateX(-10px);
+                max-width: calc(100vw - 30px);
+            }
+
+            .dropdown:hover .dropdown-content {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            .dropdown-sub:hover .dropdown-submenu {
+                transform: translateX(-50%) translateX(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-section {
+                gap: 8px;
+                max-width: auto;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+                border-radius: 10px;
+                flex-shrink: 0;
+            }
+
+            .logo-text h1 {
+                font-size: 1.1rem;
+                max-width: auto;
+                text-align: center;
+            }
+
+            .logo-text p {
+                font-size: 0.7rem;
+                max-width: auto;
+                text-align: center;
+            }
+
+            .header-container {
+                padding: 0 10px;
+                max-width: auto;
+            }
+
+            .nav-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                max-width: auto;
+            }
+
+            .nav-button {
+                width: auto;
+                max-width: 260px;
+                justify-content: center;
+                padding: 8px 14px;
+            }
+
+            .dropdown-content {
+                min-width: 160px;
+                max-width: calc(100vw - 20px);
+                left: 50%;
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            .dropdown-submenu {
+                left: 50%;
+                transform: translateX(-50%) translateX(-10px);
+                max-width: calc(100vw - 20px);
+            }
+
+            .dropdown:hover .dropdown-content {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            .dropdown-sub:hover .dropdown-submenu {
+                transform: translateX(-50%) translateX(0);
+            }
+        }
+
+        /* Анимации */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modern-header {
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        /* Дополнительные эффекты */
+        .nav-button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .dropdown .nav-button {
+            min-width: 100px;
+        }
+
+        /* Общие стили для кнопок */
+        .btn-primary, .btn-secondary, .btn-info, .btn-danger, .btn-success, .btn-warning {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+            border: 2px solid rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: #212529;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+            color: #212529;
+            text-decoration: none;
+        }
+
+        /* Стили для информационных блоков */
+        .info-box {
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(19, 132, 150, 0.1));
+            border: 2px solid rgba(23, 162, 184, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.1);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(253, 126, 20, 0.1));
+            border: 2px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.1);
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
+        }
+
+        /* Стили для карточек */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Стили для форм */
+        .form-control {
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        /* Стили для таблиц */
+        .table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-weight: 600;
+        }
+
+        .table tbody td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        /* Адаптивность для кнопок */
+        @media (max-width: 768px) {
+            .btn-primary, .btn-secondary, .btn-info, .btn-danger, .btn-success, .btn-warning {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 20px;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Стили для основного контента */
+        main {
+            min-height: calc(100vh - 120px);
+            padding-top: 20px;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        main::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Контейнер для контента */
+        .content-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+            width: 100%;
+            overflow-x: hidden;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .content-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Общие стили для предотвращения горизонтального скролла */
+        * {
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+
+        /* Скрытие горизонтального скролла */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Скрытие горизонтального скролла для Firefox */
+        html {
+            scrollbar-width: none;
+        }
+
+        /* Скрытие горизонтального скролла для IE */
+        body {
+            -ms-overflow-style: none;
+        }
+
+        /* Стили для всех контейнеров */
+        .container, .row, .col, [class*="col-"] {
+            max-width: 100%;
+            overflow-x: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* Стили для сообщения об авторизации */
+        .auth-message {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-message p {
+            margin: 0 0 15px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+                 .auth-buttons .btn {
+             min-width: auto;
+             padding: 8px 16px;
+             font-size: 0.85em;
+         }
+         
+         /* Стили для доступных игр */
+         .dropdown-content a.available-game {
+             color: #059669;
+             background: rgba(5, 150, 105, 0.05);
+             border-left: 3px solid #059669;
+         }
+         
+         .dropdown-content a.available-game:hover {
+             background: rgba(5, 150, 105, 0.1);
+             color: #047857;
+         }
+         
+         .dropdown-content a.available-game i {
+             color: #059669;
+         }
+         
+         /* Стили для недоступных игр */
+         .dropdown-content a:not(.available-game) {
+             color: #6b7280;
+             opacity: 0.7;
+         }
+         
+         .dropdown-content a:not(.available-game):hover {
+             background: rgba(107, 114, 128, 0.1);
+             color: #4b5563;
+         }
+         
+         .dropdown-content a:not(.available-game) i {
+             color: #6b7280;
+         }
+    </style>
+    {% block mycss %}{% endblock %}
+    
+         <script>
+         // Скрипт для выпадающего меню и определения доступных игр
+         document.addEventListener('DOMContentLoaded', function() {
+             console.log('Page loaded');
+             
+             const dropdown = document.querySelector('.dropdown');
+             const dropdownContent = document.querySelector('.dropdown-content');
+             const dropdownSub = document.querySelector('.dropdown-sub');
+             const dropdownSubmenu = document.querySelector('.dropdown-submenu');
+             
+                           // Определяем доступные игры
+              function markAvailableGames() {
+                  const gameLinks = dropdownContent.querySelectorAll('a[href]');
+                  
+                  // Получаем список доступных игр из Django контекста
+                  const availableGames = {{ available_games_list|safe }};
+                  
+                  gameLinks.forEach(link => {
+                      const href = link.getAttribute('href');
+                      
+                      // Игра "Просто" всегда доступна
+                      if (href === '/simply/1/') {
+                          link.classList.add('available-game');
+                          return;
+                      }
+                      
+                      // Проверяем, доступна ли игра
+                      let isAvailable = false;
+                      
+                      // Проверяем по URL
+                      if (href === '/flashcards/') {
+                          isAvailable = availableGames.includes('flashcards');
+                      } else if (href === '/multiplication_choose/1/') {
+                          isAvailable = availableGames.includes('multiplication_choose');
+                      } else if (href === '/multiplication_to_20/1/') {
+                          isAvailable = availableGames.includes('multiplication_to_20');
+                      } else if (href === '/square/1/') {
+                          isAvailable = availableGames.includes('square');
+                      } else if (href === '/tricks/1/') {
+                          isAvailable = availableGames.includes('tricks');
+                      } else if (href === '/multiplication_base/1/') {
+                          isAvailable = availableGames.includes('multiplication_base');
+                      }
+                      
+                      if (isAvailable) {
+                          link.classList.add('available-game');
+                      } else {
+                          link.classList.remove('available-game');
+                      }
+                  });
+              }
+             
+             // Добавляем классы для определения типа пользователя
+             {% if user.is_authenticated and user.teacher_profile and user.teacher_profile.status == 'approved' %}
+                 document.body.classList.add('teacher-authenticated');
+             {% elif request.session.student_id %}
+                 document.body.classList.add('student-authenticated');
+             {% endif %}
+             
+             console.log('Dropdown elements:', {
+                 dropdown: !!dropdown,
+                 dropdownContent: !!dropdownContent,
+                 dropdownSub: !!dropdownSub,
+                 dropdownSubmenu: !!dropdownSubmenu
+             });
+             
+             if (dropdown) {
+                 console.log('Dropdown found, adding event listeners');
+                 
+                 // Добавляем обработчики событий
+                 dropdown.addEventListener('mouseenter', function() {
+                     console.log('Mouse entered dropdown');
+                     if (dropdownContent) {
+                         dropdownContent.style.opacity = '1';
+                         dropdownContent.style.visibility = 'visible';
+                         dropdownContent.style.transform = 'translateY(0)';
+                         
+                         // Отмечаем доступные игры при открытии меню
+                         markAvailableGames();
+                     }
+                 });
+                 
+                 dropdown.addEventListener('mouseleave', function() {
+                     console.log('Mouse left dropdown');
+                     if (dropdownContent) {
+                         dropdownContent.style.opacity = '0';
+                         dropdownContent.style.visibility = 'hidden';
+                         dropdownContent.style.transform = 'translateY(-10px)';
+                     }
+                 });
+             }
+             
+             if (dropdownSub) {
+                 console.log('Dropdown sub found, adding event listeners');
+                 
+                 dropdownSub.addEventListener('mouseenter', function() {
+                     console.log('Mouse entered submenu');
+                     if (dropdownSubmenu) {
+                         dropdownSubmenu.style.opacity = '1';
+                         dropdownSubmenu.style.visibility = 'visible';
+                         dropdownSubmenu.style.transform = 'translateX(0)';
+                     }
+                 });
+                 
+                 dropdownSub.addEventListener('mouseleave', function() {
+                     console.log('Mouse left submenu');
+                     if (dropdownSubmenu) {
+                         dropdownSubmenu.style.opacity = '0';
+                         dropdownSubmenu.style.visibility = 'hidden';
+                         dropdownSubmenu.style.transform = 'translateX(-10px)';
+                     }
+                 });
+             }
+             
+                           // Отмечаем доступные игры при загрузке страницы
+              markAvailableGames();
+              
+              // Также отмечаем доступные игры в подменю
+              if (dropdownSubmenu) {
+                  const submenuLinks = dropdownSubmenu.querySelectorAll('a[href]');
+                  const availableGames = {{ available_games_list|safe }};
+                  
+                  submenuLinks.forEach(link => {
+                      const href = link.getAttribute('href');
+                      
+                      let isAvailable = false;
+                      
+                      if (href === '/multiplication_choose/1/') {
+                          isAvailable = availableGames.includes('multiplication_choose');
+                      } else if (href === '/multiplication_to_20/1/') {
+                          isAvailable = availableGames.includes('multiplication_to_20');
+                      } else if (href === '/square/1/') {
+                          isAvailable = availableGames.includes('square');
+                      } else if (href === '/tricks/1/') {
+                          isAvailable = availableGames.includes('tricks');
+                      } else if (href === '/multiplication_base/1/') {
+                          isAvailable = availableGames.includes('multiplication_base');
+                      }
+                      
+                      if (isAvailable) {
+                          link.classList.add('available-game');
+                      } else {
+                          link.classList.remove('available-game');
+                      }
+                  });
+              }
+         });
+     </script>
+</head>
+<body>
+
+<!-- Современный хедер -->
+<header class="modern-header">
+    <div class="header-container">
+        <div class="header-content">
+            <!-- Логотип и название -->
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Ментальная арифметика</h1>
+                    <p>Развитие интеллекта и памяти</p>
+                </div>
+            </div>
+
+            <!-- Навигация -->
+            <div class="nav-section">
+                <!-- Основные ссылки -->
+                <a href="/" class="nav-button">
+                    <i class="fas fa-home"></i>
+                    Главная
+                </a>
+                
+                                 {% if user.is_authenticated %}
+                     {% if user.teacher_profile and user.teacher_profile.status == 'approved' %}
+                         <!-- Навигация для авторизованных учителей -->
+                         <a href="{% url 'teacher_dashboard' %}" class="nav-button">
+                             <i class="fas fa-chalkboard-teacher"></i>
+                             Панель учителя
+                         </a>
+                         <a href="{% url 'class_list' %}" class="nav-button">
+                             <i class="fas fa-users"></i>
+                             Мои классы
+                         </a>
+                         <a href="{% url 'students_list' %}" class="nav-button">
+                             <i class="fas fa-user-graduate"></i>
+                             Мои ученики
+                         </a>
+                         <a href="{% url 'teacher_logout' %}" class="nav-button logout">
+                             <i class="fas fa-sign-out-alt"></i>
+                             Выйти
+                         </a>
+                     {% else %}
+                         <!-- Навигация для учителей с неутвержденным статусом -->
+                         <a href="{% url 'teacher_logout' %}" class="nav-button logout">
+                             <i class="fas fa-sign-out-alt"></i>
+                             Выйти
+                         </a>
+                     {% endif %}
+                 {% elif request.session.student_id %}
+                     <!-- Навигация для авторизованных учеников -->
+                     <a href="{% url 'student_dashboard' %}" class="nav-button">
+                         <i class="fas fa-graduation-cap"></i>
+                         Панель ученика
+                     </a>
+                     <a href="{% url 'student_logout' %}" class="nav-button logout">
+                         <i class="fas fa-sign-out-alt"></i>
+                         Выйти
+                     </a>
+                 {% else %}
+                     <!-- Навигация для неавторизованных пользователей -->
+                     <a href="{% url 'teacher_register' %}" class="nav-button primary">
+                         <i class="fas fa-user-plus"></i>
+                         Регистрация учителя
+                     </a>
+                     <a href="{% url 'teacher_login' %}" class="nav-button">
+                         <i class="fas fa-sign-in-alt"></i>
+                         Вход для учителя
+                     </a>
+                     <a href="{% url 'student_login' %}" class="nav-button">
+                         <i class="fas fa-graduation-cap"></i>
+                         Вход для ученика
+                     </a>
+                 {% endif %}
+                
+                <!-- Главное меню "Игры" -->
+                <div class="dropdown">
+                    <button class="nav-button dropdown-trigger">
+                        <i class="fas fa-gamepad"></i>
+                        Игры
+                        <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <!-- Подменю "Умножение" -->
+                        <div class="dropdown-sub">
+                            <a href="#">
+                                <i class="fas fa-times"></i>
+                                Умножение
+                                <i class="fas fa-chevron-right" style="margin-left: auto;"></i>
+                            </a>
+                            <div class="dropdown-submenu">
+                                <a href="/multiplication_choose/1/">
+                                    <i class="fas fa-calculator"></i>
+                                    Умножение
+                                </a>
+                                <a href="/multiplication_to_20/1/">
+                                    <i class="fas fa-sort-numeric-up"></i>
+                                    Умножение до 20
+                                </a>
+                                <a href="/square/1/">
+                                    <i class="fas fa-square"></i>
+                                    Возведение в квадрат
+                                </a>
+                                <a href="/tricks/1/">
+                                    <i class="fas fa-magic"></i>
+                                    Хитрости
+                                </a>
+                                <a href="/multiplication_base/1/">
+                                    <i class="fas fa-layer-group"></i>
+                                    Умножение от базы
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Остальные ссылки -->
+                        <!-- Игра "Просто" - доступна всем -->
+                        <a href="/simply/1/">
+                            <i class="fas fa-plus"></i>
+                            Просто
+                        </a>
+                        
+                        <!-- Все игры видны, но требуют авторизации (кроме "Просто") -->
+                        <a href="main_multiplication">
+                            <i class="fas fa-table"></i>
+                            Таблица умножения
+                        </a>
+                        <a href="/multiplication_choose/1/">
+                            <i class="fas fa-calculator"></i>
+                            Умножение
+                        </a>
+                        <a href="/square/1/">
+                            <i class="fas fa-square"></i>
+                            Квадраты
+                        </a>
+                        <a href="/tricks/1/">
+                            <i class="fas fa-magic"></i>
+                            Трюки
+                        </a>
+                        <a href="/flashcards/">
+                            <i class="fas fa-credit-card"></i>
+                            Флэшкарты
+                        </a>
+                        
+                        <!-- Для неавторизованных пользователей -->
+                        {% if not user.is_authenticated and not request.session.student_id %}
+                            <div class="auth-message">
+                                <p>Для доступа к играм пожалуйста авторизуйтесь</p>
+                                <div class="auth-buttons">
+                                    <a href="{% url 'teacher_login' %}" class="btn btn-primary">Войти как учитель</a>
+                                    <a href="{% url 'student_login' %}" class="btn btn-secondary">Войти как ученик</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Основной контент -->
+<main>
+    <div class="content-container">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+</body>
+</html>

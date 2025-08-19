@@ -1,0 +1,583 @@
+{% extends 'base.html' %}
+
+{% block title %}Кабинет ученика{% endblock %}
+
+{% block mycss %}
+<style>
+    .dashboard-container {
+        min-height: calc(100vh - 120px);
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 50px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .welcome-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 15px;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .welcome-subtitle {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .student-info {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 2;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 25px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .info-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .info-item:hover::before {
+        left: 100%;
+    }
+
+    .info-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .info-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.9;
+    }
+
+    .info-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+
+    .homework-section {
+        margin-bottom: 50px;
+        position: relative;
+        z-index: 2;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: white;
+        text-align: center;
+        margin-bottom: 35px;
+        position: relative;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #ffd700, #ffed4e);
+        border-radius: 2px;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+    }
+
+    .homework-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .homework-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+        transition: left 0.6s;
+    }
+
+    .homework-card:hover::before {
+        left: 100%;
+    }
+
+    .homework-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 35px 100px rgba(255, 215, 0, 0.3);
+    }
+
+    .homework-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        color: #2d3748;
+        font-size: 40px;
+        box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .homework-card:hover .homework-icon {
+        transform: rotate(5deg) scale(1.1);
+        box-shadow: 0 20px 50px rgba(255, 215, 0, 0.6);
+    }
+
+    .homework-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+    }
+
+    .homework-description {
+        color: #4a5568;
+        line-height: 1.7;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+    }
+
+    .homework-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #2d3748;
+        text-decoration: none;
+        border-radius: 15px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .homework-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 50px rgba(255, 215, 0, 0.5);
+        text-decoration: none;
+        color: #2d3748;
+    }
+
+    .games-section {
+        margin-bottom: 50px;
+        position: relative;
+        z-index: 2;
+        animation: fadeInUp 0.8s ease-out 0.8s both;
+    }
+
+    .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .game-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        padding: 35px 30px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+        transition: left 0.6s;
+    }
+
+    .game-card:hover::before {
+        left: 100%;
+    }
+
+    .game-card:hover {
+        transform: translateY(-15px) scale(1.03);
+        box-shadow: 0 30px 80px rgba(102, 126, 234, 0.25);
+    }
+
+    .game-icon {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        color: white;
+        font-size: 36px;
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .game-card:hover .game-icon {
+        transform: scale(1.1) rotate(5deg);
+        color: #667eea;
+    }
+
+    .game-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 18px;
+    }
+
+    .game-description {
+        color: #4a5568;
+        line-height: 1.6;
+        margin-bottom: 28px;
+        font-size: 1rem;
+    }
+
+    .game-btn {
+        display: inline-block;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 15px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .game-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+        text-decoration: none;
+        color: white;
+    }
+
+    .logout-section {
+        text-align: center;
+        margin-top: 60px;
+        position: relative;
+        z-index: 2;
+        animation: fadeInUp 0.8s ease-out 1s both;
+    }
+
+    .logout-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 36px;
+        background: rgba(245, 101, 101, 0.1);
+        color: #c53030;
+        text-decoration: none;
+        border-radius: 18px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(245, 101, 101, 0.3);
+        backdrop-filter: blur(20px);
+    }
+
+    .logout-btn:hover {
+        background: #c53030;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-3px);
+        box-shadow: 0 20px 50px rgba(197, 48, 48, 0.4);
+    }
+
+    .no-games-message {
+        text-align: center;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        grid-column: 1 / -1;
+    }
+
+    .no-games-message p {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 10px 0;
+        font-size: 1.1rem;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .floating-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .floating-element {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+        top: 60%;
+        right: 15%;
+        animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 30px 15px;
+        }
+
+        .welcome-title {
+            font-size: 2.2rem;
+        }
+
+        .games-grid {
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .game-card {
+            padding: 30px 25px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .homework-card {
+            padding: 30px 25px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .welcome-title {
+            font-size: 1.8rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+
+        .game-icon, .homework-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 28px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Плавающие элементы для фона -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <!-- Заголовок -->
+    <div class="dashboard-header">
+        <h1 class="welcome-title">Добро пожаловать, {{ student_name }}!</h1>
+        <p class="welcome-subtitle">Выберите игру для тренировки ментальной арифметики</p>
+    </div>
+
+    <!-- Информация об ученике -->
+    <div class="student-info">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Имя</div>
+                <div class="info-value">{{ student.name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Фамилия</div>
+                <div class="info-value">{{ student.surname }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Возраст</div>
+                <div class="info-value">{{ student.age }} лет</div>
+            </div>
+            {% if student.student_class %}
+            <div class="info-item">
+                <div class="info-label">Класс</div>
+                <div class="info-value">{{ student.student_class.name }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Секция домашних заданий -->
+    <div class="games-section">
+        <h2 class="section-title">Домашние задания</h2>
+        <div class="text-center mb-4">
+            <a href="{% url 'student_homework_list' %}" class="game-btn" style="text-decoration: none;">
+                <i class="fas fa-book"></i>
+                Просмотреть домашние задания
+            </a>
+        </div>
+    </div>
+
+    <!-- Секция табеля посещений -->
+    <div class="games-section">
+        <h2 class="section-title">📊 Табель посещений</h2>
+        <div class="text-center mb-4">
+            <a href="{% url 'student_attendance_list' %}" class="game-btn" style="text-decoration: none;">
+                <i class="fas fa-clipboard-check"></i>
+                Посмотреть посещения и оплату
+            </a>
+        </div>
+    </div>
+
+    <!-- Секция игр -->
+    <div class="games-section">
+        <h2 class="section-title">🎮 Доступные игры</h2>
+        <div class="games-grid">
+            {% for game in available_games %}
+            <div class="game-card">
+                <div class="game-icon">
+                    <i class="{{ game.icon }}"></i>
+                </div>
+                <h3 class="game-title">{{ game.title }}</h3>
+                <p class="game-description">
+                    {{ game.description }}
+                </p>
+                {% if game.url == 'flashcards' %}
+                    <a href="{% url 'flashcards' %}" class="game-btn">Начать игру</a>
+                {% else %}
+                    <a href="{% url game.url 1 %}" class="game-btn">Начать игру</a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="no-games-message">
+                <p>Учитель пока не настроил доступ к играм для вашего класса.</p>
+                <p>Игра "Просто" доступна всегда!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Кнопка выхода -->
+    <div class="logout-section">
+        <a href="{% url 'student_logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            Выйти из системы
+        </a>
+    </div>
+</div>
+{% endblock %}

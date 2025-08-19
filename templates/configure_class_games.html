@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Настройка игр для класса {{ class_obj.name }}{% endblock %}
+
+{% block mycss %}
+<style>
+    .game-config-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .game-config-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .game-config-header h1 {
+        margin: 0;
+        font-size: 2em;
+        font-weight: 300;
+    }
+    
+    .game-config-header p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1em;
+    }
+    
+    .game-list {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .game-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .game-item:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+    
+    .game-info {
+        flex: 1;
+    }
+    
+    .game-name {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .game-description {
+        color: #666;
+        font-size: 0.9em;
+    }
+    
+    .game-toggle {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        background: #ccc;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .toggle-switch.active {
+        background: #4CAF50;
+    }
+    
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+    }
+    
+    .toggle-switch.active::after {
+        transform: translateX(30px);
+    }
+    
+    .save-button {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+    
+    .save-button:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+    }
+    
+    .back-button {
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin-top: 20px;
+    }
+    
+    .back-button:hover {
+        background: #5a6fd8;
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .button-group {
+        text-align: center;
+        margin-top: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="game-config-container">
+    <div class="game-config-header">
+        <h1>Настройка игр для класса</h1>
+        <p>{{ class_obj.name }} - {{ class_obj.teacher.user.get_full_name }}</p>
+    </div>
+    
+    <div class="game-list">
+        <h2>Доступные игры</h2>
+        <p>Выберите игры, которые будут доступны ученикам вашего класса:</p>
+        
+        <form method="POST" id="gameConfigForm">
+            {% csrf_token %}
+            
+            {% for game_code, game_name in available_games %}
+            <div class="game-item">
+                <div class="game-info">
+                    <div class="game-name">{{ game_name }}</div>
+                    <div class="game-description">
+                        {% if game_code == 'multiplication_choose' %}
+                            Тренировка умножения с выбором сложности
+                        {% elif game_code == 'square' %}
+                            Возведение чисел в квадрат
+                        {% elif game_code == 'tricks' %}
+                            Математические трюки и хитрости
+                        {% elif game_code == 'flashcards' %}
+                            Флэшкарты со счетами (абакус)
+                        {% elif game_code == 'multiplication_base' %}
+                            Умножение от базовых чисел
+                        {% elif game_code == 'multiplication_to_20' %}
+                            Умножение чисел до 20
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="game-toggle">
+                    <input type="hidden" name="game" value="{{ game_code }}">
+                    <input type="checkbox" 
+                           name="is_enabled" 
+                           id="game_{{ game_code }}"
+                           {% if current_access|get_item:game_code %}checked{% endif %}
+                           onchange="updateToggle(this)">
+                    <label for="game_{{ game_code }}" class="toggle-switch {% if current_access|get_item:game_code %}active{% endif %}"></label>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="button-group">
+                <button type="submit" class="save-button">
+                    <i class="fas fa-save"></i> Сохранить настройки
+                </button>
+                <a href="{% url 'class_list' %}" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Назад к классам
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function updateToggle(checkbox) {
+    const toggleSwitch = checkbox.nextElementSibling;
+    if (checkbox.checked) {
+        toggleSwitch.classList.add('active');
+    } else {
+        toggleSwitch.classList.remove('active');
+    }
+}
+
+// Обработка отправки формы
+document.getElementById('gameConfigForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Собираем все чекбоксы
+    const checkboxes = document.querySelectorAll('input[name="is_enabled"]');
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    // Добавляем все игры и их состояния
+    checkboxes.forEach((checkbox, index) => {
+        const gameCode = checkbox.closest('.game-item').querySelector('input[name="game"]').value;
+        formData.append('games', gameCode);
+        formData.append('enabled', checkbox.checked ? 'true' : 'false');
+    });
+    
+    // Отправляем все изменения сразу
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.text())
+    .then(data => {
+        // Показываем уведомление об успехе
+        alert('Настройки сохранены!');
+        // Перезагружаем страницу для обновления состояния
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при сохранении');
+    });
+});
+</script>
+{% endblock %}

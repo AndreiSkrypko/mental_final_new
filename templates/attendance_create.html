@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Добавление занятия{% endblock %}
+
+{% block mycss %}
+<style>
+    .attendance-create-container {
+        min-height: calc(100vh - 120px);
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+    }
+
+    .attendance-create-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .attendance-create-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: white;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        background: linear-gradient(45deg, #fff, #f0f8ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        animation: fadeInUp 0.8s ease-out 0.1s both;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 8px;
+        display: block;
+        line-height: 1.4;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 150px;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border: 1px solid #2196f3;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        color: #1565c0;
+    }
+
+    .info-box h4 {
+        margin: 0 0 10px 0;
+        color: #0d47a1;
+        font-size: 1.1rem;
+    }
+
+    .info-box p {
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .attendance-create-container {
+            padding: 15px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="attendance-create-container">
+    <div class="attendance-create-content">
+        <!-- Заголовок страницы -->
+        <div class="page-header">
+            <h1 class="page-title">📅 Добавление занятия</h1>
+            <p class="page-subtitle">Класс "{{ class_obj.name }}" - {{ class_obj.academic_year }}</p>
+        </div>
+
+        <!-- Форма создания занятия -->
+        <div class="form-card">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Информационный блок -->
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> Информация</h4>
+                    <p>Выберите дату для создания нового занятия. Для каждого ученика в классе будет создана запись посещения с неотмеченными полями присутствия и оплаты.</p>
+                </div>
+
+                <!-- Скрытое поле типа создания -->
+                <input type="hidden" name="creation_type" value="single">
+
+                <!-- Поле даты -->
+                <div class="form-group">
+                    <label for="new_date">
+                        <i class="fas fa-calendar"></i> Дата занятия:
+                    </label>
+                    <input type="date" id="new_date" name="new_date" required>
+                    <small class="form-text">Выберите дату проведения занятия</small>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Добавить занятие
+                    </button>
+                    
+                    <a href="{% url 'attendance_list' class_obj.id %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад к табелю
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Устанавливаем текущую дату по умолчанию
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('new_date');
+    
+    if (dateInput) {
+        dateInput.value = today;
+    }
+    
+    // Обработка отправки формы
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const dateInput = document.getElementById('new_date');
+        
+        if (!dateInput.value) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите дату занятия');
+            return;
+        }
+        
+        // Показываем индикатор загрузки
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание...';
+        submitBtn.disabled = true;
+        
+        // Восстанавливаем кнопку через 3 секунды (на случай ошибки)
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,761 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование расписания - {{ monthly_schedule }}{% endblock %}
+
+{% block mycss %}
+<style>
+    .monthly-schedule-edit-container {
+        min-height: calc(100vh - 120px);
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .monthly-schedule-edit-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .floating-element {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+        top: 20%;
+        right: 15%;
+        animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .monthly-schedule-edit-content {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: white;
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .page-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    .schedule-info-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        text-align: center;
+    }
+
+    .schedule-info-card h3 {
+        color: #333;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .schedule-title {
+        font-size: 1.5rem;
+        color: #667eea;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .schedule-details {
+        font-size: 1.2rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .stats-summary {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .stats-summary h4 {
+        color: #333;
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .attendance-form-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .section-title {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .student-row {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .student-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: #667eea;
+    }
+
+    .student-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .student-info {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .student-name {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .student-details {
+        font-size: 1rem;
+        color: #666;
+        line-height: 1.4;
+    }
+
+    .attendance-controls {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+    }
+
+    .control-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        text-align: center;
+    }
+
+    .attendance-checkbox, .payment-checkbox, .carryover-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #667eea;
+    }
+
+    .attendance-checkbox:checked {
+        accent-color: #4CAF50;
+    }
+
+    .payment-checkbox:checked {
+        accent-color: #FF9800;
+    }
+
+    .carryover-checkbox:checked {
+        accent-color: #9C27B0;
+    }
+
+    .notes-field {
+        margin-top: 20px;
+    }
+
+    .notes-field textarea {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 80px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .notes-field textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .save-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: white;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: white;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .back-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .no-students {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .no-students-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .no-students h3 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .no-students p {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+        opacity: 0.8;
+    }
+
+    /* Styles for the new table structure */
+    .attendance-table-container {
+        overflow-x: auto;
+        margin-bottom: 30px;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        background-color: #f9f9f9;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .attendance-table th, .attendance-table td {
+        padding: 15px 20px;
+        text-align: center;
+        border: 1px solid #e0e0e0;
+    }
+
+    .attendance-table th {
+        background-color: #f0f0f0;
+        font-weight: 600;
+        color: #333;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .attendance-table .student-column {
+        width: 300px; /* Adjust as needed */
+        text-align: left;
+        padding-left: 30px;
+    }
+
+    .attendance-table .date-column {
+        width: 120px; /* Adjust as needed */
+    }
+
+    .date-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .date-day {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .date-month {
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .date-weekday {
+        font-size: 0.7rem;
+        color: #888;
+        text-transform: uppercase;
+    }
+
+    .attendance-table .attendance-cell {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        transition: background-color 0.3s ease;
+    }
+
+    .attendance-table .attendance-cell:hover {
+        background-color: #f5f5f5;
+    }
+
+    .attendance-table .attendance-cell .attendance-controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .attendance-table .attendance-cell .control-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .attendance-table .attendance-cell .control-label {
+        font-size: 0.8rem;
+        color: #555;
+    }
+
+    .attendance-table .attendance-cell .notes-field {
+        margin-top: 0; /* Remove margin-top from notes-field */
+    }
+
+    .attendance-table .attendance-cell .notes-field textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        resize: vertical;
+        min-height: 60px;
+        background: #f0f0f0;
+    }
+
+    .attendance-table .attendance-cell .notes-field textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .monthly-schedule-edit-container {
+            padding: 20px 10px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .student-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .attendance-controls {
+            justify-content: center;
+            width: 100%;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .save-btn, .back-btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+
+        .attendance-table {
+            font-size: 0.9rem;
+        }
+
+        .attendance-table th, .attendance-table td {
+            padding: 10px 15px;
+        }
+
+        .attendance-table .student-column {
+            padding-left: 20px;
+        }
+
+        .attendance-table .attendance-cell .attendance-controls {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attendance-table .attendance-cell .control-group {
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .attendance-table .attendance-cell .control-label {
+            font-size: 0.7rem;
+        }
+
+        .attendance-table .attendance-cell .notes-field textarea {
+            padding: 5px;
+            font-size: 0.8rem;
+            min-height: 50px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="monthly-schedule-edit-container">
+    <!-- Плавающие элементы -->
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+
+    <div class="monthly-schedule-edit-content">
+        <!-- Заголовок страницы -->
+        <div class="page-header">
+            <h1 class="page-title">📝 Редактирование расписания</h1>
+            <p class="page-subtitle">{{ monthly_schedule }}</p>
+        </div>
+
+        <!-- Информация о расписании -->
+        <div class="schedule-info-card">
+            <h3>📅 Месячное расписание</h3>
+            <div class="schedule-title">
+                <i class="fas fa-calendar-alt"></i>
+                {{ monthly_schedule }}
+            </div>
+            <div class="schedule-details">
+                <i class="fas fa-users"></i>
+                {{ students.count }} учеников
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats-summary">
+            <h4>📊 Статистика</h4>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-lessons">{{ monthly_schedule.get_unique_lesson_dates_count }}</div>
+                    <div class="stat-label">Всего занятий</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="present-count">0</div>
+                    <div class="stat-label">Присутствуют</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="absent-count">0</div>
+                    <div class="stat-label">Отсутствуют</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="paid-count">0</div>
+                    <div class="stat-label">Оплачено</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="carryover-count">0</div>
+                    <div class="stat-label">Перенесено</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Форма заполнения -->
+        <div class="attendance-form-section">
+            <h2 class="section-title">👥 Табель посещаемости класса "{{ class_obj.name }}"</h2>
+
+            {% if students %}
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Таблица посещаемости -->
+                    <div class="attendance-table-container">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th class="student-column">Ученик</th>
+                                    {% for date in lesson_dates %}
+                                        <th class="date-column">
+                                            <div class="date-header">
+                                                <div class="date-day">{{ date|date:"d" }}</div>
+                                                <div class="date-month">{{ date|date:"M" }}</div>
+                                                <div class="date-weekday">{{ date|date:"D" }}</div>
+                                            </div>
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                    <tr class="student-row">
+                                        <td class="student-info-cell">
+                                            <div class="student-name">{{ student.surname }} {{ student.name }}</div>
+                                            {% if student.parent_first_name or student.parent_last_name %}
+                                                <div class="student-parents">
+                                                    {{ student.parent_last_name }} {{ student.parent_first_name }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        {% for date in lesson_dates %}
+                                            {% for s, d, attendance, form in attendance_forms %}
+                                                {% if s.id == student.id and d == date %}
+                                                    <td class="attendance-cell">
+                                                        <div class="attendance-controls">
+                                                            <div class="control-group">
+                                                                <label class="control-label">Присутствие</label>
+                                                                {{ form.is_present }}
+                                                            </div>
+                                                            
+                                                            <div class="control-group">
+                                                                <label class="control-label">Оплата</label>
+                                                                {{ form.is_paid }}
+                                                            </div>
+
+                                                            <div class="control-group">
+                                                                <label class="control-label">Перенести</label>
+                                                                {{ form.payment_carried_over }}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="notes-field">
+                                                            {{ form.notes }}
+                                                        </div>
+                                                    </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="save-btn">
+                            <i class="fas fa-save"></i>
+                            Сохранить табель
+                        </button>
+                        <a href="{% url 'monthly_schedule_list' class_obj.id %}" class="back-btn">
+                            <i class="fas fa-arrow-left"></i>
+                            Назад к списку
+                        </a>
+                    </div>
+                </form>
+            {% else %}
+                <div class="no-students">
+                    <div class="no-students-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>В классе нет учеников</h3>
+                    <p>Добавьте учеников в класс, чтобы вести табель посещений.</p>
+                    <a href="{% url 'class_list' %}" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Вернуться к классам
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateStats() {
+        const totalLessons = {{ monthly_schedule.get_unique_lesson_dates_count }};
+        const totalStudents = {{ students.count }};
+        let presentCount = 0;
+        let absentCount = 0;
+        let paidCount = 0;
+        let carryoverCount = 0;
+        
+        // Подсчитываем статистику по ученикам
+        const studentAttendanceMap = new Map();
+        const studentPaymentMap = new Map();
+        const studentCarryoverMap = new Map();
+        
+        // Проходим по всем ячейкам посещаемости
+        document.querySelectorAll('.attendance-cell').forEach((cell) => {
+            const studentRow = cell.closest('.student-row');
+            const studentName = studentRow.querySelector('.student-name').textContent.trim();
+            
+            // Проверяем чекбокс присутствия
+            const attendanceCheckbox = cell.querySelector('input[name*="is_present"]');
+            if (attendanceCheckbox && attendanceCheckbox.checked) {
+                studentAttendanceMap.set(studentName, true);
+            }
+            
+            // Проверяем чекбокс оплаты
+            const paymentCheckbox = cell.querySelector('input[name*="is_paid"]');
+            if (paymentCheckbox && paymentCheckbox.checked) {
+                studentPaymentMap.set(studentName, true);
+            }
+            
+            // Проверяем чекбокс переноса
+            const carryoverCheckbox = cell.querySelector('input[name*="payment_carried_over"]');
+            if (carryoverCheckbox && carryoverCheckbox.checked) {
+                studentCarryoverMap.set(studentName, true);
+            }
+        });
+        
+        // Обновляем отображение
+        document.getElementById('present-count').textContent = studentAttendanceMap.size;
+        document.getElementById('absent-count').textContent = totalStudents - studentAttendanceMap.size;
+        document.getElementById('paid-count').textContent = studentPaymentMap.size;
+        document.getElementById('carryover-count').textContent = studentCarryoverMap.size;
+    }
+    
+    // Обновляем статистику при изменении чекбоксов
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateStats);
+        });
+        
+        // Инициализируем статистику
+        updateStats();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,489 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Табель посещений - {{ student.name }} {{ student.surname }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Заголовок -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fas fa-calendar-check"></i>
+                    Табель посещений
+                </h1>
+                <div class="student-info">
+                    <strong>{{ student.name }} {{ student.surname }}</strong>
+                    <span class="class-name">{{ class_obj.name }}</span>
+                </div>
+            </div>
+
+            <!-- Информация об оплате -->
+            {% if payment_info %}
+            <div class="payment-summary">
+                <h2 class="section-title">💰 Информация об оплате</h2>
+                <div class="payment-grid">
+                    <div class="payment-card">
+                        <div class="payment-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Всего занятий в текущем месяце</div>
+                            <div class="payment-value">{{ payment_info.total_lessons }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-card">
+                        <div class="payment-icon present">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Посетил занятий</div>
+                            <div class="payment-value">{{ payment_info.attended_lessons }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-card">
+                        <div class="payment-icon paid">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Оплачено занятий</div>
+                            <div class="payment-value">{{ payment_info.paid_lessons }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if payment_info.monthly_fee > 0 %}
+                    <div class="payment-card">
+                        <div class="payment-icon monthly">
+                            <i class="fas fa-calendar-month"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Месячная оплата</div>
+                            <div class="payment-value">{{ payment_info.monthly_fee }} ₽</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="payment-card">
+                        <div class="payment-icon lesson">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Цена за занятие</div>
+                            <div class="payment-value">{{ payment_info.payment_day }} ₽</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Табель посещений -->
+            <div class="attendance-table-section">
+                <h2 class="section-title">📊 Табель посещений по месяцам</h2>
+                
+                {% if attendance_table %}
+                    {% for month_key, month_data in attendance_table.items %}
+                    <div class="month-table">
+                        <div class="month-header">
+                            <h3>
+                                {% if month_data.month == 1 %}Январь
+                                {% elif month_data.month == 2 %}Февраль
+                                {% elif month_data.month == 3 %}Март
+                                {% elif month_data.month == 4 %}Апрель
+                                {% elif month_data.month == 5 %}Май
+                                {% elif month_data.month == 6 %}Июнь
+                                {% elif month_data.month == 7 %}Июль
+                                {% elif month_data.month == 8 %}Август
+                                {% elif month_data.month == 9 %}Сентябрь
+                                {% elif month_data.month == 10 %}Октябрь
+                                {% elif month_data.month == 11 %}Ноябрь
+                                {% elif month_data.month == 12 %}Декабрь
+                                {% endif %}
+                                {{ month_data.year }}
+                            </h3>
+                            <div class="month-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-calendar"></i>
+                                    Всего: {{ month_data.total_lessons }}
+                                </span>
+                                <span class="stat-item present">
+                                    <i class="fas fa-user-check"></i>
+                                    Посетил: {{ month_data.attended_lessons }}
+                                </span>
+                                <span class="stat-item paid">
+                                    <i class="fas fa-credit-card"></i>
+                                    Оплачено: {{ month_data.paid_lessons }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="attendance-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>День недели</th>
+                                        <th>Посещение</th>
+                                        <th>Оплата</th>
+                                        <th>Перенос</th>
+                                        <th>Примечания</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attendance in month_data.attendances %}
+                                    <tr class="{% if attendance.is_present %}row-present{% else %}row-absent{% endif %}">
+                                        <td class="date-cell">
+                                            {{ attendance.date|date:"d.m.Y" }}
+                                        </td>
+                                        <td class="weekday-cell">
+                                            {% if attendance.date|date:"l" == "Monday" %}Пн
+                                            {% elif attendance.date|date:"l" == "Tuesday" %}Вт
+                                            {% elif attendance.date|date:"l" == "Wednesday" %}Ср
+                                            {% elif attendance.date|date:"l" == "Thursday" %}Чт
+                                            {% elif attendance.date|date:"l" == "Friday" %}Пт
+                                            {% elif attendance.date|date:"l" == "Saturday" %}Сб
+                                            {% elif attendance.date|date:"l" == "Sunday" %}Вс
+                                            {% else %}{{ attendance.date|date:"l" }}{% endif %}
+                                        </td>
+                                        <td class="attendance-cell">
+                                            {% if attendance.is_present %}
+                                                <span class="status-badge present">
+                                                    <i class="fas fa-check"></i>
+                                                    Присутствовал
+                                                </span>
+                                            {% else %}
+                                                <span class="status-badge absent">
+                                                    <i class="fas fa-times"></i>
+                                                    Отсутствовал
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="payment-cell">
+                                            {% if attendance.is_paid %}
+                                                <span class="status-badge paid">
+                                                    <i class="fas fa-credit-card"></i>
+                                                    Оплачено
+                                                </span>
+                                            {% else %}
+                                                <span class="status-badge unpaid">
+                                                    <i class="fas fa-clock"></i>
+                                                    Не оплачено
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="carryover-cell">
+                                            {% if attendance.payment_carried_over %}
+                                                <span class="status-badge carried">
+                                                    <i class="fas fa-exchange-alt"></i>
+                                                    Перенесено
+                                                </span>
+                                            {% else %}
+                                                <span class="status-badge no-carry">
+                                                    <i class="fas fa-minus"></i>
+                                                    -
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="notes-cell">
+                                            {% if attendance.notes %}
+                                                <span class="notes-text" title="{{ attendance.notes }}">
+                                                    <i class="fas fa-sticky-note"></i>
+                                                    {{ attendance.notes|truncatechars:30 }}
+                                                </span>
+                                            {% else %}
+                                                <span class="no-notes">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-attendance">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>У вас пока нет записей о посещениях</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .student-info {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .class-name {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin-left: 15px;
+        font-size: 1rem;
+    }
+
+    .payment-summary {
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        color: #333;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .payment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .payment-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .payment-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .payment-icon.present { background: #2ed573; }
+    .payment-icon.paid { background: #ffa502; }
+    .payment-icon.monthly { background: #667eea; }
+    .payment-icon.lesson { background: #ff4757; }
+
+    .payment-content {
+        flex: 1;
+    }
+
+    .payment-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .payment-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .attendance-table-section {
+        margin-bottom: 40px;
+    }
+
+    .month-table {
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .month-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .month-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .month-stats {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .stat-item.present { color: #2ed573; }
+    .stat-item.paid { color: #ffa502; }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .attendance-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+    }
+
+    .attendance-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .row-present { border-left: 4px solid #2ed573; }
+    .row-absent { border-left: 4px solid #ff4757; }
+
+    .date-cell {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .weekday-cell {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-badge.present {
+        background: rgba(46, 213, 115, 0.1);
+        color: #2ed573;
+        border: 1px solid rgba(46, 213, 115, 0.3);
+    }
+
+    .status-badge.absent {
+        background: rgba(255, 71, 87, 0.1);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.3);
+    }
+
+    .status-badge.paid {
+        background: rgba(255, 165, 2, 0.1);
+        color: #ffa502;
+        border: 1px solid rgba(255, 165, 2, 0.3);
+    }
+
+    .status-badge.unpaid {
+        background: rgba(255, 71, 87, 0.1);
+        color: #ff4757;
+        border: 1px solid rgba(255, 71, 87, 0.3);
+    }
+
+    .status-badge.carried {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+
+    .status-badge.no-carry {
+        background: rgba(200, 200, 200, 0.1);
+        color: #999;
+        border: 1px solid rgba(200, 200, 200, 0.3);
+    }
+
+    .notes-text {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .no-notes {
+        color: #ccc;
+        font-style: italic;
+    }
+
+    .no-attendance {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .no-attendance i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+        .month-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .month-stats {
+            justify-content: center;
+        }
+        
+        .attendance-table {
+            font-size: 0.8rem;
+        }
+        
+        .attendance-table th,
+        .attendance-table td {
+            padding: 10px 8px;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+        }
+    }
+</style>
+{% endblock %}

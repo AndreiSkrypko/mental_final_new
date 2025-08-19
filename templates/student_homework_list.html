@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+
+{% block title %}Домашние задания{% endblock %}
+
+{% block mycss %}
+<style>
+    .homework-container {
+        min-height: calc(100vh - 120px);
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .homework-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .floating-element {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+        top: 20%;
+        right: 15%;
+        animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+        bottom: 15%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .homework-content {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: white;
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        background: linear-gradient(45deg, #fff, #f0f8ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    .student-info-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .student-info-card h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .class-info {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 15px;
+        display: inline-block;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .homework-section {
+        margin-top: 40px;
+    }
+
+    .section-title {
+        text-align: center;
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        font-weight: 600;
+    }
+
+    .homework-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .homework-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.8s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .homework-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+
+    .homework-card:hover::before {
+        left: 100%;
+    }
+
+    .homework-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .homework-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .homework-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+        flex: 1;
+        margin-right: 15px;
+    }
+
+    .due-date {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .due-date.overdue {
+        background: linear-gradient(135deg, #ff4757, #c44569);
+        animation: pulse 2s infinite;
+    }
+
+    .due-date.due-soon {
+        background: linear-gradient(135deg, #ffa502, #ff6348);
+    }
+
+    .due-date.future {
+        background: linear-gradient(135deg, #2ed573, #1e90ff);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .homework-description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-size: 1rem;
+    }
+
+    .homework-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #888;
+    }
+
+    .created-date {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-active {
+        background: linear-gradient(135deg, #2ed573, #1e90ff);
+        color: white;
+    }
+
+    .no-homework {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 60px 40px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .no-homework-icon {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .no-homework h3 {
+        color: #666;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        font-weight: 500;
+    }
+
+    .no-homework p {
+        color: #888;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        margin-top: 30px;
+    }
+
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .back-button i {
+        font-size: 1.1rem;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .homework-card:nth-child(1) { animation-delay: 0.1s; }
+    .homework-card:nth-child(2) { animation-delay: 0.2s; }
+    .homework-card:nth-child(3) { animation-delay: 0.3s; }
+    .homework-card:nth-child(4) { animation-delay: 0.4s; }
+
+    @media (max-width: 768px) {
+        .homework-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .homework-card {
+            padding: 20px;
+        }
+        
+        .homework-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .due-date {
+            align-self: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="homework-container">
+    <!-- Плавающие элементы -->
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+
+    <div class="homework-content">
+        <!-- Заголовок страницы -->
+        <div class="page-header">
+            <h1 class="page-title">📚 Домашние задания</h1>
+            <p class="page-subtitle">Ваши учебные задачи и проекты</p>
+        </div>
+
+        <!-- Информация об ученике -->
+        <div class="student-info-card">
+            <h3>👨‍🎓 {{ student.name }} {{ student.surname }}</h3>
+            {% if student.student_class %}
+                <div class="class-info">
+                    <i class="fas fa-graduation-cap"></i>
+                    Класс: <strong>{{ student.student_class.name }}</strong>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Секция домашних заданий -->
+        <div class="homework-section">
+            <h2 class="section-title">📝 Ваши задания</h2>
+
+            {% if homeworks %}
+                <div class="homework-grid">
+                    {% for homework in homeworks %}
+                        <div class="homework-card">
+                            <div class="homework-header">
+                                <h3 class="homework-title">{{ homework.title }}</h3>
+                                {% if homework.due_date < today %}
+                                    <span class="due-date overdue">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Просрочено
+                                    </span>
+                                {% elif homework.due_date == today %}
+                                    <span class="due-date due-soon">
+                                        <i class="fas fa-clock"></i>
+                                        Срок сегодня
+                                    </span>
+                                {% else %}
+                                    <span class="due-date future">
+                                        <i class="fas fa-calendar-check"></i>
+                                        До {{ homework.due_date|date:"d.m.Y" }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="homework-description">
+                                {{ homework.description|linebreaks }}
+                            </div>
+
+                            <div class="homework-meta">
+                                <div class="created-date">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Создано: {{ homework.created_at|date:"d.m.Y" }}
+                                </div>
+                                <span class="status-badge status-active">Активно</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-homework">
+                    <div class="no-homework-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    {% if student.student_class %}
+                        <h3>Пока нет заданий</h3>
+                        <p>Ваш учитель пока не создал домашние задания для класса "{{ student.student_class.name }}"</p>
+                    {% else %}
+                        <h3>Нет доступа к заданиям</h3>
+                        <p>Вы не привязаны к классу, поэтому не можете видеть домашние задания</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Кнопка возврата -->
+            <div class="text-center">
+                <a href="{% url 'student_dashboard' %}" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                    Вернуться в кабинет
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

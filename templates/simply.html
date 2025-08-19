@@ -1,0 +1,1552 @@
+{% extends 'base.html' %}
+
+{% block title %}Игра "Просто"{% endblock %}
+
+{% block mycss %}
+<style>
+    /* Основные стили для игры */
+    .game-container {
+        min-height: 100vh;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease-out;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    .game-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 8px 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .game-body {
+        padding: 30px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Стили для полей формы */
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 1rem;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 18px center;
+        background-size: 18px;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-select:hover {
+        border-color: #667eea;
+        transform: translateY(-1px);
+    }
+
+    /* Стили для слайдеров */
+    .setting-icon {
+        font-size: 1.2rem;
+        margin-right: 8px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .setting-value {
+        font-weight: 600;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 4px 8px;
+        border-radius: 8px;
+        margin-left: 8px;
+        font-size: 0.9rem;
+    }
+
+    .slider-container {
+        margin-top: 15px;
+        position: relative;
+    }
+
+    .slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e0 100%);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        border: 3px solid white;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+
+    .slider::-webkit-slider-thumb:active {
+        transform: scale(0.95);
+    }
+
+    .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .slider::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        font-size: 0.8rem;
+        color: #718096;
+        font-weight: 500;
+    }
+
+    .slider-labels span {
+        text-align: center;
+        flex: 1;
+        padding: 0 4px;
+    }
+
+    .slider:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .slider:hover {
+        background: linear-gradient(90deg, #cbd5e0 0%, #a0aec0 100%);
+    }
+
+    /* Анимация для значений настроек */
+    .setting-value {
+        transition: all 0.3s ease;
+    }
+
+    .setting-value.updated {
+        animation: valueUpdate 0.6s ease-out;
+    }
+
+    @keyframes valueUpdate {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Стили для кнопки с иконкой */
+    .btn-icon {
+        margin-right: 8px;
+        font-size: 1.1rem;
+    }
+
+    /* Стили для кнопки */
+    .start-btn {
+        width: 100%;
+        padding: 16px 24px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .start-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .start-btn:hover::before {
+        left: 100%;
+    }
+
+    .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .start-btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* Стили для показа чисел */
+    .number-display {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .number-info {
+        margin-bottom: 20px;
+    }
+
+    .number-counter {
+        display: block;
+        font-size: 1.1em;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+        transition: width 0.3s ease;
+    }
+
+    .current-number {
+        font-size: 4rem;
+        font-weight: bold;
+        margin: 30px 0;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+
+    .positive-number {
+        color: #2ecc71;
+    }
+
+    .negative-number {
+        color: #e74c3c;
+    }
+
+    /* Стили для таймера */
+    .timer-display {
+        margin: 20px 0;
+        font-size: 1.2em;
+        opacity: 0.9;
+        text-align: center;
+    }
+    
+    .countdown-timer {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        display: inline-block;
+        min-width: 80px;
+    }
+
+    /* Стили для формы ответа */
+    .answer-form {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        border-radius: 24px;
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+ 
+    .answer-form::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+        z-index: 0;
+    }
+ 
+    .answer-form h2 {
+        color: #2d3748;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 1;
+        font-weight: 700;
+    }
+ 
+    .answer-form p {
+        color: #4a5568;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 5px rgba(0,0,0,0.05);
+        position: relative;
+        z-index: 1;
+        line-height: 1.6;
+    }
+ 
+    .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px 25px;
+        font-size: 1.4rem;
+        border: 3px solid rgba(102, 126, 234, 0.3);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #2d3748;
+        text-align: center;
+        margin: 30px auto;
+        transition: all 0.4s ease;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    }
+ 
+    .answer-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.25);
+    }
+ 
+    .answer-input:hover {
+        border-color: #667eea;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    }
+ 
+    .answer-input::placeholder {
+        color: #a0aec0;
+        opacity: 0.8;
+        font-weight: 500;
+    }
+ 
+    .answer-form .game-controls {
+        position: relative;
+        z-index: 1;
+        margin-top: 30px;
+    }
+ 
+    .answer-form .btn {
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+ 
+    .answer-form .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+ 
+    .answer-form .btn:hover::before {
+        left: 100%;
+    }
+ 
+    .answer-form .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+ 
+    .answer-form .btn:active {
+        transform: translateY(-1px);
+    }
+ 
+    .input-container {
+        position: relative;
+        max-width: 400px;
+        margin: 30px auto;
+    }
+ 
+    .input-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.5rem;
+        opacity: 0.6;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+ 
+    .answer-input:focus + .input-icon {
+        opacity: 0.8;
+        transform: translateY(-50%) scale(1.1);
+    }
+ 
+    .answer-input:focus {
+        padding-right: 60px;
+    }
+
+    /* Стили для результатов */
+    .game-results {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .result-message {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .result-message.correct {
+        color: #2ecc71;
+        border: 2px solid rgba(46, 204, 113, 0.3);
+    }
+
+    .result-message.incorrect {
+        color: #e74c3c;
+        border: 2px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .result-details {
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+    }
+
+    .result-details p {
+        margin: 10px 0;
+        font-size: 1.1em;
+    }
+
+    /* Кнопки управления */
+    .game-controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* Стили для аудио элементов */
+    .audio-controls {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .audio-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+    }
+    
+    .audio-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .audio-btn.audio-off {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+    
+    .audio-info {
+        color: #666;
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
+
+    /* Анимации */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .game-container {
+            padding: 15px;
+        }
+        
+        .game-header {
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-size: 1.8rem;
+        }
+        
+        .game-body {
+            padding: 20px;
+        }
+        
+        .current-number {
+            font-size: 3rem;
+            padding: 15px;
+        }
+        
+        .countdown-timer {
+            font-size: 2.5rem;
+            padding: 12px;
+        }
+        
+        .game-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        /* Мобильные стили для слайдеров */
+        .slider {
+            height: 6px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+        }
+
+        .slider-labels {
+            font-size: 0.7rem;
+        }
+
+        .setting-value {
+            font-size: 0.8rem;
+            padding: 3px 6px;
+        }
+
+        .setting-icon {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="game-card">
+        <div class="game-header">
+            <h1 class="game-title">Игра "Просто"</h1>
+            <p class="game-subtitle">Складывайте числа в уме! Тренируйте ментальную арифметику.</p>
+        </div>
+        
+        <div class="game-body">
+            {% if mode == 1 %}
+            <!-- Настройка игры -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="range" class="form-label">
+                        <span class="setting-icon">🎯</span>
+                        Сложность: <span class="setting-value" id="range-value">от 10 до 100</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="range" id="range" class="slider" 
+                               min="1" max="4" value="{{ saved_settings.range_key|default:'2' }}" step="1">
+                        <div class="slider-labels">
+                            <span>от 1 до 10</span>
+                            <span>от 10 до 100</span>
+                            <span>от 100 до 1000</span>
+                            <span>от 1000 до 10000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="examples" class="form-label">
+                        <span class="setting-icon">📊</span>
+                        Количество примеров: <span class="setting-value" id="examples-value">{{ saved_settings.num_examples|default:'10' }}</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="examples" id="examples" class="slider" 
+                               min="2" max="99" value="{{ saved_settings.num_examples|default:'10' }}" step="1">
+                        <div class="slider-labels">
+                            <span>2</span>
+                            <span>25</span>
+                            <span>50</span>
+                            <span>75</span>
+                            <span>99</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="speed" class="form-label">
+                        <span class="setting-icon">⚡</span>
+                        Скорость показа: <span class="setting-value" id="speed-value">{{ saved_settings.speed|default:'1' }} сек</span>
+                        <div style="font-size: 0.8rem; color: #718096; margin-top: 5px; font-weight: normal;">
+                            🔊 Озвучка чисел работает при скорости 1.5+ секунд
+                        </div>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="speed" id="speed" class="slider" 
+                               min="0.1" max="10" value="{{ saved_settings.speed|default:'1' }}" step="0.1">
+                        <div class="slider-labels">
+                            <span>0.1с</span>
+                            <span>2.5с</span>
+                            <span>5с</span>
+                            <span>7.5с</span>
+                            <span>10с</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="max_digit" class="form-label">
+                        <span class="setting-icon">🔤</span>
+                        Максимальная цифра: <span class="setting-value" id="max_digit-value">{{ saved_settings.max_digit|default:'9' }}</span>
+                        <div style="font-size: 0.8rem; color: #718096; margin-top: 5px; font-weight: normal;">
+                            Числа будут состоять только из цифр от 1 до выбранного значения
+                        </div>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="max_digit" id="max_digit" class="slider" 
+                               min="2" max="9" value="{{ saved_settings.max_digit|default:'9' }}" step="1">
+                        <div class="slider-labels">
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5</span>
+                            <span>6</span>
+                            <span>7</span>
+                            <span>8</span>
+                            <span>9</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопка начала игры -->
+                <div class="form-group text-center">
+                    <button type="submit" class="start-btn">
+                        <span class="btn-icon">🚀</span>
+                        Начать игру
+                    </button>
+                </div>
+            </form>
+
+            <script>
+                
+                
+                // Добавляем обработчик для формы
+                document.addEventListener('DOMContentLoaded', function() {
+                    const form = document.querySelector('form');
+    
+                    
+                    // Обработчик для слайдера скорости
+                    const speedSlider = document.getElementById('speed');
+                    const speedValue = document.getElementById('speed-value');
+                    const audioInfo = document.querySelector('.form-label div');
+                    
+                    if (speedSlider && speedValue && audioInfo) {
+                        speedSlider.addEventListener('input', function() {
+                            const speed = parseFloat(this.value);
+                            speedValue.textContent = speed + ' сек';
+                            
+                            // Обновляем информацию об озвучке
+                            if (speed >= 1.5) {
+                                audioInfo.innerHTML = '🔊 Озвучка чисел работает при скорости 1.5+ секунд';
+                                audioInfo.style.color = '#38a169';
+                            } else {
+                                audioInfo.innerHTML = '🔇 Озвучка недоступна при скорости менее 1.5 секунд';
+                                audioInfo.style.color = '#e53e3e';
+                            }
+                        });
+                        
+                        // Инициализируем состояние при загрузке
+                        const initialSpeed = parseFloat(speedSlider.value);
+                        if (initialSpeed >= 1.5) {
+                            audioInfo.innerHTML = '🔊 Озвучка чисел работает при скорости 1.5+ секунд';
+                            audioInfo.style.color = '#38a169';
+                        } else {
+                            audioInfo.innerHTML = '🔇 Озвучка недоступна при скорости менее 1.5 секунд';
+                            audioInfo.style.color = '#e53e3e';
+                        }
+                    }
+                    
+                    if (form) {
+                        form.addEventListener('submit', function(e) {
+            
+                            
+                            const range = document.getElementById('range').value;
+                            const examples = document.getElementById('examples').value;
+                            const speed = document.getElementById('speed').value;
+                            const maxDigit = document.getElementById('max_digit').value;
+                            
+                            
+                        });
+                    }
+                });
+            </script>
+
+            {% elif mode == 2 %}
+                         <!-- Таймер отсчета -->
+             <div class="number-display">
+                 <div class="timer-display">
+                     <div>Игра начнется через:</div>
+                     <div class="countdown-timer" id="countdown">3</div>
+                 </div>
+                 
+                 <!-- Скрытая форма для перехода к следующему режиму -->
+                 <form method="POST" style="display: none;">
+                     {% csrf_token %}
+                     <input type="hidden" name="next_mode" value="3">
+                 </form>
+             </div>
+
+            <script>
+                
+                
+                let timeLeft = 3;
+                const countdownElement = document.getElementById('countdown');
+                
+
+                
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    
+
+                    
+                                         if (timeLeft <= 0) {
+                         clearInterval(countdown);
+                         // Создаем и отправляем форму для перехода к режиму 3
+                         const form = document.createElement('form');
+                         form.method = 'POST';
+                         form.action = '/simply/2/';
+                         
+                         const csrfInput = document.createElement('input');
+                         csrfInput.type = 'hidden';
+                         csrfInput.name = 'csrfmiddlewaretoken';
+                         csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                         
+                         const nextModeInput = document.createElement('input');
+                         nextModeInput.type = 'hidden';
+                         nextModeInput.name = 'next_mode';
+                         nextModeInput.value = '3';
+                         
+                         form.appendChild(csrfInput);
+                         form.appendChild(nextModeInput);
+                         document.body.appendChild(form);
+                         form.submit();
+                     }
+                }, 1000);
+                
+
+            </script>
+
+            {% elif mode == 5 %}
+            <!-- Показ чисел -->
+            <div class="number-display">
+                <div class="number-info">
+                    <span class="number-counter">Число {{ current_index }} из {{ total_count }}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {% widthratio current_index total_count 100 %}%"></div>
+                    </div>
+                </div>
+                
+                <div class="current-number {% if current_number < 0 %}negative-number{% else %}positive-number{% endif %}">
+                    {% if current_number < 0 %}{{ current_number }}{% else %}+{{ current_number }}{% endif %}
+                </div>
+                
+                <div class="timer-display">
+                    <div>Число будет показано:</div>
+                    <div class="countdown-timer" id="number-timer">{{ speed }}</div>
+                    <div>секунд</div>
+                </div>
+                
+                <div class="game-controls">
+                    <div class="audio-controls">
+                        <button type="button" id="audio-toggle" class="btn btn-secondary audio-btn">
+                            <span class="btn-icon">🔊</span>
+                            <span class="btn-text">Озвучка включена</span>
+                        </button>
+                        <div class="audio-info">
+                            <small>Озвучка работает при скорости 1.5+ сек</small>
+                        </div>
+                    </div>
+                    
+                                         <form method="POST">
+                         {% csrf_token %}
+                         <input type="hidden" name="next_mode" value="7">
+                         <button type="submit" class="btn btn-primary">Следующее число</button>
+                     </form>
+                </div>
+            </div>
+
+            <script>
+                
+                
+                // Функция для преобразования числа в слова на русском языке
+                function numberToWords(num) {
+                    const ones = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
+                    const teens = ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'];
+                    const tens = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'];
+                    const hundreds = ['', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'];
+                    
+                    if (num === 0) return 'ноль';
+                    if (num < 0) return 'минус ' + numberToWords(Math.abs(num));
+                    
+                    if (num < 10) return ones[num];
+                    if (num < 20) return teens[num - 10];
+                    if (num < 100) {
+                        if (num % 10 === 0) return tens[Math.floor(num / 10)];
+                        return tens[Math.floor(num / 10)] + ' ' + ones[num % 10];
+                    }
+                    if (num < 1000) {
+                        if (num % 100 === 0) return hundreds[Math.floor(num / 100)];
+                        return hundreds[Math.floor(num / 100)] + ' ' + numberToWords(num % 100);
+                    }
+                    if (num < 10000) {
+                        if (num % 1000 === 0) return ones[Math.floor(num / 1000)] + ' тысяча';
+                        if (Math.floor(num / 1000) === 1) return 'одна тысяча ' + numberToWords(num % 1000);
+                        if (Math.floor(num / 1000) < 5) return ones[Math.floor(num / 1000)] + ' тысячи ' + numberToWords(num % 1000);
+                        return ones[Math.floor(num / 1000)] + ' тысяч ' + numberToWords(num % 1000);
+                    }
+                    return num.toString();
+                }
+                
+                // Функция для озвучивания числа
+                function speakNumber(num) {
+                    // Проверяем, включена ли озвучка
+                    if (!audioEnabled) {
+        
+                        return;
+                    }
+                    
+                    const text = numberToWords(num);
+    
+                    
+                    // Проверяем поддержку Speech Synthesis
+                    if ('speechSynthesis' in window) {
+        
+                        
+                        // Проверяем доступные голоса
+                        const voices = window.speechSynthesis.getVoices();
+        
+                        
+                        // Ищем русский голос
+                        let russianVoice = null;
+                        for (let voice of voices) {
+
+                            if (voice.lang.includes('ru') || voice.lang.includes('RU')) {
+                                russianVoice = voice;
+
+                                break;
+                            }
+                        }
+                        
+                        // Если русский голос не найден, берем первый доступный
+                        if (!russianVoice && voices.length > 0) {
+                            russianVoice = voices[0];
+    
+                        }
+                        
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        
+                        if (russianVoice) {
+                            utterance.voice = russianVoice;
+                            utterance.lang = russianVoice.lang;
+                        } else {
+                            utterance.lang = 'ru-RU';
+                        }
+                        
+                        utterance.rate = 1.2; // Быстрее для динамичности
+                        utterance.pitch = 1.0;
+                        utterance.volume = 1.0;
+                        
+                        // Обработчики событий для диагностики
+                        utterance.onstart = () => {
+    
+                        };
+                        
+                                                  utterance.onend = () => {
+                          };
+                        
+                        utterance.onerror = (event) => {
+                            console.error('❌ DEBUG: Ошибка озвучки:', event.error);
+                        };
+                        
+                        // Останавливаем предыдущую речь, если она есть
+                        window.speechSynthesis.cancel();
+                        
+                        // Запускаем новую речь
+                        window.speechSynthesis.speak(utterance);
+                        
+                        console.log('✅ DEBUG: Озвучка запущена для числа:', num);
+                        
+                        // Проверяем состояние через 1 секунду
+                        setTimeout(() => {
+                                                    if (window.speechSynthesis.speaking) {
+                        } else {
+                        }
+                        }, 1000);
+                        
+                    } else {
+                        // Альтернативный способ - показываем текст в консоли
+                        alert(`Число: ${text}`);
+                    }
+                }
+                
+                // Безопасно получаем параметры из Django шаблона
+                const speed = parseFloat('{{ speed|default:1 }}');
+                const currentIndex = parseInt('{{ current_index|default:0 }}');
+                const totalCount = parseInt('{{ total_count|default:1 }}');
+                const currentNumber = parseInt('{{ current_number|default:0 }}');
+                
+
+                
+                // Глобальная переменная для состояния озвучки
+                let audioEnabled = true;
+                
+                // Функция для обновления состояния кнопки озвучки
+                function updateAudioButton() {
+                    const audioBtn = document.getElementById('audio-toggle');
+                    const btnText = audioBtn.querySelector('.btn-text');
+                    const btnIcon = audioBtn.querySelector('.btn-icon');
+                    
+                    if (audioEnabled) {
+                        audioBtn.classList.remove('audio-off');
+                        btnText.textContent = 'Озвучка включена';
+                        btnIcon.textContent = '🔊';
+                    } else {
+                        audioBtn.classList.add('audio-off');
+                        btnText.textContent = 'Озвучка выключена';
+                        btnIcon.textContent = '🔇';
+                    }
+                }
+                
+                // Обработчик для кнопки озвучки
+                document.addEventListener('DOMContentLoaded', function() {
+                    const audioBtn = document.getElementById('audio-toggle');
+                    
+                    if (audioBtn) {
+                        audioBtn.addEventListener('click', function() {
+                            audioEnabled = !audioEnabled;
+                            updateAudioButton();
+                            
+                            if (!audioEnabled) {
+                                // Останавливаем текущую речь при выключении
+                                if ('speechSynthesis' in window) {
+                                    window.speechSynthesis.cancel();
+                    
+                                }
+                            }
+                            
+            
+                        });
+                        
+                        // Инициализируем состояние кнопки
+                        updateAudioButton();
+                    }
+                });
+                
+                // Проверяем состояние озвучки при загрузке
+
+                
+                if ('speechSynthesis' in window) {
+                    // Проверяем доступные голоса
+                    let voices = window.speechSynthesis.getVoices();
+
+                    
+                    if (voices.length === 0) {
+
+                        window.speechSynthesis.onvoiceschanged = function() {
+                            voices = window.speechSynthesis.getVoices();
+
+                            
+                            // Ищем русский голос
+                            let russianVoice = voices.find(voice => voice.lang.includes('ru') || voice.lang.includes('RU'));
+                            if (russianVoice) {
+                                console.log('🇷🇺 DEBUG: Найден русский голос:', russianVoice.name);
+                            } else {
+                            }
+                        };
+                    } else {
+                        // Ищем русский голос
+                        let russianVoice = voices.find(voice => voice.lang.includes('ru') || voice.lang.includes('RU'));
+                        if (russianVoice) {
+                                                } else {
+                    }
+                    }
+                }
+                
+                // Озвучиваем число только если скорость позволяет (1.5 секунды и выше) И озвучка включена
+                if (speed >= 1.5 && audioEnabled) {
+    
+                    // Небольшая задержка перед озвучкой, чтобы число уже отобразилось
+                    setTimeout(() => {
+                        if (audioEnabled) { // Дополнительная проверка
+                            speakNumber(currentNumber);
+                        }
+                    }, 200);
+                } else if (speed < 1.5) {
+    
+                } else if (!audioEnabled) {
+                }
+                
+                let numberTimeLeft = speed;
+                const timerElement = document.getElementById('number-timer');
+                
+
+                
+                if (!timerElement) {
+                    console.error('❌ DEBUG: Элемент таймера не найден!');
+                } else {
+                    // Запускаем таймер
+                    const numberTimer = setInterval(() => {
+                        numberTimeLeft -= 0.1;
+                        timerElement.textContent = numberTimeLeft.toFixed(1);
+                        
+    
+                        
+                        if (numberTimeLeft <= 0) {
+
+                            clearInterval(numberTimer);
+                            
+                            // Останавливаем речь при переходе к следующему числу
+                            if ('speechSynthesis' in window) {
+                                window.speechSynthesis.cancel();
+    
+                            }
+                            
+
+                            
+                                                         if (currentIndex >= totalCount) {
+                                 // Все числа показаны, переходим к вводу ответа
+                                 const form = document.createElement('form');
+                                 form.method = 'POST';
+                                 form.action = '/simply/5/';
+                                 
+                                 const csrfInput = document.createElement('input');
+                                 csrfInput.type = 'hidden';
+                                 csrfInput.name = 'csrfmiddlewaretoken';
+                                 csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                                 
+                                 const nextModeInput = document.createElement('input');
+                                 nextModeInput.type = 'hidden';
+                                 nextModeInput.name = 'next_mode';
+                                 nextModeInput.value = '6';
+                                 
+                                 form.appendChild(csrfInput);
+                                 form.appendChild(nextModeInput);
+                                 document.body.appendChild(form);
+                                 form.submit();
+                             } else {
+                                 // Переходим к следующему числу
+                                 const form = document.createElement('form');
+                                 form.method = 'POST';
+                                 form.action = '/simply/5/';
+                                 
+                                 const csrfInput = document.createElement('input');
+                                 csrfInput.type = 'hidden';
+                                 csrfInput.name = 'csrfmiddlewaretoken';
+                                 csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                                 
+                                 const nextModeInput = document.createElement('input');
+                                 nextModeInput.type = 'hidden';
+                                 nextModeInput.name = 'next_mode';
+                                 nextModeInput.value = '7';
+                                 
+                                 form.appendChild(csrfInput);
+                                 form.appendChild(nextModeInput);
+                                 document.body.appendChild(form);
+                                 form.submit();
+                             }
+                        }
+                    }, 100);
+                    
+
+                }
+            </script>
+
+            {% elif mode == 6 %}
+            <!-- Ввод ответа -->
+            <div class="answer-form">
+                <h2>🎯 Введите сумму всех чисел</h2>
+                <p>💭 Вспомните все числа, которые вы видели, и введите их сумму в поле ниже:</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="input-container">
+                        <input type="number" 
+                               name="user_answer" 
+                               class="answer-input" 
+                               placeholder="Введите сумму чисел..."
+                               required
+                               autocomplete="off">
+                        <div class="input-icon">🧮</div>
+                    </div>
+                    
+                    <div class="game-controls">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-icon">✅</span>
+                            Проверить ответ
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                
+                
+                // Добавляем обработчик для формы
+                document.addEventListener('DOMContentLoaded', function() {
+                    const form = document.querySelector('form');
+                    const input = document.querySelector('input[name="user_answer"]');
+                    
+                    
+                    
+                    if (form) {
+                        form.addEventListener('submit', function(e) {
+                            const answer = input.value;
+
+                        });
+                    }
+                });
+            </script>
+
+            {% elif mode == 4 %}
+            <!-- Результаты -->
+            <div class="game-results">
+                <h2>Результат проверки</h2>
+                
+                {% if is_correct %}
+                    <div class="result-message correct">
+                        ✓ Верно! Молодец!
+                    </div>
+                {% else %}
+                    <div class="result-message incorrect">
+                        ✗ Неверно! Попробуйте снова.
+                    </div>
+                {% endif %}
+                
+                <div class="result-details">
+                    <p><strong>Ваш ответ:</strong> {{ user_answer }}</p>
+                    <p><strong>Правильный ответ:</strong> {{ correct_answer }}</p>
+                </div>
+                
+                <div class="game-controls">
+                    <a href="/simply/1/" class="btn btn-primary">Играть снова</a>
+                    <a href="{% url 'index' %}" class="btn btn-secondary">На главную</a>
+                </div>
+            </div>
+
+            <script>
+                
+                
+                // Проверяем, что все данные загружены
+                document.addEventListener('DOMContentLoaded', function() {
+                    
+                    
+                    const resultMessage = document.querySelector('.result-message');
+                    const userAnswer = document.querySelector('.result-details p:first-child');
+                    const correctAnswer = document.querySelector('.result-details p:last-child');
+                    
+                    
+    
+                });
+            </script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для слайдеров -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    
+    // Проверяем, в каком режиме мы находимся
+    const gameBody = document.querySelector('.game-body');
+    let currentMode = null;
+    
+    if (gameBody) {
+        // Определяем режим по содержимому
+        if (gameBody.querySelector('form[method="POST"]')) {
+            currentMode = 1; // Настройки игры
+        } else if (gameBody.querySelector('#countdown')) {
+            currentMode = 2; // Таймер отсчета
+        } else if (gameBody.querySelector('#number-timer')) {
+            currentMode = 5; // Показ чисел
+        } else if (gameBody.querySelector('.answer-form')) {
+            currentMode = 6; // Ввод ответа
+        } else if (gameBody.querySelector('.game-results')) {
+            currentMode = 4; // Результаты
+        }
+    }
+    
+    
+    
+    // Инициализируем слайдеры только в режиме 1
+    if (currentMode === 1) {
+
+        
+        // Функция для обновления значения с анимацией
+        function updateValue(elementId, newValue, suffix = '') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = newValue + suffix;
+                element.classList.add('updated');
+                setTimeout(() => element.classList.remove('updated'), 600);
+
+            } else {
+
+            }
+        }
+
+        // Обработчики для слайдеров
+        const sliders = {
+            'range': {
+                values: ['от 1 до 10', 'от 10 до 100', 'от 100 до 1000', 'от 1000 до 10000'],
+                suffix: ''
+            },
+            'examples': {
+                values: [], // Теперь количество примеров может быть любым от 2 до 99
+                suffix: ''
+            },
+            'speed': {
+                values: [], // Теперь скорость может быть любым от 0.1 до 10
+                suffix: ' сек'
+            },
+            'max_digit': {
+                values: [], // Теперь максимальная цифра может быть любым от 2 до 9
+                suffix: ''
+            }
+        };
+
+
+
+        // Добавляем обработчики событий для всех слайдеров
+        Object.keys(sliders).forEach(sliderId => {
+            const slider = document.getElementById(sliderId);
+            
+            
+            if (slider && sliderId !== 'examples' && sliderId !== 'speed' && sliderId !== 'max_digit') { // Пропускаем examples, speed и max_digit, так как у них особые обработчики
+                slider.addEventListener('input', function() {
+                    const value = this.value;
+                    const config = sliders[sliderId];
+                    const displayValue = config.values[value - config.values[0]];
+
+                    updateValue(sliderId + '-value', displayValue, config.suffix);
+                });
+
+                // Устанавливаем начальные значения
+                const value = slider.value;
+                const config = sliders[sliderId];
+                const displayValue = config.values[value - config.values[0]];
+                
+                updateValue(sliderId + '-value', displayValue, config.suffix);
+            }
+        });
+
+        // Специальная обработка для диапазона (так как он начинается с 1)
+        const rangeSlider = document.getElementById('range');
+        if (rangeSlider) {
+    
+            rangeSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                const config = sliders['range'];
+                const displayValue = config.values[value - 1];
+                
+                updateValue('range-value', displayValue, config.suffix);
+            });
+            
+            // Устанавливаем начальное значение для диапазона
+            const value = parseInt(rangeSlider.value);
+            const displayValue = sliders['range'].values[value - 1];
+            
+            updateValue('range-value', displayValue, '');
+        }
+
+        // Специальная обработка для количества примеров
+        const examplesSlider = document.getElementById('examples');
+        if (examplesSlider) {
+    
+            examplesSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                
+                // Для диапазона 2-99 используем значение напрямую
+                updateValue('examples-value', value, '');
+            });
+            
+            // Устанавливаем начальное значение для примеров
+            const value = parseInt(examplesSlider.value);
+            
+            updateValue('examples-value', value, '');
+        }
+
+        // Специальная обработка для скорости
+        const speedSlider = document.getElementById('speed');
+        if (speedSlider) {
+    
+            speedSlider.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                
+                // Для диапазона 0.1-10 используем значение напрямую с округлением
+                const displayValue = value.toFixed(1);
+                updateValue('speed-value', displayValue, ' сек');
+            });
+            
+            // Устанавливаем начальное значение для скорости
+            const value = parseFloat(speedSlider.value);
+            const displayValue = value.toFixed(1);
+            
+            updateValue('speed-value', displayValue, ' сек');
+        }
+
+        // Специальная обработка для максимальной цифры
+        const maxDigitSlider = document.getElementById('max_digit');
+        if (maxDigitSlider) {
+    
+            maxDigitSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                
+                // Для диапазона 2-9 используем значение напрямую
+                updateValue('max_digit-value', value, '');
+            });
+            
+            // Устанавливаем начальное значение для максимальной цифры
+            const value = parseInt(maxDigitSlider.value);
+            
+            updateValue('max_digit-value', value, '');
+        }
+
+        // Инициализируем все значения слайдеров при загрузке страницы
+        setTimeout(() => {
+    
+            
+            if (rangeSlider) {
+                const value = parseInt(rangeSlider.value);
+                const displayValue = sliders['range'].values[value - 1];
+                
+                updateValue('range-value', displayValue, '');
+            }
+            
+            if (examplesSlider) {
+                const value = parseInt(examplesSlider.value);
+                
+                updateValue('examples-value', value, '');
+            }
+            
+            if (speedSlider) {
+                const value = parseFloat(speedSlider.value);
+                const displayValue = value.toFixed(1);
+                
+                updateValue('speed-value', displayValue, ' сек');
+            }
+            
+            if (maxDigitSlider) {
+                const value = parseInt(maxDigitSlider.value);
+                
+                updateValue('max_digit-value', value, '');
+            }
+            
+    
+        }, 100);
+    } else {
+
+    }
+});
+</script>
+
+{% endblock %}

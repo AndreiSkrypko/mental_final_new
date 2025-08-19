@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Игра умножение от базы
+{% endblock %}
+
+{% block mycss %}
+<style>
+
+    /* Центрирование заголовка */
+.centered-content {
+    height: 20vh; /* Высота элемента равна 20% от высоты окна */
+    display: flex; /* Используем Flexbox для выравнивания */
+    justify-content: center; /* Горизонтальное центрирование */
+    align-items: center; /* Вертикальное центрирование */
+    font-size: 2rem; /* Размер шрифта */
+    font-weight: bold; /* Жирное начертание текста */
+    color: #0044cc; /* Синий цвет текста */
+    background-color: rgba(173, 216, 230, 0.3); /* Полупрозрачный светло-синий фон */
+    border-radius: 10px; /* Скругление углов */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для блока */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+/* Стиль для контейнера формы */
+.form-container {
+    background: rgba(0, 0, 0, 0.05); /* Полупрозрачный черный фон */
+    padding: 30px; /* Внутренний отступ */
+    border-radius: 15px; /* Скругленные углы */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Тень */
+    max-width: 900px; /* Максимальная ширина */
+    margin: 20px auto; /* Отступ сверху и снизу, выравнивание по центру */
+}
+
+/* Отступ для секций внутри формы */
+.form-section {
+    margin-bottom: 30px; /* Отступ снизу */
+}
+
+/* Стили для текста label */
+label {
+    font-size: 1.3rem; /* Размер шрифта */
+    font-weight: bold; /* Жирное начертание */
+    color: #0044cc; /* Синий цвет текста */
+}
+
+/* Стили для выпадающего списка select */
+select {
+    width: 100%; /* Ширина на 100% от родителя */
+    padding: 12px; /* Внутренний отступ */
+    font-size: 1.2rem; /* Размер шрифта */
+    border-radius: 5px; /* Скругленные углы */
+    border: 1px solid #ccc; /* Светло-серая рамка */
+    margin-top: 10px; /* Отступ сверху */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+/* Группа радиокнопок */
+.radio-group {
+    display: flex; /* Flexbox для выравнивания элементов */
+    flex-wrap: wrap; /* Элементы переносятся на новую строку, если нужно */
+    gap: 20px; /* Расстояние между элементами */
+}
+
+/* Текст внутри группы радиокнопок */
+.radio-group span {
+    display: block; /* Отображение как блок */
+    font-size: 1.5rem; /* Размер шрифта */
+    font-weight: bold; /* Жирное начертание */
+    color: #333; /* Темно-серый цвет */
+    margin-bottom: 10px; /* Отступ снизу */
+}
+
+/* Стили для радиокнопок (с помощью label) */
+.radio-group label {
+    display: inline-block; /* Инлайн-блок */
+    font-size: 1.2rem; /* Размер шрифта */
+    font-weight: bold; /* Жирное начертание */
+    color: #222; /* Темный цвет */
+    background-color: #e6f7ff; /* Светло-голубой фон */
+    padding: 15px 20px; /* Внутренний отступ */
+    border-radius: 10px; /* Скругленные углы */
+    border: 1px solid #ccc; /* Светлая рамка */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень */
+    cursor: pointer; /* Указатель на кнопке */
+    transition: all 0.3s ease; /* Плавный переход для всех изменений */
+}
+
+/* Скрытие радиокнопок */
+.radio-group input[type="radio"] {
+    display: none; /* Радиокнопки не видны */
+}
+
+/* Стили для выбранных радиокнопок */
+.radio-group input[type="radio"]:checked + label {
+    background-color: #0044cc; /* Темно-синий фон */
+    color: white; /* Белый текст */
+    border: 1px solid #002a80; /* Тёмно-синяя рамка */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+}
+
+/* Стили для кнопок */
+button {
+    padding: 15px 30px; /* Внутренний отступ */
+    font-size: 1.5rem; /* Размер шрифта */
+    font-weight: bold; /* Жирное начертание */
+    color: white; /* Белый цвет текста */
+    background-color: #28a745; /* Зеленый фон */
+    border: none; /* Без рамки */
+    border-radius: 8px; /* Скругленные углы */
+    cursor: pointer; /* Указатель при наведении */
+    transition: background 0.3s ease; /* Плавный переход для фона */
+}
+
+/* Стили для кнопки при наведении */
+button:hover {
+    background-color: #218838; /* Темно-зеленый фон при наведении */
+}
+
+/* Основной контейнер */
+.container {
+    display: flex; /* Flexbox для вертикального выравнивания */
+    flex-direction: column; /* Вертикальная ориентация элементов */
+    align-items: center; /* Горизонтальное центрирование */
+    justify-content: center; /* Вертикальное центрирование */
+    height: 100vh; /* Высота контейнера на весь экран */
+    text-align: center; /* Центрирование текста */
+}
+
+/* Стиль для блока вывода */
+.output-box {
+    width: 80%; /* Ширина блока 80% от родителя */
+    height: 300px; /* Высота блока */
+    border: 2px solid #333; /* Темная рамка */
+    padding: 20px; /* Внутренний отступ */
+    background-color: #f9f9f9; /* Светлый фон */
+    border-radius: 10px; /* Скругленные углы */
+    display: flex; /* Flexbox для выравнивания контента */
+    flex-direction: column; /* Вертикальное выравнивание */
+    justify-content: space-between; /* Равномерное распределение контента */
+    align-items: center; /* Центрирование элементов */
+    text-align: center; /* Центрирование текста */
+}
+
+/* Текст внутри блока вывода */
+.output-text {
+    flex-grow: 1; /* Текст занимает доступное пространство */
+    font-size: 18px; /* Размер шрифта */
+    color: black; /* Черный цвет текста */
+}
+
+/* Стиль для результата */
+.result {
+    font-size: 20px; /* Размер шрифта */
+    font-weight: bold; /* Жирное начертание текста */
+}
+
+/* Стиль для кнопок внутри блока вывода */
+.btn {
+    padding: 10px 20px; /* Внутренний отступ */
+    font-size: 18px; /* Размер шрифта */
+    border: none; /* Без рамки */
+    cursor: pointer; /* Указатель на кнопке */
+    border-radius: 5px; /* Скругленные углы */
+}
+
+/* Стили для кнопки "Назад" */
+.back-btn {
+    background-color: #ff4d4d; /* Красный фон */
+    color: white; /* Белый текст */
+}
+
+/* Стили для кнопки "Проверить" */
+.check-btn {
+    background-color: #4CAF50; /* Зеленый фон */
+    color: white; /* Белый текст */
+}
+
+/* Эффект при наведении на кнопки */
+.btn:hover {
+    opacity: 0.8; /* Уменьшение непрозрачности */
+}
+
+/* Стили для положительных чисел */
+.positive-number {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Стили для отрицательных чисел */
+.negative-number {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+{% if mode == 1 %}
+
+<div class="centered-content">
+    Игра "умножение" от базы
+</div>
+<div class="form-container">
+    <form method="POST" id="operation-form">
+        {% csrf_token %}
+
+        <!-- Выбор базы -->
+        <div class="form-section">
+            <span>Выбор базы:</span>
+            <div class="radio-group">
+                <input type="radio" id="base-10" name="base" value="10" required>
+                <label for="base-10">10</label>
+
+                <input type="radio" id="base-50" name="base" value="50">
+                <label for="base-50">50</label>
+
+                <input type="radio" id="base-100" name="base" value="100">
+                <label for="base-100">100</label>
+
+                <input type="radio" id="base-200" name="base" value="200">
+                <label for="base-200">200</label>
+
+                <input type="radio" id="base-1000" name="base" value="1000">
+                <label for="base-1000">1000</label>
+            </div>
+        </div>
+
+        <!-- Выбор диапазонов множителей -->
+        <div class="form-section">
+            <span>Выберите диапазон второго множителя:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" id="random" name="multiplier-range" value="random">
+                <label for="random">Случайный</label>
+
+                <input type="checkbox" id="both-lower" name="multiplier-range" value="both-lower">
+                <label for="both-lower">Оба ниже базы</label>
+
+                <input type="checkbox" id="one-lower-one-higher" name="multiplier-range" value="one-lower-one-higher">
+                <label for="one-lower-one-higher">Один ниже, один выше</label>
+
+                <input type="checkbox" id="both-higher" name="multiplier-range" value="both-higher">
+                <label for="both-higher">Оба выше базы</label>
+            </div>
+        </div>
+
+        <button type="submit">Начать тренировку</button>
+    </form>
+</div>
+
+{% endif %}
+
+{% if mode == 2 %}
+<div class="container">
+    <a href="{% url 'multiplication_base' mode=1 %}" class="btn back-btn">Назад</a>
+    <div class="output-box">
+        {% if first and second %}
+        <p class="output-text">
+            {% if first > 0 %}<span class="positive-number">+{{ first }}</span>{% else %}<span class="negative-number">{{ first }}</span>{% endif %}
+            ×
+            {% if second > 0 %}<span class="positive-number">+{{ second }}</span>{% else %}<span class="negative-number">{{ second }}</span>{% endif %}
+            = ?
+        </p>
+        {% else %}
+        <p class="output-text">Пример не найден</p>
+        {% endif %}
+        <form method="POST" action="{% url 'multiplication_base' mode=3 %}">
+            {% csrf_token %}
+            <input type="text" name="user-answer" class="answer-input" placeholder="Введите ответ" required>
+            <button type="submit" class="btn check-btn">Проверить</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if mode == 3 %}
+<div class="container">
+    <a href="{% url 'multiplication_base' mode=1 %}" class="btn back-btn">Назад</a>
+    <div class="output-box">
+        <p class="output-text">Ваш ответ: {{ user_answer }}</p>
+        <p class="output-text">Правильный ответ: {{ correct_answer }}</p>
+        <p class="result" style="color: {{ result_color }};">{{ result }}</p>
+        <a href="{% url 'multiplication_base' mode=2 %}" class="btn check-btn">Попробовать еще раз</a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

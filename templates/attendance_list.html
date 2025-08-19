@@ -1,0 +1,1290 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Табель посещений - {{ class_obj.name }}{% endblock %}
+
+{% block mycss %}
+<style>
+    .attendance-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .attendance-page::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .page-container {
+        position: relative;
+        z-index: 2;
+        max-width: none;
+        margin: 0 auto;
+    }
+
+    /* Header Section */
+    .page-header {
+        text-align: center;
+        margin-bottom: 25px;
+        color: white;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        background: linear-gradient(45deg, #fff, #f0f8ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    /* Action Buttons */
+    .header-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 12px rgba(40, 167, 69, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .action-btn.secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        box-shadow: 0 3px 12px rgba(108, 117, 125, 0.3);
+    }
+
+    .action-btn.secondary:hover {
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+    /* Legend */
+    .legend-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .legend {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #333;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .legend-checkbox {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #e0e0e0;
+        border-radius: 4px;
+        position: relative;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .legend-checkbox.attendance {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-color: #28a745;
+    }
+
+    .legend-checkbox.payment {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        border-color: #17a2b8;
+    }
+
+    .legend-checkbox.attendance::after {
+        content: '✓';
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .legend-checkbox.payment::after {
+        content: '₽';
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* Main Table Container */
+    .table-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        overflow-x: auto;
+        overflow-y: hidden;
+        position: relative;
+    }
+
+    /* Simple scroll hint */
+    .scroll-hint {
+        position: absolute;
+        right: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(102, 126, 234, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 30;
+        pointer-events: none;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+
+    .scroll-hint::before {
+        content: '→';
+        margin-right: 6px;
+        font-size: 0.9rem;
+        animation: scrollArrow 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollArrow {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(3px); }
+    }
+
+    .table-wrapper {
+        min-width: 1200px;
+        position: relative;
+    }
+
+    /* Table Styling */
+    .attendance-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        font-size: 0.85rem;
+        table-layout: auto;
+        min-width: 1200px;
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        padding: 8px 6px;
+        text-align: center;
+        border: none;
+        vertical-align: middle;
+        position: relative;
+    }
+
+    /* Alternating row colors */
+    .attendance-table tbody tr:nth-child(even) {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    }
+
+    .attendance-table tbody tr:nth-child(odd) {
+        background: linear-gradient(135deg, #ffffff, #f0f2f5);
+    }
+
+    .attendance-table tbody tr:hover {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .attendance-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 700;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        white-space: nowrap;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        border-bottom: 3px solid rgba(255,255,255,0.2);
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .attendance-table th.student-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        width: 200px;
+        min-width: 200px;
+        text-align: left;
+        padding-left: 16px;
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 30 !important;
+        box-shadow: 3px 0 12px rgba(0,0,0,0.25) !important;
+        -webkit-sticky: sticky !important;
+        border-right: 3px solid rgba(255,255,255,0.3);
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .attendance-table th.date-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        width: 110px;
+        min-width: 110px;
+        height: 80px;
+        padding: 8px 4px;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 2px solid rgba(255,255,255,0.2);
+        box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .date-header-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 4px;
+    }
+    
+    .date-info {
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        line-height: 1.2;
+    }
+
+    .date-info small {
+        display: block;
+        margin-top: 2px;
+        font-weight: 400;
+        opacity: 0.9;
+    }
+    
+    .delete-date-btn {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+        font-weight: bold;
+        z-index: 25;
+    }
+    
+    .delete-date-btn:hover {
+        background: linear-gradient(135deg, #c82333, #bd2130);
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+    }
+
+    .attendance-table td.student-cell {
+        text-align: left;
+        padding-left: 16px;
+        background: inherit;
+        font-weight: 700;
+        color: #2c3e50;
+        width: 200px;
+        min-width: 200px;
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 25 !important;
+        border-right: 3px solid rgba(40, 167, 69, 0.3) !important;
+        box-shadow: 3px 0 12px rgba(0,0,0,0.2) !important;
+        -webkit-sticky: sticky !important;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+    }
+
+    .attendance-table td.attendance-cell {
+        padding: 4px;
+        width: 110px;
+        min-width: 110px;
+        height: 60px;
+        background: inherit;
+        border-left: 1px solid rgba(0,0,0,0.05);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+
+    .attendance-table td.attendance-cell:hover {
+        background: rgba(33, 150, 243, 0.05) !important;
+        transform: scale(1.02);
+        box-shadow: inset 0 0 0 2px rgba(33, 150, 243, 0.2);
+    }
+
+    /* Cell Content Layout */
+    .cell-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 1px;
+    }
+
+    .attendance-section,
+    .payment-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        margin: 2px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .attendance-section {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-left: 4px solid rgba(40, 167, 69, 0.4);
+        border: 1px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .payment-section {
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        border-left: 4px solid rgba(23, 162, 184, 0.4);
+        border: 1px solid rgba(23, 162, 184, 0.2);
+    }
+
+    .attendance-section:hover,
+    .payment-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .section-label {
+        font-size: 0.7rem;
+        color: #495057;
+        margin-bottom: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+        padding: 3px 6px;
+        border-radius: 6px;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        backdrop-filter: blur(5px);
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px;
+    }
+
+    /* Enhanced Checkbox Styling */
+    .custom-checkbox {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #d1d5db;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .custom-checkbox::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .custom-checkbox:hover {
+        border-color: #667eea;
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .custom-checkbox:hover::before {
+        opacity: 1;
+    }
+
+    .custom-checkbox.checked {
+        background: linear-gradient(145deg, #28a745, #20c997);
+        border-color: #28a745;
+        transform: scale(1.1);
+        box-shadow: 0 4px 16px rgba(40, 167, 69, 0.4);
+        animation: checkboxPulse 0.6s ease-out;
+    }
+
+    @keyframes checkboxPulse {
+        0% { transform: scale(1.1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1.1); }
+    }
+
+    .custom-checkbox.checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        animation: checkmarkAppear 0.3s ease forwards;
+    }
+
+    @keyframes checkmarkAppear {
+        to {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    .custom-checkbox.payment-checked {
+        background: linear-gradient(145deg, #17a2b8, #138496);
+        border-color: #17a2b8;
+        transform: scale(1.1);
+        box-shadow: 0 4px 16px rgba(23, 162, 184, 0.4);
+        animation: paymentCheckboxPulse 0.6s ease-out;
+    }
+
+    @keyframes paymentCheckboxPulse {
+        0% { transform: scale(1.1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1.1); }
+    }
+
+    .custom-checkbox.payment-checked::after {
+        content: '₽';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        animation: paymentAppear 0.3s ease forwards;
+    }
+
+    @keyframes paymentAppear {
+        to {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    .custom-checkbox:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+    }
+
+    /* Ripple and Success Effects */
+    .custom-checkbox.ripple {
+        animation: rippleEffect 0.6s ease-out;
+    }
+
+    @keyframes rippleEffect {
+        0% {
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        100% {
+            box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+        }
+    }
+
+    .custom-checkbox.checked.success,
+    .custom-checkbox.payment-checked.success {
+        animation: successPulse 0.6s ease-out;
+    }
+
+    @keyframes successPulse {
+        0% {
+            transform: scale(1.05);
+        }
+        50% {
+            transform: scale(1.15);
+        }
+        100% {
+            transform: scale(1.05);
+        }
+    }
+
+    /* Table Row Hover Effects */
+    .attendance-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .attendance-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(102, 126, 234, 0.02));
+        transform: translateX(1px);
+        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.1);
+    }
+
+    .attendance-table tbody tr:hover .student-cell {
+        background: linear-gradient(135deg, #e9ecef, #dee2e6);
+        color: #495057;
+    }
+
+    /* No Data Message */
+    .no-data-message {
+        text-align: center;
+        padding: 50px 30px;
+        color: #666;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        margin: 20px 0;
+    }
+
+    .no-data-icon {
+        font-size: 2.5rem;
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+
+    .no-data-message h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+
+    .no-data-message p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+        background: white;
+        margin: 8% auto;
+        padding: 0;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 18px 20px;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .close {
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+    
+    .close:hover {
+        opacity: 0.7;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 18px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-text {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 4px;
+        display: block;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        box-shadow: 0 3px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        box-shadow: 0 3px 12px rgba(108, 117, 125, 0.3);
+    }
+    
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .attendance-page {
+            padding: 15px;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 100%;
+            max-width: 250px;
+            justify-content: center;
+        }
+
+        .table-container {
+            padding: 15px;
+        }
+
+        .attendance-table th,
+        .attendance-table td {
+            padding: 6px 3px;
+            font-size: 0.75rem;
+        }
+
+        .attendance-table th.student-header {
+            min-width: 140px;
+            width: 140px;
+        }
+
+        .attendance-table th.date-header {
+            min-width: 80px;
+            width: 80px;
+            height: 70px;
+        }
+
+        .attendance-table td.attendance-cell {
+            min-width: 80px;
+            width: 80px;
+            height: 60px;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+        }
+
+        .section-label {
+            font-size: 0.65rem;
+            padding: 2px 4px;
+        }
+
+        .attendance-section,
+        .payment-section {
+            padding: 4px;
+            margin: 1px;
+        }
+    }
+
+    /* Scrollbar Styling */
+    .table-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+    }
+
+    /* Ensure proper layering */
+    .attendance-table th.date-header {
+        z-index: 20;
+    }
+
+    .attendance-table td.attendance-cell {
+        z-index: 10;
+    }
+
+    .attendance-table th.student-header {
+        z-index: 30;
+    }
+
+    .attendance-table td.student-cell {
+        z-index: 25;
+    }
+
+    /* Beautiful column separators */
+    .attendance-table th.date-header:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 20%;
+        bottom: 20%;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.3), transparent);
+    }
+
+    .attendance-table td.attendance-cell:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 10%;
+        bottom: 10%;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.1), transparent);
+    }
+
+    /* Hover effect for sticky column */
+    .attendance-table tbody tr:hover td.student-cell {
+        background: linear-gradient(135deg, #e9ecef, #dee2e6) !important;
+        color: #495057 !important;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.2) !important;
+    }
+
+    /* Force sticky positioning for all browsers */
+    .attendance-table th.student-header,
+    .attendance-table td.student-cell {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        left: 0 !important;
+        background-attachment: local;
+        background: inherit;
+    }
+
+    /* Ensure sticky column has proper background */
+    .attendance-table th.student-header {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+    }
+
+    .attendance-table td.student-cell {
+        background: #f8f9fa !important;
+    }
+
+
+
+    .table-wrapper {
+        min-width: 1200px;
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="attendance-page">
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">📊 Табель посещений и оплат</h1>
+            <p class="page-subtitle">Класс "{{ class_obj.name }}" - {{ class_obj.academic_year }}</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="header-actions">
+            <a href="{% url 'attendance_create' class_obj.id %}" class="action-btn">
+                <i class="fas fa-calendar-plus"></i>
+                Добавить занятие
+            </a>
+            
+            <button type="button" class="action-btn secondary" onclick="showAddDateModal()">
+                <i class="fas fa-plus"></i>
+                Быстрое добавление
+            </button>
+            
+            <a href="{% url 'class_list' %}" class="action-btn secondary">
+                <i class="fas fa-arrow-left"></i>
+                Назад к классам
+            </a>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend-container">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-checkbox attendance"></div>
+                    <span>Присутствовал</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-checkbox payment"></div>
+                    <span>Оплачено</span>
+                </div>
+            </div>
+        </div>
+
+        {% if attendance_dates %}
+            <form id="attendance-form">
+                {% csrf_token %}
+                <div class="table-container">
+                    <!-- Scroll Hint -->
+                    <div class="scroll-hint">
+                        Листайте вправо
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th class="student-header">Ученик</th>
+                                    {% for date in attendance_dates %}
+                                                                         <th class="date-header">
+                                         <div class="date-header-content">
+                                             <div class="date-info">
+                                                 {{ date|date:"d.m" }}
+                                                 <br>
+                                                 <small style="font-size: 0.75rem; opacity: 0.9;">{{ date|date:"D" }}</small>
+                                             </div>
+                                         </div>
+                                         <button type="button" class="delete-date-btn" 
+                                                 data-date="{{ date|date:'Y-m-d' }}"
+                                                 onclick="deleteDate(this.dataset.date)" 
+                                                 title="Удалить занятие">
+                                             <i class="fas fa-times"></i>
+                                         </button>
+                                     </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td class="student-cell">
+                                        <strong>{{ student.surname }} {{ student.name }}</strong>
+                                    </td>
+                                    {% for date in attendance_dates %}
+                                    <td class="attendance-cell">
+                                        <div class="cell-content">
+                                            <div class="attendance-section">
+                                                <div class="section-label">Посещение</div>
+                                                <div class="checkbox-container">
+                                                    <div class="custom-checkbox {% if student.id in attendance_data and date in attendance_data|get_item:student.id|get_item:'attendances' and attendance_data|get_item:student.id|get_item:'attendances'|get_item:date|get_item:'is_present' %}checked{% endif %}" 
+                                                         data-student="{{ student.id }}" 
+                                                         data-date="{{ date|date:'Y-m-d' }}" 
+                                                         data-type="attendance">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="payment-section">
+                                                <div class="section-label">Оплата</div>
+                                                <div class="checkbox-container">
+                                                    <div class="custom-checkbox {% if student.id in attendance_data and date in attendance_data|get_item:student.id|get_item:'attendances' and attendance_data|get_item:student.id|get_item:'attendances'|get_item:date|get_item:'is_paid' %}payment-checked{% endif %}" 
+                                                         data-student="{{ student.id }}" 
+                                                         data-date="{{ date|date:'Y-m-d' }}" 
+                                                         data-type="payment">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        {% else %}
+            <div class="no-data-message">
+                <div class="no-data-icon">
+                    <i class="fas fa-clipboard"></i>
+                </div>
+                <h3>Записи посещений отсутствуют</h3>
+                <p>Добавьте занятие, чтобы начать вести табель посещений.</p>
+                <a href="{% url 'attendance_create' class_obj.id %}" class="action-btn">
+                    <i class="fas fa-calendar-plus"></i>
+                    Добавить занятие
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Add Modal -->
+<div id="addDateModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> Быстрое добавление занятия</h3>
+            <span class="close" onclick="closeAddDateModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addDateForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="new_date">Дата занятия:</label>
+                    <input type="date" id="new_date" name="new_date" required>
+                    <small class="form-text text-muted">Выберите дату для быстрого добавления занятия</small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Быстро добавить
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAddDateModal()">
+                        Отмена
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Scroll hint management
+    const tableContainer = document.querySelector('.table-container');
+    const scrollHint = document.querySelector('.scroll-hint');
+    
+    function updateScrollHint() {
+        if (tableContainer.scrollWidth > tableContainer.clientWidth) {
+            scrollHint.style.display = 'block';
+        } else {
+            scrollHint.style.display = 'none';
+        }
+    }
+    
+    // Check on load
+    updateScrollHint();
+    
+    // Check on window resize
+    window.addEventListener('resize', updateScrollHint);
+    
+    // Hide hint when scrolling
+    tableContainer.addEventListener('scroll', function() {
+        if (scrollHint.style.display !== 'none') {
+            scrollHint.style.opacity = '0.3';
+            clearTimeout(scrollHint.fadeTimeout);
+            scrollHint.fadeTimeout = setTimeout(() => {
+                scrollHint.style.opacity = '0.8';
+            }, 1000);
+        }
+    });
+
+    // Checkbox click handlers
+    document.querySelectorAll('.custom-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('click', function() {
+            const studentId = this.dataset.student;
+            const date = this.dataset.date;
+            const type = this.dataset.type;
+            
+            // Add ripple effect
+            this.classList.add('ripple');
+            setTimeout(() => this.classList.remove('ripple'), 600);
+            
+            // Toggle state
+            if (type === 'attendance') {
+                this.classList.toggle('checked');
+                if (this.classList.contains('checked')) {
+                    this.classList.add('success');
+                    setTimeout(() => this.classList.remove('success'), 600);
+                }
+            } else if (type === 'payment') {
+                this.classList.toggle('payment-checked');
+                if (this.classList.contains('payment-checked')) {
+                    this.classList.add('success');
+                    setTimeout(() => this.classList.remove('success'), 600);
+                }
+            }
+            
+            // Send data to server
+            updateAttendance(studentId, date, type, this.classList.contains('checked') || this.classList.contains('payment-checked'));
+        });
+    });
+    
+    function updateAttendance(studentId, date, type, value) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        
+        fetch('/teacher/attendance/update/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                student_id: studentId,
+                date: date,
+                type: type,
+                value: value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Обновлено успешно');
+            } else {
+                console.error('Ошибка обновления:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
+    }
+    
+    // Modal functions
+    function showAddDateModal() {
+        const modal = document.getElementById('addDateModal');
+        
+        if (modal) {
+            modal.style.display = 'block';
+            
+            // Set current date as default
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('new_date');
+            
+            if (dateInput) {
+                dateInput.value = today;
+            }
+        }
+    }
+    
+    function closeAddDateModal() {
+        const modal = document.getElementById('addDateModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Form submission
+    document.getElementById('addDateForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const newDate = formData.get('new_date');
+        
+        if (!newDate) {
+            alert('Пожалуйста, выберите дату');
+            return;
+        }
+        
+        // Send request to add lesson
+        fetch('{% url "attendance_add_date" class_obj.id %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Занятие успешно добавлено!');
+                closeAddDateModal();
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при добавлении занятия');
+        });
+    });
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addDateModal');
+        if (event.target === modal) {
+            closeAddDateModal();
+        }
+    }
+    
+    // Delete lesson function
+    function deleteDate(date) {
+        if (confirm('Вы уверены, что хотите удалить занятие на ' + date + '? Это действие нельзя отменить.')) {
+            fetch('{% url "attendance_delete_date" class_obj.id %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    date: date
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Занятие успешно удалено!');
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при удалении занятия');
+            });
+        }
+    }
+    
+    // Make functions global for onclick
+    window.showAddDateModal = showAddDateModal;
+    window.closeAddDateModal = closeAddDateModal;
+    window.deleteDate = deleteDate;
+});
+</script>
+{% endblock %}
