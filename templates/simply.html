@@ -1005,36 +1005,12 @@
          }
      }
      
-     .timer-mini {
-         margin: 2vh 0;
-         font-size: 1.2vw;
-         opacity: 0.7;
-         text-align: center;
-     }
-     
-     .countdown-timer-mini {
-         font-size: 2vw;
-         font-weight: bold;
-         color: #FFD700;
-         text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-         margin-top: 0.5vh;
-         padding: 0.5vh;
-         background: rgba(255,255,255,0.1);
-         border-radius: 1vh;
-         display: inline-block;
-         min-width: 4vw;
-     }
-     
      .game-controls-mini {
          margin-top: 2vh;
          display: flex;
          flex-direction: column;
          gap: 1vh;
          align-items: center;
-     }
-     
-     .game-controls-mini .audio-controls {
-         margin-bottom: 1vh;
      }
      
      .game-controls-mini .btn {
@@ -1061,14 +1037,7 @@
              font-size: 40vw;
          }
          
-         .timer-mini {
-             font-size: 2.5vw;
-         }
-         
-         .countdown-timer-mini {
-             font-size: 4vw;
-             min-width: 8vw;
-         }
+
          
          .game-controls-mini .btn {
              padding: 1.5vh 4vw;
@@ -1098,14 +1067,7 @@
              font-size: 50vw;
          }
          
-         .timer-mini {
-             font-size: 3vw;
-         }
-         
-         .countdown-timer-mini {
-             font-size: 5vw;
-             min-width: 10vw;
-         }
+
          
          .game-controls-mini .btn {
              padding: 2vh 6vw;
@@ -1356,23 +1318,7 @@
                         {% if current_number < 0 %}{{ current_number }}{% else %}+{{ current_number }}{% endif %}
                     </div>
                     
-                    <div class="timer-mini">
-                        <div>Число будет показано:</div>
-                        <div class="countdown-timer-mini" id="number-timer">{{ speed }}</div>
-                        <div>секунд</div>
-                    </div>
-                    
                     <div class="game-controls-mini">
-                        <div class="audio-controls">
-                            <button type="button" id="audio-toggle" class="btn btn-secondary audio-btn">
-                                <span class="btn-icon">🔊</span>
-                                <span class="btn-text">Озвучка включена</span>
-                            </button>
-                            <div class="audio-info">
-                                <small>Озвучка работает при скорости 1.5+ сек</small>
-                            </div>
-                        </div>
-                        
                         <form method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="next_mode" value="7">
@@ -1509,168 +1455,50 @@
                 
 
                 
-                // Глобальная переменная для состояния озвучки
-                let audioEnabled = true;
-                
-                // Функция для обновления состояния кнопки озвучки
-                function updateAudioButton() {
-                    const audioBtn = document.getElementById('audio-toggle');
-                    const btnText = audioBtn.querySelector('.btn-text');
-                    const btnIcon = audioBtn.querySelector('.btn-icon');
-                    
-                    if (audioEnabled) {
-                        audioBtn.classList.remove('audio-off');
-                        btnText.textContent = 'Озвучка включена';
-                        btnIcon.textContent = '🔊';
+                // Автоматически переходим к следующему числу через заданное время
+                setTimeout(() => {
+                    if (currentIndex >= totalCount) {
+                        // Все числа показаны, переходим к вводу ответа
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/simply/5/';
+                        
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = 'csrfmiddlewaretoken';
+                        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                        
+                        const nextModeInput = document.createElement('input');
+                        nextModeInput.type = 'hidden';
+                        nextModeInput.name = 'next_mode';
+                        nextModeInput.value = '6';
+                        
+                        form.appendChild(csrfInput);
+                        form.appendChild(nextModeInput);
+                        document.body.appendChild(form);
+                        form.submit();
                     } else {
-                        audioBtn.classList.add('audio-off');
-                        btnText.textContent = 'Озвучка выключена';
-                        btnIcon.textContent = '🔇';
-                    }
-                }
-                
-                // Обработчик для кнопки озвучки
-                document.addEventListener('DOMContentLoaded', function() {
-                    const audioBtn = document.getElementById('audio-toggle');
-                    
-                    if (audioBtn) {
-                        audioBtn.addEventListener('click', function() {
-                            audioEnabled = !audioEnabled;
-                            updateAudioButton();
-                            
-                            if (!audioEnabled) {
-                                // Останавливаем текущую речь при выключении
-                                if ('speechSynthesis' in window) {
-                                    window.speechSynthesis.cancel();
-                    
-                                }
-                            }
-                            
-            
-                        });
+                        // Переходим к следующему числу
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/simply/5/';
                         
-                        // Инициализируем состояние кнопки
-                        updateAudioButton();
-                    }
-                });
-                
-                // Проверяем состояние озвучки при загрузке
-
-                
-                if ('speechSynthesis' in window) {
-                    // Проверяем доступные голоса
-                    let voices = window.speechSynthesis.getVoices();
-
-                    
-                    if (voices.length === 0) {
-
-                        window.speechSynthesis.onvoiceschanged = function() {
-                            voices = window.speechSynthesis.getVoices();
-
-                            
-                            // Ищем русский голос
-                            let russianVoice = voices.find(voice => voice.lang.includes('ru') || voice.lang.includes('RU'));
-                            if (russianVoice) {
-                                console.log('🇷🇺 DEBUG: Найден русский голос:', russianVoice.name);
-                            } else {
-                            }
-                        };
-                    } else {
-                        // Ищем русский голос
-                        let russianVoice = voices.find(voice => voice.lang.includes('ru') || voice.lang.includes('RU'));
-                        if (russianVoice) {
-                                                } else {
-                    }
-                    }
-                }
-                
-                // Озвучиваем число только если скорость позволяет (1.5 секунды и выше) И озвучка включена
-                if (speed >= 1.5 && audioEnabled) {
-    
-                    // Небольшая задержка перед озвучкой, чтобы число уже отобразилось
-                    setTimeout(() => {
-                        if (audioEnabled) { // Дополнительная проверка
-                            speakNumber(currentNumber);
-                        }
-                    }, 200);
-                } else if (speed < 1.5) {
-    
-                } else if (!audioEnabled) {
-                }
-                
-                let numberTimeLeft = speed;
-                const timerElement = document.getElementById('number-timer');
-                
-
-                
-                if (!timerElement) {
-                    console.error('❌ DEBUG: Элемент таймера не найден!');
-                } else {
-                    // Запускаем таймер
-                    const numberTimer = setInterval(() => {
-                        numberTimeLeft -= 0.1;
-                        timerElement.textContent = numberTimeLeft.toFixed(1);
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = 'csrfmiddlewaretoken';
+                        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
                         
-    
+                        const nextModeInput = document.createElement('input');
+                        nextModeInput.type = 'hidden';
+                        nextModeInput.name = 'next_mode';
+                        nextModeInput.value = '7';
                         
-                        if (numberTimeLeft <= 0) {
-
-                            clearInterval(numberTimer);
-                            
-                            // Останавливаем речь при переходе к следующему числу
-                            if ('speechSynthesis' in window) {
-                                window.speechSynthesis.cancel();
-    
-                            }
-                            
-
-                            
-                                                         if (currentIndex >= totalCount) {
-                                 // Все числа показаны, переходим к вводу ответа
-                                 const form = document.createElement('form');
-                                 form.method = 'POST';
-                                 form.action = '/simply/5/';
-                                 
-                                 const csrfInput = document.createElement('input');
-                                 csrfInput.type = 'hidden';
-                                 csrfInput.name = 'csrfmiddlewaretoken';
-                                 csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                                 
-                                 const nextModeInput = document.createElement('input');
-                                 nextModeInput.type = 'hidden';
-                                 nextModeInput.name = 'next_mode';
-                                 nextModeInput.value = '6';
-                                 
-                                 form.appendChild(csrfInput);
-                                 form.appendChild(nextModeInput);
-                                 document.body.appendChild(form);
-                                 form.submit();
-                             } else {
-                                 // Переходим к следующему числу
-                                 const form = document.createElement('form');
-                                 form.method = 'POST';
-                                 form.action = '/simply/5/';
-                                 
-                                 const csrfInput = document.createElement('input');
-                                 csrfInput.type = 'hidden';
-                                 csrfInput.name = 'csrfmiddlewaretoken';
-                                 csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                                 
-                                 const nextModeInput = document.createElement('input');
-                                 nextModeInput.type = 'hidden';
-                                 nextModeInput.name = 'next_mode';
-                                 nextModeInput.value = '7';
-                                 
-                                 form.appendChild(csrfInput);
-                                 form.appendChild(nextModeInput);
-                                 document.body.appendChild(form);
-                                 form.submit();
-                             }
-                        }
-                    }, 100);
-                    
-
-                }
+                        form.appendChild(csrfInput);
+                        form.appendChild(nextModeInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }, speed * 1000);
             </script>
 
             {% elif mode == 6 %}
