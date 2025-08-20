@@ -885,6 +885,25 @@
          .dropdown-content a:not(.available-game) i {
              color: #6b7280;
          }
+         
+         /* Скрытие навбара для игровых экранов */
+         body.game-mode .modern-header,
+         body.game-mode .nav-section,
+         body.game-mode .nav-button,
+         body.game-mode .dropdown,
+         body.game-mode .dropdown-content {
+             display: none !important;
+             visibility: hidden !important;
+             opacity: 0 !important;
+             position: absolute !important;
+             z-index: -1000 !important;
+             height: 0 !important;
+             overflow: hidden !important;
+             pointer-events: none !important;
+             margin: 0 !important;
+             padding: 0 !important;
+             width: 0 !important;
+         }
     </style>
     {% block mycss %}{% endblock %}
     
@@ -1204,6 +1223,32 @@
         {% block content %}{% endblock %}
     </div>
 </main>
+
+<script>
+    // Функции для управления навбаром в игровом режиме
+    window.hideNavbar = function() {
+        document.body.classList.add('game-mode');
+        console.log('🚫 Навбар скрыт (игровой режим)');
+    };
+    
+    window.showNavbar = function() {
+        document.body.classList.remove('game-mode');
+        console.log('✅ Навбар показан');
+    };
+    
+    // Автоматически скрываем навбар для страниц с играми
+    if (window.location.pathname.includes('/simply/') || 
+        window.location.pathname.includes('/multiplication/') ||
+        window.location.pathname.includes('/square/') ||
+        window.location.pathname.includes('/tricks/') ||
+        window.location.pathname.includes('/flashcards/')) {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                window.hideNavbar();
+            }, 100);
+        });
+    }
+</script>
 
 </body>
 </html>

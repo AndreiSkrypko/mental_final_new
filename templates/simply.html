@@ -831,6 +831,55 @@
             height: 32px;
         }
     }
+    
+    /* Кнопка "Выйти из игры" */
+    .exit-game-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .exit-game-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+        background: linear-gradient(135deg, #c2185b 0%, #e91e63 100%);
+    }
+    
+    .exit-game-button:active {
+        transform: translateY(0);
+    }
+    
+    .exit-game-button .exit-icon {
+        font-size: 18px;
+    }
+    
+    /* Адаптивность для мобильных устройств */
+    @media (max-width: 768px) {
+        .exit-game-button {
+            top: 15px;
+            right: 15px;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        
+        .exit-game-button .exit-icon {
+            font-size: 16px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -992,19 +1041,24 @@
             </script>
 
             {% elif mode == 2 %}
-                         <!-- Таймер отсчета -->
-             <div class="number-display">
-                 <div class="timer-display">
-                     <div>Игра начнется через:</div>
-                     <div class="countdown-timer" id="countdown">3</div>
-                 </div>
-                 
-                 <!-- Скрытая форма для перехода к следующему режиму -->
-                 <form method="POST" style="display: none;">
-                     {% csrf_token %}
-                     <input type="hidden" name="next_mode" value="3">
-                 </form>
-             </div>
+            <!-- Таймер отсчета -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+            <div class="number-display">
+                <div class="timer-display">
+                    <div>Игра начнется через:</div>
+                    <div class="countdown-timer" id="countdown">3</div>
+                </div>
+                
+                <!-- Скрытая форма для перехода к следующему режиму -->
+                <form method="POST" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next_mode" value="3">
+                </form>
+            </div>
 
             <script>
                 
@@ -1049,6 +1103,11 @@
 
             {% elif mode == 5 %}
             <!-- Показ чисел -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
             <div class="number-display">
                 <div class="number-info">
                     <span class="number-counter">Число {{ current_index }} из {{ total_count }}</span>
@@ -1078,11 +1137,11 @@
                         </div>
                     </div>
                     
-                                         <form method="POST">
-                         {% csrf_token %}
-                         <input type="hidden" name="next_mode" value="7">
-                         <button type="submit" class="btn btn-primary">Следующее число</button>
-                     </form>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="next_mode" value="7">
+                        <button type="submit" class="btn btn-primary">Следующее число</button>
+                    </form>
                 </div>
             </div>
 
@@ -1374,6 +1433,11 @@
 
             {% elif mode == 6 %}
             <!-- Ввод ответа -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
             <div class="answer-form">
                 <h2>🎯 Введите сумму всех чисел</h2>
                 <p>💭 Вспомните все числа, которые вы видели, и введите их сумму в поле ниже:</p>
@@ -1420,6 +1484,11 @@
 
             {% elif mode == 4 %}
             <!-- Результаты -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
             <div class="game-results">
                 <h2>Результат проверки</h2>
                 
@@ -1660,6 +1729,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 });
+</script>
+
+<script>
+// Функция для выхода из игры (глобальная)
+function exitGame() {
+    console.log('🔄 Функция exitGame вызвана');
+    
+    // Останавливаем все таймеры и озвучку
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        console.log('🔇 Озвучка остановлена');
+    }
+    
+    // Сбрасываем состояние игры
+    if (typeof currentNumberIndex !== 'undefined') {
+        currentNumberIndex = 0;
+    }
+    if (typeof score !== 'undefined') {
+        score = 0;
+    }
+    if (typeof gameStarted !== 'undefined') {
+        gameStarted = false;
+    }
+    
+    console.log('🔄 Состояние игры сброшено');
+    
+    // Показываем навбар обратно
+    if (window.showNavbar) {
+        window.showNavbar();
+        console.log('✅ Навбар показан');
+    } else {
+        console.log('⚠️ window.showNavbar не найден');
+    }
+    
+    // Перенаправляем на главную страницу
+    console.log('🔄 Перенаправление на главную страницу');
+    window.location.href = '/';
+}
 </script>
 
 {% endblock %}
