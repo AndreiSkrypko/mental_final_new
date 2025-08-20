@@ -49,3 +49,14 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# Temporary files and artifacts
+*.zip
+*.tar.gz
+*.rar
+tatus
+*.bak
+*.tmp
+
+# Git artifacts
+*.orig
