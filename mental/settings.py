@@ -14,8 +14,12 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-# Загружаем переменные среды из файла .env
-load_dotenv()
+# Загружаем переменные среды из файла .env (если файл существует)
+try:
+    load_dotenv()
+except Exception:
+    # Если файл .env не найден или поврежден, используем настройки по умолчанию
+    pass
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
