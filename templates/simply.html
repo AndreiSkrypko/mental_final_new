@@ -7,7 +7,7 @@
     /* Основные стили для игры */
     .game-container {
         min-height: 100vh;
-        padding: 20px;
+        padding: 10px;
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
         display: flex;
         flex-direction: column;
@@ -16,11 +16,12 @@
     .game-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
-        border-radius: 24px;
+        border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
         overflow: hidden;
-        max-width: 800px;
+        max-width: 95vw;
+        width: 100%;
         margin: 0 auto;
         animation: fadeInUp 0.8s ease-out;
         flex: 1;
@@ -31,7 +32,7 @@
     .game-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 25px;
+        padding: 12px 18px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -49,24 +50,28 @@
     }
 
     .game-title {
-        font-size: 2.2rem;
+        font-size: 1.6rem;
         font-weight: 700;
         margin: 0;
         position: relative;
         z-index: 2;
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 800px;
     }
 
     .game-subtitle {
-        font-size: 1rem;
+        font-size: 0.85rem;
         opacity: 0.9;
-        margin: 8px 0 0 0;
+        margin: 3px 0 0 0;
         position: relative;
         z-index: 2;
+        width: 100%;
+        max-width: 600px;
     }
 
     .game-body {
-        padding: 30px;
+        padding: 15px;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -75,33 +80,38 @@
 
     /* Стили для полей формы */
     .form-group {
-        margin-bottom: 25px;
+        margin-bottom: 12px;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .form-label {
         display: block;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #2d3748;
-        margin-bottom: 12px;
+        margin-bottom: 6px;
         text-align: center;
+        width: 100%;
+        max-width: 600px;
     }
 
     .form-select {
         width: 100%;
-        padding: 14px 18px;
-        font-size: 1rem;
+        padding: 10px 14px;
+        font-size: 0.9rem;
         border: 2px solid rgba(102, 126, 234, 0.2);
-        border-radius: 16px;
+        border-radius: 12px;
         background: rgba(255, 255, 255, 0.9);
         transition: all 0.3s ease;
         cursor: pointer;
         appearance: none;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
-        background-position: right 18px center;
-        background-size: 18px;
+        background-position: right 14px center;
+        background-size: 14px;
     }
 
     .form-select:focus {
@@ -118,8 +128,8 @@
 
     /* Стили для слайдеров */
     .setting-icon {
-        font-size: 1.2rem;
-        margin-right: 8px;
+        font-size: 0.9rem;
+        margin-right: 5px;
         display: inline-block;
         vertical-align: middle;
     }
@@ -128,21 +138,23 @@
         font-weight: 600;
         color: #667eea;
         background: rgba(102, 126, 234, 0.1);
-        padding: 4px 8px;
-        border-radius: 8px;
-        margin-left: 8px;
-        font-size: 0.9rem;
+        padding: 2px 5px;
+        border-radius: 5px;
+        margin-left: 5px;
+        font-size: 0.8rem;
     }
 
     .slider-container {
-        margin-top: 15px;
+        margin-top: 6px;
         position: relative;
+        width: 100%;
+        max-width: 600px;
     }
 
     .slider {
         width: 100%;
-        height: 8px;
-        border-radius: 4px;
+        height: 6px;
+        border-radius: 3px;
         background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e0 100%);
         outline: none;
         -webkit-appearance: none;
@@ -155,14 +167,14 @@
     .slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
         background: linear-gradient(135deg, #667eea, #764ba2);
         cursor: pointer;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         transition: all 0.3s ease;
-        border: 3px solid white;
+        border: 2px solid white;
     }
 
     .slider::-webkit-slider-thumb:hover {
@@ -193,16 +205,18 @@
     .slider-labels {
         display: flex;
         justify-content: space-between;
-        margin-top: 10px;
-        font-size: 0.8rem;
+        margin-top: 4px;
+        font-size: 0.7rem;
         color: #718096;
         font-weight: 500;
+        width: 100%;
     }
 
     .slider-labels span {
         text-align: center;
         flex: 1;
         padding: 0 4px;
+        font-size: 0.8rem;
     }
 
     .slider:focus {
@@ -230,23 +244,24 @@
 
     /* Стили для кнопки с иконкой */
     .btn-icon {
-        margin-right: 8px;
-        font-size: 1.1rem;
+        margin-right: 5px;
+        font-size: 0.9rem;
     }
 
     /* Стили для кнопки */
     .start-btn {
         width: 100%;
-        padding: 16px 24px;
-        font-size: 1.1rem;
+        max-width: 600px;
+        padding: 12px 20px;
+        font-size: 1rem;
         font-weight: 600;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
-        border-radius: 16px;
+        border-radius: 14px;
         color: white;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
         position: relative;
         overflow: hidden;
     }
@@ -655,19 +670,37 @@
     /* Адаптивность */
     @media (max-width: 768px) {
         .game-container {
-            padding: 15px;
+            padding: 8px;
         }
         
         .game-header {
-            padding: 20px;
+            padding: 12px 15px;
         }
         
         .game-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
         }
         
         .game-body {
-            padding: 20px;
+            padding: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        
+        .slider-container {
+            margin-top: 8px;
+        }
+        
+        .slider-labels {
+            font-size: 0.7rem;
+            margin-top: 6px;
         }
         
         .current-number {
@@ -705,10 +738,6 @@
             height: 20px;
         }
 
-        .slider-labels {
-            font-size: 0.7rem;
-        }
-
         .setting-value {
             font-size: 0.8rem;
             padding: 3px 6px;
@@ -716,6 +745,90 @@
 
         .setting-icon {
             font-size: 1rem;
+        }
+        
+        .start-btn {
+            padding: 12px 18px;
+            font-size: 0.95rem;
+        }
+    }
+    
+    /* Стили для больших экранов */
+    @media (min-width: 1200px) {
+        .game-card {
+            max-width: 80vw;
+        }
+        
+        .game-title {
+            max-width: 900px;
+            font-size: 2rem;
+        }
+        
+        .game-subtitle {
+            max-width: 700px;
+            font-size: 1rem;
+        }
+        
+        .form-label {
+            max-width: 800px;
+        }
+        
+        .slider-container {
+            max-width: 800px;
+        }
+        
+        .start-btn {
+            max-width: 800px;
+        }
+        
+        .game-body {
+            padding: 30px;
+        }
+        
+        .slider {
+            height: 10px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            width: 28px;
+            height: 28px;
+        }
+    }
+    
+    @media (min-width: 1600px) {
+        .game-card {
+            max-width: 70vw;
+        }
+        
+        .game-title {
+            max-width: 1100px;
+            font-size: 2.2rem;
+        }
+        
+        .game-subtitle {
+            max-width: 900px;
+            font-size: 1.1rem;
+        }
+        
+        .form-label {
+            max-width: 1000px;
+        }
+        
+        .slider-container {
+            max-width: 1000px;
+        }
+        
+        .start-btn {
+            max-width: 1000px;
+        }
+        
+        .slider {
+            height: 12px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            width: 32px;
+            height: 32px;
         }
     }
 </style>
@@ -774,7 +887,7 @@
                     <label for="speed" class="form-label">
                         <span class="setting-icon">⚡</span>
                         Скорость показа: <span class="setting-value" id="speed-value">{{ saved_settings.speed|default:'1' }} сек</span>
-                        <div style="font-size: 0.8rem; color: #718096; margin-top: 5px; font-weight: normal;">
+                        <div style="font-size: 0.7rem; color: #718096; margin-top: 2px; font-weight: normal;">
                             🔊 Озвучка чисел работает при скорости 1.5+ секунд
                         </div>
                     </label>
@@ -795,7 +908,7 @@
                     <label for="max_digit" class="form-label">
                         <span class="setting-icon">🔤</span>
                         Максимальная цифра: <span class="setting-value" id="max_digit-value">{{ saved_settings.max_digit|default:'9' }}</span>
-                        <div style="font-size: 0.8rem; color: #718096; margin-top: 5px; font-weight: normal;">
+                        <div style="font-size: 0.7rem; color: #718096; margin-top: 2px; font-weight: normal;">
                             Числа будут состоять только из цифр от 1 до выбранного значения
                         </div>
                     </label>
@@ -816,7 +929,7 @@
                 </div>
                 
                 <!-- Кнопка начала игры -->
-                <div class="form-group text-center">
+                <div class="form-group text-center" style="margin-top: 8px;">
                     <button type="submit" class="start-btn">
                         <span class="btn-icon">🚀</span>
                         Начать игру
