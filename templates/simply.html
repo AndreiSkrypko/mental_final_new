@@ -867,19 +867,256 @@
         font-size: 18px;
     }
     
-    /* Адаптивность для мобильных устройств */
-    @media (max-width: 768px) {
-        .exit-game-button {
-            top: 15px;
-            right: 15px;
-            padding: 10px 16px;
-            font-size: 14px;
-        }
-        
-        .exit-game-button .exit-icon {
-            font-size: 16px;
-        }
-    }
+         /* Адаптивность для мобильных устройств */
+     @media (max-width: 768px) {
+         .exit-game-button {
+             top: 15px;
+             right: 15px;
+             padding: 10px 16px;
+             font-size: 14px;
+         }
+         
+         .exit-game-button .exit-icon {
+             font-size: 16px;
+         }
+     }
+     
+     /* Полноэкранный режим для отсчета и показа чисел */
+     .countdown-fullscreen {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100vw;
+         height: 100vh;
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         z-index: 9999;
+         margin: 0;
+         padding: 0;
+         border: none;
+         border-radius: 0;
+         box-shadow: none;
+     }
+     
+     .countdown-content {
+         text-align: center;
+         color: white;
+         max-width: 90vw;
+         max-height: 90vh;
+     }
+     
+     .countdown-text {
+         font-size: 2.5vw;
+         margin-bottom: 2vh;
+         opacity: 0.9;
+         font-weight: 500;
+     }
+     
+     .countdown-number {
+         font-size: 25vw;
+         font-weight: bold;
+         color: #FFD700;
+         text-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+         margin: 0;
+         padding: 0;
+         line-height: 1;
+         animation: pulse 1s ease-in-out infinite alternate;
+     }
+     
+     @keyframes pulse {
+         from { transform: scale(1); }
+         to { transform: scale(1.05); }
+     }
+     
+     .number-display-fullscreen {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100vw;
+         height: 100vh;
+         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         z-index: 9999;
+         margin: 0;
+         padding: 0;
+         border: none;
+         border-radius: 0;
+         box-shadow: none;
+     }
+     
+     .number-content {
+         text-align: center;
+         color: white;
+         max-width: 95vw;
+         max-height: 95vh;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         justify-content: center;
+     }
+     
+     .number-counter-mini {
+         font-size: 1.5vw;
+         margin-bottom: 1vh;
+         opacity: 0.8;
+         font-weight: 400;
+     }
+     
+     .progress-bar-mini {
+         width: 30vw;
+         height: 0.5vh;
+         background: rgba(255,255,255,0.3);
+         border-radius: 0.25vh;
+         overflow: hidden;
+         margin-bottom: 2vh;
+     }
+     
+     .progress-fill {
+         height: 100%;
+         background: linear-gradient(90deg, #2ecc71, #27ae60);
+         transition: width 0.3s ease;
+     }
+     
+     .current-number-huge {
+         font-size: 30vw;
+         font-weight: bold;
+         margin: 2vh 0;
+         text-shadow: 0 0 60px rgba(255,255,255,0.6);
+         padding: 0;
+         background: none;
+         border-radius: 0;
+         backdrop-filter: none;
+         line-height: 1;
+         animation: numberAppear 0.5s ease-out;
+     }
+     
+     @keyframes numberAppear {
+         from { 
+             opacity: 0; 
+             transform: scale(0.8); 
+         }
+         to { 
+             opacity: 1; 
+             transform: scale(1); 
+         }
+     }
+     
+     .timer-mini {
+         margin: 2vh 0;
+         font-size: 1.2vw;
+         opacity: 0.7;
+         text-align: center;
+     }
+     
+     .countdown-timer-mini {
+         font-size: 2vw;
+         font-weight: bold;
+         color: #FFD700;
+         text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+         margin-top: 0.5vh;
+         padding: 0.5vh;
+         background: rgba(255,255,255,0.1);
+         border-radius: 1vh;
+         display: inline-block;
+         min-width: 4vw;
+     }
+     
+     .game-controls-mini {
+         margin-top: 2vh;
+         display: flex;
+         flex-direction: column;
+         gap: 1vh;
+         align-items: center;
+     }
+     
+     .game-controls-mini .audio-controls {
+         margin-bottom: 1vh;
+     }
+     
+     .game-controls-mini .btn {
+         padding: 1vh 2vw;
+         font-size: 1vw;
+         border-radius: 1vh;
+     }
+     
+     /* Адаптивность для полноэкранного режима */
+     @media (max-width: 768px) {
+         .countdown-text {
+             font-size: 4vw;
+         }
+         
+         .countdown-number {
+             font-size: 35vw;
+         }
+         
+         .number-counter-mini {
+             font-size: 3vw;
+         }
+         
+         .current-number-huge {
+             font-size: 40vw;
+         }
+         
+         .timer-mini {
+             font-size: 2.5vw;
+         }
+         
+         .countdown-timer-mini {
+             font-size: 4vw;
+             min-width: 8vw;
+         }
+         
+         .game-controls-mini .btn {
+             padding: 1.5vh 4vw;
+             font-size: 2vw;
+         }
+         
+         .progress-bar-mini {
+             width: 60vw;
+             height: 1vh;
+         }
+     }
+     
+     @media (max-width: 480px) {
+         .countdown-text {
+             font-size: 5vw;
+         }
+         
+         .countdown-number {
+             font-size: 45vw;
+         }
+         
+         .number-counter-mini {
+             font-size: 4vw;
+         }
+         
+         .current-number-huge {
+             font-size: 50vw;
+         }
+         
+         .timer-mini {
+             font-size: 3vw;
+         }
+         
+         .countdown-timer-mini {
+             font-size: 5vw;
+             min-width: 10vw;
+         }
+         
+         .game-controls-mini .btn {
+             padding: 2vh 6vw;
+             font-size: 3vw;
+         }
+         
+         .progress-bar-mini {
+             width: 80vw;
+             height: 1.5vh;
+         }
+     }
 </style>
 {% endblock %}
 
@@ -1047,10 +1284,10 @@
                 Выйти из игры
             </button>
             
-            <div class="number-display">
-                <div class="timer-display">
-                    <div>Игра начнется через:</div>
-                    <div class="countdown-timer" id="countdown">3</div>
+            <div class="countdown-fullscreen">
+                <div class="countdown-content">
+                    <div class="countdown-text">Игра начнется через:</div>
+                    <div class="countdown-number" id="countdown">3</div>
                 </div>
                 
                 <!-- Скрытая форма для перехода к следующему режиму -->
@@ -1108,40 +1345,40 @@
                 Выйти из игры
             </button>
             
-            <div class="number-display">
-                <div class="number-info">
-                    <span class="number-counter">Число {{ current_index }} из {{ total_count }}</span>
-                    <div class="progress-bar">
+            <div class="number-display-fullscreen">
+                <div class="number-content">
+                    <div class="number-counter-mini">Число {{ current_index }} из {{ total_count }}</div>
+                    <div class="progress-bar-mini">
                         <div class="progress-fill" style="width: {% widthratio current_index total_count 100 %}%"></div>
                     </div>
-                </div>
-                
-                <div class="current-number {% if current_number < 0 %}negative-number{% else %}positive-number{% endif %}">
-                    {% if current_number < 0 %}{{ current_number }}{% else %}+{{ current_number }}{% endif %}
-                </div>
-                
-                <div class="timer-display">
-                    <div>Число будет показано:</div>
-                    <div class="countdown-timer" id="number-timer">{{ speed }}</div>
-                    <div>секунд</div>
-                </div>
-                
-                <div class="game-controls">
-                    <div class="audio-controls">
-                        <button type="button" id="audio-toggle" class="btn btn-secondary audio-btn">
-                            <span class="btn-icon">🔊</span>
-                            <span class="btn-text">Озвучка включена</span>
-                        </button>
-                        <div class="audio-info">
-                            <small>Озвучка работает при скорости 1.5+ сек</small>
-                        </div>
+                    
+                    <div class="current-number-huge {% if current_number < 0 %}negative-number{% else %}positive-number{% endif %}">
+                        {% if current_number < 0 %}{{ current_number }}{% else %}+{{ current_number }}{% endif %}
                     </div>
                     
-                    <form method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="next_mode" value="7">
-                        <button type="submit" class="btn btn-primary">Следующее число</button>
-                    </form>
+                    <div class="timer-mini">
+                        <div>Число будет показано:</div>
+                        <div class="countdown-timer-mini" id="number-timer">{{ speed }}</div>
+                        <div>секунд</div>
+                    </div>
+                    
+                    <div class="game-controls-mini">
+                        <div class="audio-controls">
+                            <button type="button" id="audio-toggle" class="btn btn-secondary audio-btn">
+                                <span class="btn-icon">🔊</span>
+                                <span class="btn-text">Озвучка включена</span>
+                            </button>
+                            <div class="audio-info">
+                                <small>Озвучка работает при скорости 1.5+ сек</small>
+                            </div>
+                        </div>
+                        
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="next_mode" value="7">
+                            <button type="submit" class="btn btn-primary">Следующее число</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -1177,15 +1414,20 @@
                     return num.toString();
                 }
                 
-                // Функция для озвучивания числа
-                function speakNumber(num) {
-                    // Проверяем, включена ли озвучка
-                    if (!audioEnabled) {
-        
-                        return;
-                    }
-                    
-                    const text = numberToWords(num);
+                                 // Функция для озвучивания числа
+                 function speakNumber(num) {
+                     // Проверяем, включена ли озвучка
+                     if (!audioEnabled) {
+         
+                         return;
+                     }
+                     
+                     let text = numberToWords(num);
+                     
+                     // Добавляем "плюс" для положительных чисел
+                     if (num > 0) {
+                         text = "плюс " + text;
+                     }
     
                     
                     // Проверяем поддержку Speech Synthesis
