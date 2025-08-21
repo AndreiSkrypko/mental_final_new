@@ -276,86 +276,108 @@ def square(request, mode):
         if request.method == 'POST':
             selected_ranges = request.POST.getlist('number-ranges')
 
-            first_multipliers = []
-            for r in selected_ranges:
-                first_multipliers.extend(RANGES.get(r, []))
-
-            if not first_multipliers:
+            if not selected_ranges:
                 return redirect('square', mode=1)
 
-            first = random.choice(first_multipliers)
-            second = random.choice(first_multipliers)
-            
-            # Случайно выбираем знак для чисел
-            first_sign = random.choice([-1, 1])
-            second_sign = random.choice([-1, 1])
-            
-            first *= first_sign
-            second *= second_sign
+            # Генерируем список чисел для возведения в квадрат
+            numbers = []
+            for r in selected_ranges:
+                numbers.extend(RANGES.get(r, []))
 
-            request.session['first'] = first
-            request.session['second'] = second
+            if not numbers:
+                return redirect('square', mode=1)
+
+            # Сохраняем числа и настройки в сессии
+            request.session['square_numbers'] = numbers
             request.session['selected_ranges'] = selected_ranges
+            request.session['current_index'] = 0
+            request.session['total_count'] = len(numbers)
 
-            return redirect('square', mode=2)
+            # Пропускаем отсчет и сразу показываем первое число
+            return redirect('square', mode=3)
 
     elif mode == 2:
-        first = request.session.get('first')
-        second = request.session.get('second')
+        # Проверяем, есть ли параметр next_mode для перехода к режиму 3
+        if request.method == 'POST' and request.POST.get('next_mode') == '3':
+            return redirect('square', mode=3)
 
-        if first is None or second is None:
-            return redirect('square', mode=1)
-
-        return render(request, 'square.html', {
-            'first': first,
-            'second': second,
-            'operation': '×',
-            'mode': 2
-        })
+        # Отсчет перед началом игры
+        return render(request, 'square.html', {"mode": 2})
 
     elif mode == 3:
-        first = request.session.get('first')
-        second = request.session.get('second')
-        selected_ranges = request.session.get('selected_ranges', [])
+        # Проверяем, есть ли параметр next_mode для перехода к режиму 4
+        if request.method == 'POST' and request.POST.get('next_mode') == '4':
+            return redirect('square', mode=4)
+
+        # Показ числа для возведения в квадрат
+        numbers = request.session.get('square_numbers', [])
+        current_index = request.session.get('current_index', 0)
+        total_count = request.session.get('total_count', 0)
+
+        if not numbers or current_index >= total_count:
+            return redirect('square', mode=1)
+
+        current_number = numbers[current_index]
+        
+        # Увеличиваем индекс и сохраняем в сессии для следующего перехода
+        request.session['current_index'] = current_index + 1
+        
+        return render(request, 'square.html', {
+            'mode': 3,
+            'number': current_number,
+            'current_index': current_index + 1,
+            'total_count': total_count
+        })
+
+    elif mode == 4:
+        # Ввод ответа
+        numbers = request.session.get('square_numbers', [])
+        current_index = request.session.get('current_index', 0)
+        total_count = request.session.get('total_count', 0)
+
+        if current_index > total_count:
+            return redirect('square', mode=1)
+
+        # current_index теперь указывает на следующее число, поэтому берем предыдущее
+        current_number = numbers[current_index - 1]
 
         if request.method == 'POST':
-            user_answer = request.POST.get('user-answer')
-            correct_answer = first * second
+            user_answer = request.POST.get('user_answer')
+            correct_answer = current_number ** 2
 
             if user_answer and user_answer.isdigit() and int(user_answer) == correct_answer:
+                is_correct = True
                 result_message = "Верно! Молодец!"
-                result_color = "green"
-
-                first_multipliers = []
-                for r in selected_ranges:
-                    first_multipliers.extend(RANGES.get(r, []))
-
-                if first_multipliers:
-                    new_first = random.choice(first_multipliers)
-                    new_second = random.choice(first_multipliers)
-                    
-                    # Случайно выбираем знак для новых чисел
-                    first_sign = random.choice([-1, 1])
-                    second_sign = random.choice([-1, 1])
-                    
-                    new_first *= first_sign
-                    new_second *= second_sign
-                    
-                    request.session['first'] = new_first
-                    request.session['second'] = new_second
             else:
+                is_correct = False
                 result_message = "Неверно! Попробуйте снова."
-                result_color = "red"
 
-            return render(request, 'square.html', {
-                'user_answer': user_answer,
-                'correct_answer': correct_answer,
-                'result': result_message,
-                'result_color': result_color,
-                'mode': 3
-            })
+            # Переходим к следующему числу или к результатам
+            if current_index < total_count:
+                # Есть еще числа для показа, переходим к следующему
+                return redirect('square', mode=3)
+            else:
+                # Все числа показаны, показываем результаты
+                request.session['is_correct'] = is_correct
+                request.session['user_answer'] = user_answer
+                request.session['correct_answer'] = correct_answer
+                request.session['result'] = result_message
+                return redirect('square', mode=5)
 
-        return redirect('square', mode=2)
+        return render(request, 'square.html', {
+            'mode': 4,
+            'current_number': current_number
+        })
+
+    elif mode == 5:
+        # Результаты игры
+        return render(request, 'square.html', {
+            'mode': 5,
+            'is_correct': request.session.get('is_correct', False),
+            'user_answer': request.session.get('user_answer', ''),
+            'correct_answer': request.session.get('correct_answer', ''),
+            'result': request.session.get('result', '')
+        })
 
 
 # Обработчик выбора и проверки умножение от базы

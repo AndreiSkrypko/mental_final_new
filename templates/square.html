@@ -1,286 +1,1090 @@
 {% extends 'base.html' %}
 
-{% block title %}
-Игра возведение в квадрат
-{% endblock %}
+{% block title %}Игра "Квадрат"{% endblock %}
 
 {% block mycss %}
 <style>
+    /* Основные стили для игры */
+    .game-container {
+        min-height: 100vh;
+        padding: 10px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        display: flex;
+        flex-direction: column;
+    }
 
-    /* Центрирование заголовка */
-.centered-content {
-    height: 20vh; /* Высота элемента равна 20% от высоты окна */
-    display: flex; /* Используем Flexbox для выравнивания */
-    justify-content: center; /* Горизонтальное центрирование */
-    align-items: center; /* Вертикальное центрирование */
-    font-size: 2rem; /* Размер шрифта */
-    font-weight: bold; /* Жирное начертание текста */
-    color: #0044cc; /* Синий цвет текста */
-    background-color: rgba(173, 216, 230, 0.3); /* Полупрозрачный светло-синий фон */
-    border-radius: 10px; /* Скругление углов */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для блока */
-    margin-bottom: 20px; /* Отступ снизу */
-}
+    .game-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 95vw;
+        width: 100%;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease-out;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* Стиль для контейнера формы */
-.form-container {
-    background: rgba(0, 0, 0, 0.05); /* Полупрозрачный черный фон */
-    padding: 30px; /* Внутренний отступ */
-    border-radius: 15px; /* Скругленные углы */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Тень */
-    max-width: 900px; /* Максимальная ширина */
-    margin: 20px auto; /* Отступ сверху и снизу, выравнивание по центру */
-}
+    .game-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 18px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
 
-/* Отступ для секций внутри формы */
-.form-section {
-    margin-bottom: 30px; /* Отступ снизу */
-}
+    .game-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
 
-/* Стили для текста label */
-label {
-    font-size: 1.3rem; /* Размер шрифта */
-    font-weight: bold; /* Жирное начертание */
-    color: #0044cc; /* Синий цвет текста */
-}
+    .game-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 800px;
+    }
 
-/* Стили для выпадающего списка select */
-select {
-    width: 100%; /* Ширина на 100% от родителя */
-    padding: 12px; /* Внутренний отступ */
-    font-size: 1.2rem; /* Размер шрифта */
-    border-radius: 5px; /* Скругленные углы */
-    border: 1px solid #ccc; /* Светло-серая рамка */
-    margin-top: 10px; /* Отступ сверху */
-    margin-bottom: 20px; /* Отступ снизу */
-}
+    .game-subtitle {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin: 3px 0 0 0;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 600px;
+    }
 
-/* Группа радиокнопок */
-.radio-group {
-    display: flex; /* Flexbox для выравнивания элементов */
-    flex-wrap: wrap; /* Элементы переносятся на новую строку, если нужно */
-    gap: 20px; /* Расстояние между элементами */
-}
+    .game-body {
+        padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 
-/* Текст внутри группы радиокнопок */
-.radio-group span {
-    display: block; /* Отображение как блок */
-    font-size: 1.5rem; /* Размер шрифта */
-    font-weight: bold; /* Жирное начертание */
-    color: #333; /* Темно-серый цвет */
-    margin-bottom: 10px; /* Отступ снизу */
-}
+    /* Стили для полей формы */
+    .form-group {
+        margin-bottom: 12px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-/* Стили для радиокнопок (с помощью label) */
-.radio-group label {
-    display: inline-block; /* Инлайн-блок */
-    font-size: 1.2rem; /* Размер шрифта */
-    font-weight: bold; /* Жирное начертание */
-    color: #222; /* Темный цвет */
-    background-color: #e6f7ff; /* Светло-голубой фон */
-    padding: 15px 20px; /* Внутренний отступ */
-    border-radius: 10px; /* Скругленные углы */
-    border: 1px solid #ccc; /* Светлая рамка */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень */
-    cursor: pointer; /* Указатель на кнопке */
-    transition: all 0.3s ease; /* Плавный переход для всех изменений */
-}
+    .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 6px;
+        text-align: center;
+        width: 100%;
+        max-width: 600px;
+    }
 
-/* Скрытие радиокнопок */
-.radio-group input[type="radio"] {
-    display: none; /* Радиокнопки не видны */
-}
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 10px;
+        width: 100%;
+        max-width: 600px;
+    }
 
-/* Стили для выбранных радиокнопок */
-.radio-group input[type="radio"]:checked + label {
-    background-color: #0044cc; /* Темно-синий фон */
-    color: white; /* Белый текст */
-    border: 1px solid #002a80; /* Тёмно-синяя рамка */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
-}
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: #2d3748;
+    }
 
-/* Стили для кнопок */
-button {
-    padding: 15px 30px; /* Внутренний отступ */
-    font-size: 1.5rem; /* Размер шрифта */
-    font-weight: bold; /* Жирное начертание */
-    color: white; /* Белый цвет текста */
-    background-color: #28a745; /* Зеленый фон */
-    border: none; /* Без рамки */
-    border-radius: 8px; /* Скругленные углы */
-    cursor: pointer; /* Указатель при наведении */
-    transition: background 0.3s ease; /* Плавный переход для фона */
-}
+    .checkbox-item:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
 
-/* Стили для кнопки при наведении */
-button:hover {
-    background-color: #218838; /* Темно-зеленый фон при наведении */
-}
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #667eea;
+    }
 
-/* Основной контейнер */
-.container {
-    display: flex; /* Flexbox для вертикального выравнивания */
-    flex-direction: column; /* Вертикальная ориентация элементов */
-    align-items: center; /* Горизонтальное центрирование */
-    justify-content: center; /* Вертикальное центрирование */
-    height: 100vh; /* Высота контейнера на весь экран */
-    text-align: center; /* Центрирование текста */
-}
+    .checkbox-item input[type="checkbox"]:checked + label {
+        color: #667eea;
+        font-weight: 600;
+    }
 
-/* Стиль для блока вывода */
-.output-box {
-    width: 80%; /* Ширина блока 80% от родителя */
-    height: 300px; /* Высота блока */
-    border: 2px solid #333; /* Темная рамка */
-    padding: 20px; /* Внутренний отступ */
-    background-color: #f9f9f9; /* Светлый фон */
-    border-radius: 10px; /* Скругленные углы */
-    display: flex; /* Flexbox для выравнивания контента */
-    flex-direction: column; /* Вертикальное выравнивание */
-    justify-content: space-between; /* Равномерное распределение контента */
-    align-items: center; /* Центрирование элементов */
-    text-align: center; /* Центрирование текста */
-}
+    /* Стили для кнопки */
+    .start-btn {
+        width: 100%;
+        max-width: 600px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 14px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+        margin-top: 20px;
+    }
 
-/* Текст внутри блока вывода */
-.output-text {
-    flex-grow: 1; /* Текст занимает доступное пространство */
-    font-size: 18px; /* Размер шрифта */
-    color: black; /* Черный цвет текста */
-}
+    .start-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
 
-/* Стиль для результата */
-.result {
-    font-size: 20px; /* Размер шрифта */
-    font-weight: bold; /* Жирное начертание текста */
-}
+    .start-btn:hover::before {
+        left: 100%;
+    }
 
-/* Стиль для кнопок внутри блока вывода */
-.btn {
-    padding: 10px 20px; /* Внутренний отступ */
-    font-size: 18px; /* Размер шрифта */
-    border: none; /* Без рамки */
-    cursor: pointer; /* Указатель на кнопке */
-    border-radius: 5px; /* Скругленные углы */
-}
+    .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
 
-/* Стили для кнопки "Назад" */
-.back-btn {
-    background-color: #ff4d4d; /* Красный фон */
-    color: white; /* Белый текст */
-}
+    .start-btn:active {
+        transform: translateY(-1px);
+    }
 
-/* Стили для кнопки "Проверить" */
-.check-btn {
-    background-color: #4CAF50; /* Зеленый фон */
-    color: white; /* Белый текст */
-}
+    /* Стили для показа чисел */
+    .number-display {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 
-/* Эффект при наведении на кнопки */
-.btn:hover {
-    opacity: 0.8; /* Уменьшение непрозрачности */
-}
+    .number-info {
+        margin-bottom: 20px;
+    }
 
-/* Стили для положительных чисел */
-.positive-number {
-    color: #28a745;
-    font-weight: bold;
-}
+    .number-counter {
+        display: block;
+        font-size: 1.1em;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
 
-/* Стили для отрицательных чисел */
-.negative-number {
-    color: #dc3545;
-    font-weight: bold;
-}
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
 
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+        transition: width 0.3s ease;
+    }
+
+    .current-number {
+        font-size: 4rem;
+        font-weight: bold;
+        margin: 30px 0;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+
+    .positive-number {
+        color: #2ecc71;
+    }
+
+    .negative-number {
+        color: #e74c3c;
+    }
+
+    /* Стили для таймера */
+    .timer-display {
+        margin: 20px 0;
+        font-size: 1.2em;
+        opacity: 0.9;
+        text-align: center;
+    }
+    
+    .countdown-timer {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        display: inline-block;
+        min-width: 80px;
+    }
+
+    /* Стили для формы ответа */
+    .answer-form {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        border-radius: 24px;
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+ 
+    .answer-form::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+        z-index: 0;
+    }
+ 
+    .answer-form h2 {
+        color: #2d3748;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 1;
+        font-weight: 700;
+    }
+ 
+    .answer-form p {
+        color: #4a5568;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 5px rgba(0,0,0,0.05);
+        position: relative;
+        z-index: 1;
+        line-height: 1.6;
+    }
+ 
+    .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px 25px;
+        font-size: 1.4rem;
+        border: 3px solid rgba(102, 126, 234, 0.3);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #2d3748;
+        text-align: center;
+        margin: 30px auto;
+        transition: all 0.4s ease;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    }
+ 
+    .answer-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.25);
+    }
+ 
+    .answer-input:hover {
+        border-color: #667eea;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    }
+ 
+    .answer-input::placeholder {
+        color: #a0aec0;
+        opacity: 0.8;
+        font-weight: 500;
+    }
+ 
+    .answer-form .game-controls {
+        position: relative;
+        z-index: 1;
+        margin-top: 30px;
+    }
+ 
+    .answer-form .btn {
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+ 
+    .answer-form .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+ 
+    .answer-form .btn:hover::before {
+        left: 100%;
+    }
+ 
+    .answer-form .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+ 
+    .answer-form .btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* Стили для результатов */
+    .game-results {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .result-message {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .result-message.correct {
+        color: #2ecc71;
+        border: 2px solid rgba(46, 204, 113, 0.3);
+    }
+
+    .result-message.incorrect {
+        color: #e74c3c;
+        border: 2px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .result-details {
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+    }
+
+    .result-details p {
+        margin: 10px 0;
+        font-size: 1.1em;
+    }
+
+    /* Кнопки управления */
+    .game-controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Кнопка "Выйти из игры" */
+    .exit-game-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .exit-game-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+        background: linear-gradient(135deg, #c2185b 0%, #e91e63 100%);
+    }
+    
+    .exit-game-button:active {
+        transform: translateY(0);
+    }
+    
+    .exit-game-button .exit-icon {
+        font-size: 18px;
+    }
+    
+    /* Адаптивность для мобильных устройств */
+    @media (max-width: 768px) {
+        .exit-game-button {
+            top: 15px;
+            right: 15px;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        
+        .exit-game-button .exit-icon {
+            font-size: 16px;
+        }
+    }
+    
+    /* Полноэкранный режим для отсчета и показа чисел */
+    .countdown-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .countdown-content {
+        text-align: center;
+        color: white;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+    
+    .countdown-text {
+        font-size: 2.5vw;
+        margin-bottom: 2vh;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+    
+    .countdown-number {
+        font-size: 25vw;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+        animation: pulse 1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes pulse {
+        from { transform: scale(1); }
+        to { transform: scale(1.05); }
+    }
+    
+    .number-display-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .number-content {
+        text-align: center;
+        color: white;
+        max-width: 95vw;
+        max-height: 95vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .number-counter-mini {
+        font-size: 1.5vw;
+        margin-bottom: 1vh;
+        opacity: 0.8;
+        font-weight: 400;
+    }
+    
+    .progress-bar-mini {
+        width: 30vw;
+        height: 0.5vh;
+        background: rgba(255,255,255,0.3);
+        border-radius: 0.25vh;
+        overflow: hidden;
+        margin-bottom: 2vh;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+        transition: width 0.3s ease;
+    }
+    
+    .current-number-huge {
+        font-size: 30vw;
+        font-weight: bold;
+        margin: 2vh 0;
+        text-shadow: 0 0 60px rgba(255,255,255,0.6);
+        padding: 0;
+        background: none;
+        border-radius: 0;
+        backdrop-filter: none;
+        line-height: 1;
+        animation: numberAppear 0.5s ease-out;
+    }
+    
+    @keyframes numberAppear {
+        from { 
+            opacity: 0; 
+            transform: scale(0.8); 
+        }
+        to { 
+            opacity: 1; 
+            transform: scale(1); 
+        }
+    }
+    
+    .game-controls-mini {
+        margin-top: 2vh;
+        display: flex;
+        flex-direction: column;
+        gap: 1vh;
+        align-items: center;
+    }
+    
+    .game-controls-mini .btn {
+        padding: 1vh 2vw;
+        font-size: 1vw;
+        border-radius: 1vh;
+    }
+    
+    /* Адаптивность для полноэкранного режима */
+    @media (max-width: 768px) {
+        .countdown-text {
+            font-size: 4vw;
+        }
+        
+        .countdown-number {
+            font-size: 35vw;
+        }
+        
+        .number-counter-mini {
+            font-size: 3vw;
+        }
+        
+        .current-number-huge {
+            font-size: 40vw;
+        }
+        
+        .game-controls-mini .btn {
+            padding: 1.5vh 4vw;
+            font-size: 2vw;
+        }
+        
+        .progress-bar-mini {
+            width: 60vw;
+            height: 1vh;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .countdown-text {
+            font-size: 5vw;
+        }
+        
+        .countdown-number {
+            font-size: 45vw;
+        }
+        
+        .number-counter-mini {
+            font-size: 4vw;
+        }
+        
+        .current-number-huge {
+            font-size: 50vw;
+        }
+        
+        .game-controls-mini .btn {
+            padding: 2vh 6vw;
+            font-size: 3vw;
+        }
+        
+        .progress-bar-mini {
+            width: 80vw;
+            height: 1.5vh;
+        }
+    }
+
+    /* Анимации */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .game-container {
+            padding: 8px;
+        }
+        
+        .game-header {
+            padding: 12px 15px;
+        }
+        
+        .game-title {
+            font-size: 1.6rem;
+        }
+        
+        .game-body {
+            padding: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        
+        .checkbox-group {
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            padding: 10px 14px;
+            font-size: 0.9rem;
+        }
+        
+        .start-btn {
+            padding: 12px 18px;
+            font-size: 0.95rem;
+        }
+    }
+    
+    /* Стили для больших экранов */
+    @media (min-width: 1200px) {
+        .game-card {
+            max-width: 80vw;
+        }
+        
+        .game-title {
+            max-width: 900px;
+            font-size: 2rem;
+        }
+        
+        .game-subtitle {
+            max-width: 700px;
+            font-size: 1rem;
+        }
+        
+        .form-label {
+            max-width: 800px;
+        }
+        
+        .checkbox-group {
+            max-width: 800px;
+        }
+        
+        .start-btn {
+            max-width: 800px;
+        }
+        
+        .game-body {
+            padding: 30px;
+        }
+    }
+    
+    @media (min-width: 1600px) {
+        .game-card {
+            max-width: 70vw;
+        }
+        
+        .game-title {
+            max-width: 1100px;
+            font-size: 2.2rem;
+        }
+        
+        .game-subtitle {
+            max-width: 900px;
+            font-size: 1.1rem;
+        }
+        
+        .form-label {
+            max-width: 1000px;
+        }
+        
+        .checkbox-group {
+            max-width: 1000px;
+        }
+        
+        .start-btn {
+            max-width: 1000px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-
-
-{% if mode == 1 %}
-
-<div class="centered-content">
-    Игра "возведение в квадрат" выберите диапазоны чисел
-</div>
-<!-- про игру умножение -->
-<div class="form-container">
-    <form method="POST" id="operation-form">
-        {% csrf_token %}
-
-        <!-- Выбор диапазонов -->
-        <div class="form-section">
-            <span>Выберите диапазоны чисел:</span>
-            <div class="checkbox-group">
-                <input type="checkbox" id="range-1-9" name="number-ranges" value="1-9">
-                <label for="range-1-9">1-9</label>
-
-                <input type="checkbox" id="range-10-19" name="number-ranges" value="10-19">
-                <label for="range-10-19">10-19</label>
-
-                <input type="checkbox" id="range-20-29" name="number-ranges" value="20-29">
-                <label for="range-20-29">20-29</label>
-
-                <input type="checkbox" id="range-30-70" name="number-ranges" value="30-70">
-                <label for="range-30-70">30-70</label>
-
-                <input type="checkbox" id="range-80-120" name="number-ranges" value="80-120">
-                <label for="range-80-120">80-120</label>
-            </div>
+<div class="game-container">
+    <div class="game-card">
+        <div class="game-header">
+            <h1 class="game-title">Игра "Квадрат"</h1>
+            <p class="game-subtitle">Возводите числа в квадрат! Тренируйте ментальную арифметику.</p>
         </div>
+        
+        <div class="game-body">
+            {% if mode == 1 %}
+            <!-- Настройка игры -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="ranges" class="form-label">
+                        <span style="font-size: 1.2rem; margin-right: 8px;">🎯</span>
+                        Выберите диапазоны чисел для тренировки:
+                    </label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="range-1-9" name="number-ranges" value="1-9">
+                            <label for="range-1-9">1 - 9</label>
+                        </div>
 
-        <button type="submit">Начать тренировку</button>
-    </form>
-</div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="range-10-19" name="number-ranges" value="10-19">
+                            <label for="range-10-19">10 - 19</label>
+                        </div>
 
-{% endif %}
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="range-20-29" name="number-ranges" value="20-29">
+                            <label for="range-20-29">20 - 29</label>
+                        </div>
 
-{% if mode == 2 %}
-<div class="container">
-    <a href="{% url 'square' mode=1 %}" class="btn back-btn">Назад</a>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="range-30-70" name="number-ranges" value="30-70">
+                            <label for="range-30-70">30 - 70</label>
+                        </div>
 
-    <div class="output-box">
-        {% if first and second %}
-        <p class="output-text">
-            {% if first > 0 %}<span class="positive-number">+{{ first }}</span>{% else %}<span class="negative-number">{{ first }}</span>{% endif %}
-            {{ operation }}
-            {% if second > 0 %}<span class="positive-number">+{{ second }}</span>{% else %}<span class="negative-number">{{ second }}</span>{% endif %}
-            = ?
-        </p>
-        {% else %}
-        <p class="output-text">Пример не найден</p>
-        {% endif %}
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="range-80-120" name="number-ranges" value="80-120">
+                            <label for="range-80-120">80 - 120</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопка начала игры -->
+                <div class="form-group text-center" style="margin-top: 20px;">
+                    <button type="submit" class="start-btn">
+                        <span style="margin-right: 8px;">🚀</span>
+                        Начать тренировку
+                    </button>
+                </div>
+            </form>
 
-        <form method="POST" action="{% url 'square' mode=3 %}">
-            {% csrf_token %}
-            <input type="text" name="user-answer" class="answer-input" placeholder="Введите ответ" required>
-            <button type="submit" class="btn check-btn">Проверить</button>
-        </form>
+            {% elif mode == 2 %}
+            <!-- Таймер отсчета -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+            <div class="countdown-fullscreen">
+                <div class="countdown-content">
+                    <div class="countdown-text">Игра начнется через:</div>
+                    <div class="countdown-number" id="countdown">3</div>
+                </div>
+                
+                <!-- Скрытая форма для CSRF токена -->
+                <form method="POST" style="display: none;">
+                    {% csrf_token %}
+                </form>
+            </div>
 
-        {% if error %}
-        <p class="error-message">{{ error }}</p>
-        {% endif %}
+            <script>
+                let timeLeft = 3;
+                const countdownElement = document.getElementById('countdown');
+                
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        // Создаем и отправляем форму для перехода к режиму 3
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/square/2/';
+                        
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = 'csrfmiddlewaretoken';
+                        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                        
+                        const nextModeInput = document.createElement('input');
+                        nextModeInput.type = 'hidden';
+                        nextModeInput.name = 'next_mode';
+                        nextModeInput.value = '3';
+                        
+                        form.appendChild(csrfInput);
+                        form.appendChild(nextModeInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }, 1000);
+            </script>
+
+            {% elif mode == 3 %}
+            <!-- Показ чисел -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+            <div class="number-display-fullscreen">
+                <div class="number-content">
+                    <div class="number-counter-mini">Число {{ current_index }} из {{ total_count }}</div>
+                    <div class="progress-bar-mini">
+                        <div class="progress-fill" style="width: {% widthratio current_index total_count 100 %}%"></div>
+                    </div>
+                    
+                    <div class="current-number-huge">
+                        {{ number }}² = ?
+                    </div>
+                </div>
+                
+                <!-- Скрытая форма для CSRF токена -->
+                <form method="POST" style="display: none;">
+                    {% csrf_token %}
+                </form>
+            </div>
+
+            <script>
+                // Автоматически переходим к вводу ответа через 3 секунды
+                setTimeout(() => {
+                    // Создаем и отправляем форму для перехода к режиму 4
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/square/3/';
+                    
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    
+                    const nextModeInput = document.createElement('input');
+                    nextModeInput.type = 'hidden';
+                    nextModeInput.name = 'next_mode';
+                    nextModeInput.value = '4';
+                    
+                    form.appendChild(csrfInput);
+                    form.appendChild(nextModeInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }, 3000); // 3 секунды на число
+            </script>
+
+            {% elif mode == 4 %}
+            <!-- Ввод ответа -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+            <div class="answer-form">
+                <h2>🎯 Введите квадрат числа</h2>
+                <p>💭 Вспомните число, которое вы видели, и введите его квадрат:</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="number" 
+                           name="user_answer" 
+                           class="answer-input" 
+                           placeholder="Введите квадрат числа..."
+                           required
+                           autocomplete="off">
+                    
+                    <div class="game-controls">
+                        <button type="submit" class="btn btn-primary">
+                            <span style="margin-right: 8px;">✅</span>
+                            Проверить ответ
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {% elif mode == 5 %}
+            <!-- Результаты -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+            <div class="game-results">
+                <h2>Результат проверки</h2>
+                
+                {% if is_correct %}
+                    <div class="result-message correct">
+                        ✓ Верно! Молодец!
+                    </div>
+                {% else %}
+                    <div class="result-message incorrect">
+                        ✗ Неверно! Попробуйте снова.
+                    </div>
+                {% endif %}
+                
+                <div class="result-details">
+                    <p><strong>Ваш ответ:</strong> {{ user_answer }}</p>
+                    <p><strong>Правильный ответ:</strong> {{ correct_answer }}</p>
+                </div>
+                
+                <div class="game-controls">
+                    <a href="/square/1/" class="btn btn-primary">Играть снова</a>
+                    <a href="{% url 'index' %}" class="btn btn-secondary">На главную</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
-{% endif %}
 
-{% if mode == 3 %}
-
-<div class="container">
-    <a href="{% url 'square' mode=1 %}" class="btn back-btn">Назад</a>
-
-    <div class="output-box">
-        <p class="output-text">Ваш ответ: {{ user_answer }}</p>
-        <p class="output-text">Правильный ответ: {{ correct_answer }}</p>
-
-        <p class="result" style="color: {{ result_color }};">{{ result }}</p>
-
-        <a href="{% url 'square' mode=2 %}" class="btn check-btn">Попробовать еще раз</a>
-    </div>
-</div>
-
-{% endif %}
-
+<script>
+// Функция для выхода из игры (глобальная)
+function exitGame() {
+    console.log('🔄 Функция exitGame вызвана');
+    
+    // Показываем навбар обратно
+    if (window.showNavbar) {
+        window.showNavbar();
+        console.log('✅ Навбар показан');
+    } else {
+        console.log('⚠️ window.showNavbar не найден');
+    }
+    
+    // Перенаправляем на главную страницу
+    console.log('🔄 Перенаправление на главную страницу');
+    window.location.href = '/';
+}
+</script>
 
 {% endblock %}
