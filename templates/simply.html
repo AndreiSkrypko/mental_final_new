@@ -1079,10 +1079,43 @@
              height: 1.5vh;
          }
      }
+     
+     /* Стили для кнопки озвучки */
+     .audio-toggle-btn {
+         padding: 12px 24px;
+         border: none;
+         border-radius: 10px;
+         font-size: 1rem;
+         font-weight: 600;
+         cursor: pointer;
+         transition: all 0.3s ease;
+         background: #38a169;
+         color: white;
+         box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+         min-width: 200px;
+     }
+     
+     .audio-toggle-btn:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 6px 16px rgba(56, 161, 105, 0.4);
+     }
+     
+     .audio-toggle-btn:active {
+         transform: translateY(0);
+     }
+     
+     .audio-toggle-container {
+         text-align: center;
+         margin-top: 15px;
+     }
 </style>
 {% endblock %}
 
 {% block content %}
+<script>
+    // Глобальная переменная для управления озвучкой (должна быть доступна во всех режимах)
+    window.audioEnabled = true;
+</script>
 <div class="game-container">
     <div class="game-card">
         <div class="game-header">
@@ -1176,6 +1209,33 @@
                     </div>
                 </div>
                 
+                <!-- Настройка озвучки -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="setting-icon">🔊</span>
+                        Озвучка чисел
+                        <div style="font-size: 0.7rem; color: #718096; margin-top: 2px; font-weight: normal;">
+                            Включить/выключить озвучку чисел во время игры
+                        </div>
+                    </label>
+                    <div class="audio-toggle-container" style="text-align: center; margin-top: 10px;">
+                        <button type="button" id="audio-toggle" class="audio-toggle-btn" style="
+                            padding: 10px 20px;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            background: #38a169;
+                            color: white;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        ">
+                            🔊 Озвучка включена
+                        </button>
+                    </div>
+                </div>
+                
                 <!-- Кнопка начала игры -->
                 <div class="form-group text-center" style="margin-top: 8px;">
                     <button type="submit" class="start-btn">
@@ -1185,13 +1245,27 @@
                 </div>
             </form>
 
-            <script>
-                
-                
-                // Добавляем обработчик для формы
+                         <script>
+                 // Добавляем обработчик для формы
                 document.addEventListener('DOMContentLoaded', function() {
                     const form = document.querySelector('form');
     
+                                         // Обработчик для кнопки включения/выключения озвучки
+                     const audioToggle = document.getElementById('audio-toggle');
+                     if (audioToggle) {
+                         audioToggle.addEventListener('click', function() {
+                             window.audioEnabled = !window.audioEnabled;
+                             if (window.audioEnabled) {
+                                 this.textContent = '🔊 Озвучка включена';
+                                 this.style.background = '#38a169';
+                                 this.style.color = 'white';
+                             } else {
+                                 this.textContent = '🔇 Озвучка выключена';
+                                 this.style.background = '#e53e3e';
+                                 this.style.color = 'white';
+                             }
+                         });
+                     }
                     
                     // Обработчик для слайдера скорости
                     const speedSlider = document.getElementById('speed');
@@ -1314,9 +1388,20 @@
                         <div class="progress-fill" style="width: {% widthratio current_index total_count 100 %}%"></div>
                     </div>
                     
-                    <div class="current-number-huge {% if current_number < 0 %}negative-number{% else %}positive-number{% endif %}">
-                        {% if current_number < 0 %}{{ current_number }}{% else %}+{{ current_number }}{% endif %}
-                    </div>
+                                         <div class="current-number-huge {% if current_number < 0 %}negative-number{% else %}positive-number{% endif %}">
+                         {% if current_number < 0 %}{{ current_number }}{% else %}+{{ current_number }}{% endif %}
+                     </div>
+                     
+                     <script>
+                         // Озвучиваем число при его показе
+                         const currentNumberForAudio = parseInt('{{ current_number|default:0 }}');
+                         if (currentNumberForAudio !== 0) {
+                             // Небольшая задержка для лучшего восприятия
+                             setTimeout(() => {
+                                 speakNumber(currentNumberForAudio);
+                             }, 100);
+                         }
+                     </script>
                     
                     <div class="game-controls-mini">
                         <form method="POST">
@@ -1328,11 +1413,9 @@
                 </div>
             </div>
 
-            <script>
-                
-                
-                // Функция для преобразования числа в слова на русском языке
-                function numberToWords(num) {
+                                                   <script>
+                  // Функция для преобразования числа в слова на русском языке
+                 function numberToWords(num) {
                     const ones = ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'];
                     const teens = ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'];
                     const tens = ['', '', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'];
@@ -1363,8 +1446,8 @@
                                  // Функция для озвучивания числа
                  function speakNumber(num) {
                      // Проверяем, включена ли озвучка
-                     if (!audioEnabled) {
-         
+                     if (!window.audioEnabled) {
+                         console.log('🔇 Озвучка отключена');
                          return;
                      }
                      
@@ -1410,7 +1493,7 @@
                             utterance.lang = 'ru-RU';
                         }
                         
-                        utterance.rate = 1.2; // Быстрее для динамичности
+                        utterance.rate = 1.9; // Быстрее для динамичности
                         utterance.pitch = 1.0;
                         utterance.volume = 1.0;
                         
@@ -1447,11 +1530,10 @@
                     }
                 }
                 
-                // Безопасно получаем параметры из Django шаблона
-                const speed = parseFloat('{{ speed|default:1 }}');
-                const currentIndex = parseInt('{{ current_index|default:0 }}');
-                const totalCount = parseInt('{{ total_count|default:1 }}');
-                const currentNumber = parseInt('{{ current_number|default:0 }}');
+                                 // Безопасно получаем параметры из Django шаблона
+                 const speed = parseFloat('{{ speed|default:1 }}');
+                 const currentIndex = parseInt('{{ current_index|default:0 }}');
+                 const totalCount = parseInt('{{ total_count|default:1 }}');
                 
 
                 
