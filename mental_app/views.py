@@ -886,6 +886,7 @@ SIMPLY_RANGES = {
     "1000-10000": (1000, 10000),
 }
 
+@login_required
 def simply(request, mode):
     if mode == 1:
         if request.method == 'POST':
@@ -2230,10 +2231,12 @@ def get_abacus_representation(number, difficulty):
     return abacus_data
 
 
+@login_required
 def flashcards(request):
     """Игра Флэшкарты - показ счетов (абакуса) для тренировки ментальной арифметики"""
-    # Проверяем авторизацию ученика
-    if not request.session.get('student_id'):
+    # Проверяем авторизацию ученика или учителя
+    # @login_required уже гарантирует, что request.user.is_authenticated == True
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
         return redirect('student_login')
     
     if request.method == 'GET':
