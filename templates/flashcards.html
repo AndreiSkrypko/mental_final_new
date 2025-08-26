@@ -77,6 +77,9 @@
     .form-group {
         margin-bottom: 25px;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .form-label {
@@ -86,39 +89,136 @@
         color: #2d3748;
         margin-bottom: 12px;
         text-align: center;
-    }
-
-    .form-control {
         width: 100%;
-        padding: 14px 18px;
-        font-size: 1rem;
-        border: 2px solid rgba(102, 126, 234, 0.2);
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.9);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 18px center;
-        background-size: 18px;
+        max-width: 600px;
     }
 
-    .form-control:focus {
+    /* Стили для слайдеров */
+    .setting-icon {
+        font-size: 0.9rem;
+        margin-right: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .setting-value {
+        font-weight: 600;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 2px 5px;
+        border-radius: 5px;
+        margin-left: 5px;
+        font-size: 0.8rem;
+    }
+
+    .slider-container {
+        margin-top: 6px;
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e0 100%);
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .form-control:hover {
-        border-color: #667eea;
-        transform: translateY(-1px);
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        border: 2px solid white;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+
+    .slider::-webkit-slider-thumb:active {
+        transform: scale(0.95);
+    }
+
+    .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .slider::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+        font-size: 0.7rem;
+        color: #718096;
+        font-weight: 500;
+        width: 100%;
+    }
+
+    .slider-labels span {
+        text-align: center;
+        flex: 1;
+        padding: 0 4px;
+        font-size: 0.8rem;
+    }
+
+    .slider:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .slider:hover {
+        background: linear-gradient(90deg, #cbd5e0 0%, #a0aec0 100%);
+    }
+
+    /* Анимация для значений настроек */
+    .setting-value {
+        transition: all 0.3s ease;
+    }
+
+    .setting-value.updated {
+        animation: valueUpdate 0.6s ease-out;
+    }
+
+    @keyframes valueUpdate {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Стили для кнопки с иконкой */
+    .btn-icon {
+        margin-right: 5px;
+        font-size: 0.9rem;
     }
 
     /* Стили для кнопки */
     .start-btn {
         width: 100%;
+        max-width: 600px;
         padding: 16px 24px;
         font-size: 1.1rem;
         font-weight: 600;
@@ -155,6 +255,90 @@
 
     .start-btn:active {
         transform: translateY(-1px);
+    }
+
+    /* Кнопка "Выйти из игры" */
+    .exit-game-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .exit-game-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+        background: linear-gradient(135deg, #c2185b 0%, #e91e63 100%);
+    }
+    
+    .exit-game-button:active {
+        transform: translateY(0);
+    }
+    
+    .exit-game-button .exit-icon {
+        font-size: 18px;
+    }
+
+    /* Полноэкранный режим для отсчета */
+    .countdown-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .countdown-content {
+        text-align: center;
+        color: white;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+    
+    .countdown-text {
+        font-size: 2.5vw;
+        margin-bottom: 2vh;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+    
+    .countdown-number {
+        font-size: 25vw;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+        animation: pulse 1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes pulse {
+        from { transform: scale(1); }
+        to { transform: scale(1.05); }
     }
 
     /* Стили для показа карточек */
@@ -599,6 +783,21 @@
         .answers-grid {
             grid-template-columns: 1fr;
         }
+        
+        .exit-game-button {
+            top: 15px;
+            right: 15px;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        
+        .countdown-text {
+            font-size: 4vw;
+        }
+        
+        .countdown-number {
+            font-size: 35vw;
+        }
     }
 </style>
 {% endblock %}
@@ -619,40 +818,108 @@
                 <input type="hidden" name="mode" value="1">
                 
                 <div class="form-group">
-                    <label for="difficulty" class="form-label">Сложность:</label>
-                    <select name="difficulty" id="difficulty" class="form-control">
-                        <option value="easy">Легко (1-20)</option>
-                        <option value="medium" selected>Средне (1-100)</option>
-                        <option value="hard">Сложно (1-1000)</option>
-                    </select>
+                    <label for="difficulty" class="form-label">
+                        <span class="setting-icon">🎯</span>
+                        Сложность: <span class="setting-value" id="difficulty-value">Средне (1-100)</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="difficulty" id="difficulty" class="slider" 
+                               min="1" max="3" value="2" step="1">
+                        <div class="slider-labels">
+                            <span>Легко (1-20)</span>
+                            <span>Средне (1-100)</span>
+                            <span>Сложно (1-1000)</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="display_time" class="form-label">Время показа карточки (сек):</label>
-                    <select name="display_time" id="display_time" class="form-control">
-                        <option value="1">1 секунда</option>
-                        <option value="2">2 секунды</option>
-                        <option value="3" selected>3 секунды</option>
-                        <option value="5">5 секунд</option>
-                        <option value="10">10 секунд</option>
-                    </select>
+                    <label for="display_time" class="form-label">
+                        <span class="setting-icon">⏱️</span>
+                        Время показа карточки: <span class="setting-value" id="display_time-value">3 сек</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="display_time" id="display_time" class="slider" 
+                               min="1" max="5" value="3" step="1">
+                        <div class="slider-labels">
+                            <span>1с</span>
+                            <span>2с</span>
+                            <span>3с</span>
+                            <span>4с</span>
+                            <span>5с</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="card_count" class="form-label">Количество карточек:</label>
-                    <select name="card_count" id="card_count" class="form-control">
-                        <option value="5">5 карточек</option>
-                        <option value="10" selected>10 карточек</option>
-                        <option value="15">15 карточек</option>
-                        <option value="20">20 карточек</option>
-                    </select>
+                    <label for="card_count" class="form-label">
+                        <span class="setting-icon">📊</span>
+                        Количество карточек: <span class="setting-value" id="card_count-value">10</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="card_count" id="card_count" class="slider" 
+                               min="5" max="20" value="10" step="5">
+                        <div class="slider-labels">
+                            <span>5</span>
+                            <span>10</span>
+                            <span>15</span>
+                            <span>20</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <button type="submit" class="start-btn">Начать игру</button>
+                <!-- Кнопка начала игры -->
+                <div class="form-group text-center" style="margin-top: 8px;">
+                    <button type="submit" class="start-btn">
+                        <span class="btn-icon">🚀</span>
+                        Начать игру
+                    </button>
+                </div>
             </form>
 
             {% elif mode == 2 %}
+            <!-- Таймер отсчета -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+            <!-- Скрытая форма для перехода к следующему режиму -->
+            <form method="POST" id="countdown-form" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="mode" value="3">
+            </form>
+            
+            <div class="countdown-fullscreen">
+                <div class="countdown-content">
+                    <div class="countdown-text">Игра начнется через:</div>
+                    <div class="countdown-number" id="countdown">3</div>
+                </div>
+            </div>
+
+            <script>
+                let timeLeft = 3;
+                const countdownElement = document.getElementById('countdown');
+                
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        // Автоматически переходим к следующему режиму
+                        document.getElementById('countdown-form').submit();
+                    }
+                }, 1000);
+            </script>
+
+            {% elif mode == 3 %}
             <!-- Показ карточки -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
             <div class="flashcard-display">
                 <div class="progress-info">
                     <span class="card-counter">Карточка {{ current_card }} из {{ total_cards }}</span>
@@ -730,6 +997,12 @@
                     </div>
                 </div>
                 
+                <!-- Скрытая форма для автоматического перехода к следующей карточке -->
+                <form method="POST" id="auto-advance-form" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="mode" value="4">
+                </form>
+                
                 <div class="game-controls">
                     <form method="POST" style="display: inline;">
                         {% csrf_token %}
@@ -739,85 +1012,180 @@
                 </div>
             </div>
 
-            {% elif mode == 3 %}
-            <!-- Ввод ответов для всех карточек -->
-            <div class="answers-form">
-                <h2>Введите ответы для всех карточек</h2>
-                <p>Вспомните числа, которые вы видели на счетах, и введите их ниже:</p>
-                
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="mode" value="3">
-                    
-                    <div class="answers-grid">
-                        {% for i in total_cards|add:"-1"|add:"1" %}
-                            <div class="answer-item">
-                                <label for="answer_{{ forloop.counter0 }}">Карточка {{ forloop.counter }}:</label>
-                                <input type="number" 
-                                       name="answer_{{ forloop.counter0 }}" 
-                                       id="answer_{{ forloop.counter0 }}" 
-                                       class="answer-input" 
-                                       placeholder="Введите число"
-                                       required>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="game-controls">
-                        <button type="submit" class="btn btn-primary">Проверить ответы</button>
-                    </div>
-                </form>
-            </div>
+            <script>
+                // Автоматический переход к следующей карточке через заданное время
+                setTimeout(() => {
+                    document.getElementById('auto-advance-form').submit();
+                }, {{ display_time }} * 1000);
+            </script>
 
-            {% elif mode == 4 %}
+            {% elif mode == 5 %}
+            <!-- Ввод ответов для всех карточек -->
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+                         <div class="answers-form">
+                 <h2>Введите сумму всех карточек</h2>
+                 <p>Вспомните числа, которые вы видели на счетах, и введите их общую сумму:</p>
+                 
+                 <form method="POST">
+                     {% csrf_token %}
+                     <input type="hidden" name="mode" value="5">
+                     
+                     <div class="answer-item" style="max-width: 400px; margin: 20px auto;">
+                         <label for="total_sum">Сумма всех {{ total_cards }} карточек:</label>
+                         <input type="number" 
+                                name="total_sum" 
+                                id="total_sum" 
+                                class="answer-input" 
+                                placeholder="Введите общую сумму"
+                                required>
+                     </div>
+                     
+                     <div class="game-controls">
+                         <button type="submit" class="btn btn-primary">Проверить ответ</button>
+                     </div>
+                 </form>
+             </div>
+
+            {% elif mode == 6 %}
             <!-- Результаты игры -->
-            <div class="game-results">
-                <div class="results-summary">
-                    <h2>Результаты игры</h2>
-                    <div class="score-display">
-                        Правильно: {{ correct_count }} из {{ total_cards }} ({{ percentage_correct }}%)
-                    </div>
-                    <p>Неправильных ответов: {{ incorrect_count }}</p>
-                </div>
-                
-                <div class="results-list">
-                    {% for answer in answers %}
-                        <div class="result-item {% if answer.correct %}correct{% else %}incorrect{% endif %}">
-                            <span class="result-number">Карточка {{ forloop.counter }}: {{ answer.number }}</span>
-                            <span class="result-answer">Ваш ответ: {{ answer.user_answer }}</span>
-                            <span class="result-status {% if answer.correct %}correct{% else %}incorrect{% endif %}">
-                                {% if answer.correct %}✓{% else %}✗{% endif %}
-                            </span>
-                        </div>
-                    {% endfor %}
-                </div>
-                
-                <div class="game-controls">
-                    <a href="{% url 'flashcards' %}" class="btn btn-primary">Играть снова</a>
-                    <a href="{% url 'index' %}" class="btn btn-secondary">На главную</a>
-                </div>
-            </div>
+            <button class="exit-game-button" onclick="exitGame()">
+                <span class="exit-icon">🚪</span>
+                Выйти из игры
+            </button>
+            
+                         <div class="game-results">
+                 <div class="results-summary">
+                     <h2>Результаты игры</h2>
+                     <div class="score-display">
+                         {% if correct_count == 1 %}
+                             Поздравляем! Сумма правильная! 🎉
+                         {% else %}
+                             Попробуйте еще раз! 💪
+                         {% endif %}
+                     </div>
+                     <p>Правильная сумма: <strong>{{ answers.0.number }}</strong></p>
+                     <p>Ваш ответ: <strong>{{ answers.0.user_answer }}</strong></p>
+                 </div>
+                 
+                 <div class="game-controls">
+                     <a href="{% url 'flashcards' %}" class="btn btn-primary">Играть снова</a>
+                     <a href="{% url 'index' %}" class="btn btn-secondary">На главную</a>
+                 </div>
+             </div>
             {% endif %}
         </div>
     </div>
 </div>
 
+<!-- JavaScript для слайдеров -->
 <script>
-    {% if mode == 2 %}
-    // Таймер обратного отсчета
-    let timeLeft = {{ display_time }};
-    const countdownElement = document.getElementById('countdown');
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем, в каком режиме мы находимся
+    const gameBody = document.querySelector('.game-body');
+    let currentMode = null;
     
-    const countdown = setInterval(() => {
-        timeLeft--;
-        countdownElement.textContent = timeLeft;
-        
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            // Автоматически переходим к следующей карточке
-            document.querySelector('form[method="POST"]').submit();
+    if (gameBody) {
+        // Определяем режим по содержимому
+        if (gameBody.querySelector('form[method="POST"]')) {
+            currentMode = 1; // Настройки игры
+        } else if (gameBody.querySelector('#countdown')) {
+            currentMode = 2; // Таймер отсчета
+        } else if (gameBody.querySelector('.flashcard-display')) {
+            currentMode = 3; // Показ карточки
+        } else if (gameBody.querySelector('.answers-form')) {
+            currentMode = 4; // Ввод ответов
+        } else if (gameBody.querySelector('.game-results')) {
+            currentMode = 5; // Результаты
         }
-    }, 1000);
-    {% endif %}
+    }
+    
+    // Инициализируем слайдеры только в режиме 1
+    if (currentMode === 1) {
+        // Функция для обновления значения с анимацией
+        function updateValue(elementId, newValue, suffix = '') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = newValue + suffix;
+                element.classList.add('updated');
+                setTimeout(() => element.classList.remove('updated'), 600);
+            }
+        }
+
+        // Обработчики для слайдеров
+        const sliders = {
+            'difficulty': {
+                values: ['Легко (1-20)', 'Средне (1-100)', 'Сложно (1-1000)'],
+                suffix: ''
+            },
+            'display_time': {
+                values: ['1 сек', '2 сек', '3 сек', '4 сек', '5 сек'],
+                suffix: ''
+            },
+            'card_count': {
+                values: ['5', '10', '15', '20'],
+                suffix: ''
+            }
+        };
+
+        // Добавляем обработчики событий для всех слайдеров
+        Object.keys(sliders).forEach(sliderId => {
+            const slider = document.getElementById(sliderId);
+            
+            if (slider) {
+                slider.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    const config = sliders[sliderId];
+                    const displayValue = config.values[value - 1];
+                    
+                    updateValue(sliderId + '-value', displayValue, config.suffix);
+                });
+
+                // Устанавливаем начальные значения
+                const value = parseInt(slider.value);
+                const config = sliders[sliderId];
+                const displayValue = config.values[value - 1];
+                
+                updateValue(sliderId + '-value', displayValue, config.suffix);
+            }
+        });
+    }
+});
 </script>
+
+<script>
+// Функция для выхода из игры (глобальная)
+function exitGame() {
+    console.log('🔄 Функция exitGame вызвана');
+    
+    // Сбрасываем состояние игры
+    if (typeof currentCardIndex !== 'undefined') {
+        currentCardIndex = 0;
+    }
+    if (typeof score !== 'undefined') {
+        score = 0;
+    }
+    if (typeof gameStarted !== 'undefined') {
+        gameStarted = false;
+    }
+    
+    console.log('🔄 Состояние игры сброшено');
+    
+    // Показываем навбар обратно
+    if (window.showNavbar) {
+        window.showNavbar();
+        console.log('✅ Навбар показан');
+    } else {
+        console.log('⚠️ window.showNavbar не найден');
+    }
+    
+    // Перенаправляем на главную страницу
+    console.log('🔄 Перенаправление на главную страницу');
+    window.location.href = '/';
+}
+</script>
+
 {% endblock %}

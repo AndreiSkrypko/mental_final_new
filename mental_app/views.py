@@ -2286,19 +2286,41 @@ def flashcards(request):
                 'abacus_data': abacus_data
             })
         
-        elif mode == '2':  # Показ карточки со счетами
+        elif mode == '2':  # Отсчёт перед началом игры
+            # Переходим к показу первой карточки
+            numbers = request.session.get('flashcard_numbers', [])
+            current_index = 0
+            display_time = request.session.get('flashcard_display_time', 3)
+            difficulty = request.session.get('flashcard_difficulty', 'medium')
+            
+            if numbers and len(numbers) > 0:
+                current_number = numbers[0]
+                abacus_data = get_abacus_representation(current_number, difficulty)
+                
+                return render(request, 'flashcards.html', {
+                    'mode': 3,
+                    'current_number': current_number,
+                    'display_time': display_time,
+                    'total_cards': len(numbers),
+                    'current_card': 1,
+                    'difficulty': difficulty,
+                    'abacus_data': abacus_data
+                })
+            else:
+                return redirect('flashcards')
+        
+        elif mode == '3':  # Показ карточки со счетами
             numbers = request.session.get('flashcard_numbers', [])
             current_index = request.session.get('flashcard_current_index', 0)
             display_time = request.session.get('flashcard_display_time', 3)
             difficulty = request.session.get('flashcard_difficulty', 'medium')
-            showing = request.session.get('flashcard_showing', True)
             
-            if current_index < len(numbers) and showing:
+            if current_index < len(numbers):
                 current_number = numbers[current_index]
                 abacus_data = get_abacus_representation(current_number, difficulty)
                 
                 return render(request, 'flashcards.html', {
-                    'mode': 2,
+                    'mode': 3,
                     'current_number': current_number,
                     'display_time': display_time,
                     'total_cards': len(numbers),
@@ -2306,83 +2328,84 @@ def flashcards(request):
                     'difficulty': difficulty,
                     'abacus_data': abacus_data
                 })
-            elif current_index >= len(numbers) and showing:
+            else:
                 # Показ карточек закончен, переходим к вводу ответа
-                request.session['flashcard_showing'] = False
                 return render(request, 'flashcards.html', {
-                    'mode': 3,
+                    'mode': 4,
                     'total_cards': len(numbers),
                     'numbers': numbers
                 })
-            else:
-                return redirect('flashcards')
         
-        elif mode == '3':  # Ввод ответов для всех карточек
+        elif mode == '4':  # Переход к следующей карточке
             numbers = request.session.get('flashcard_numbers', [])
-            user_answers = []
+            current_index = request.session.get('flashcard_current_index', 0)
+            display_time = request.session.get('flashcard_display_time', 3)
+            difficulty = request.session.get('flashcard_difficulty', 'medium')
             
-            # Собираем все ответы пользователя
-            for i in range(len(numbers)):
-                answer_key = f'answer_{i}'
-                user_answer = request.POST.get(answer_key, '')
-                user_answers.append(user_answer)
+            # Увеличиваем индекс текущей карточки
+            next_index = current_index + 1
+            request.session['flashcard_current_index'] = next_index
             
-            # Проверяем все ответы
-            answers = []
-            correct_count = 0
-            
-            for i, (number, user_answer) in enumerate(zip(numbers, user_answers)):
-                correct = user_answer == str(number)
-                if correct:
-                    correct_count += 1
+            if next_index < len(numbers):
+                # Показываем следующую карточку
+                current_number = numbers[next_index]
+                abacus_data = get_abacus_representation(current_number, difficulty)
                 
-                answers.append({
-                    'number': number,
-                    'user_answer': user_answer,
-                    'correct': correct
+                return render(request, 'flashcards.html', {
+                    'mode': 3,
+                    'current_number': current_number,
+                    'display_time': display_time,
+                    'total_cards': len(numbers),
+                    'current_card': next_index + 1,
+                    'difficulty': difficulty,
+                    'abacus_data': abacus_data
                 })
+            else:
+                # Показ карточек закончен, переходим к вводу ответа
+                return render(request, 'flashcards.html', {
+                    'mode': 5,
+                    'total_cards': len(numbers),
+                    'numbers': numbers
+                })
+        
+        elif mode == '5':  # Ввод ответов для всех карточек
+            numbers = request.session.get('flashcard_numbers', [])
+            total_sum = request.POST.get('total_sum', '')
+            
+            # Вычисляем правильную сумму всех карточек
+            correct_total = sum(numbers)
+            
+            # Проверяем ответ пользователя
+            try:
+                user_total = int(total_sum) if total_sum else 0
+                correct = user_total == correct_total
+            except ValueError:
+                user_total = 0
+                correct = False
+            
+            # Создаем результат для отображения
+            answers = [{
+                'number': correct_total,
+                'user_answer': user_total,
+                'correct': correct
+            }]
             
             # Сохраняем результаты
             request.session['flashcard_answers'] = answers
             
             # Показываем результаты
             total_cards = len(numbers)
-            percentage_correct = round((correct_count / total_cards) * 100, 1) if total_cards > 0 else 0
+            correct_count = 1 if correct else 0
+            percentage_correct = 100 if correct else 0
             
             return render(request, 'flashcards.html', {
-                'mode': 4,
+                'mode': 6,
                 'answers': answers,
                 'total_cards': total_cards,
                 'correct_count': correct_count,
-                'incorrect_count': total_cards - correct_count,
+                'incorrect_count': 1 - correct_count,
                 'percentage_correct': percentage_correct
             })
-        
-        elif mode == '4':  # Переход к следующей карточке (автоматически)
-            numbers = request.session.get('flashcard_numbers', [])
-            current_index = request.session.get('flashcard_current_index', 0)
-            display_time = request.session.get('flashcard_display_time', 3)
-            difficulty = request.session.get('flashcard_difficulty', 'medium')
-            
-            if current_index < len(numbers):
-                # Показываем следующую карточку
-                next_number = numbers[current_index]
-                abacus_data = get_abacus_representation(next_number, difficulty)
-                
-                # Увеличиваем индекс для следующей карточки
-                request.session['flashcard_current_index'] = current_index + 1
-                
-                return render(request, 'flashcards.html', {
-                    'mode': 2,
-                    'current_number': next_number,
-                    'display_time': display_time,
-                    'total_cards': len(numbers),
-                    'current_card': current_index + 1,
-                    'difficulty': difficulty,
-                    'abacus_data': abacus_data
-                })
-            else:
-                return redirect('flashcards')
     
     return redirect('flashcards')
 
