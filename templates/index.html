@@ -10,11 +10,11 @@
 <style>
     /* Основной контейнер */
     .hero-container {
-        min-height: calc(100vh - 120px);
+        min-height: calc(100vh - 80px);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 40px 20px;
+        padding: 40px 30px;
         position: relative;
         overflow: hidden;
     }
@@ -44,7 +44,7 @@
         border-radius: 30px;
         padding: 60px 50px;
         text-align: center;
-        max-width: 900px;
+        max-width: 1200px;
         width: 100%;
         box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -109,10 +109,10 @@
     /* Список преимуществ */
     .benefits-list {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 25px;
         margin-bottom: 50px;
-        max-width: 800px;
+        max-width: 1100px;
         margin-left: auto;
         margin-right: auto;
     }
@@ -168,6 +168,43 @@
         color: #2d3748;
         margin: 0;
         line-height: 1.4;
+    }
+
+    /* Приветствие для авторизованных пользователей */
+    .welcome-section {
+        margin: 30px 0;
+        padding: 25px;
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(139, 195, 74, 0.1) 100%);
+        border-radius: 20px;
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        text-align: center;
+    }
+
+    .welcome-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2e7d32;
+        margin-bottom: 15px;
+    }
+
+    .welcome-text {
+        font-size: 1.1rem;
+        color: #4a5568;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .dashboard-link {
+        color: #2e7d32;
+        text-decoration: none;
+        font-weight: 600;
+        border-bottom: 2px solid #2e7d32;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-link:hover {
+        color: #1b5e20;
+        border-bottom-color: #1b5e20;
     }
 
     /* Призыв к действию */
@@ -302,6 +339,14 @@
             font-size: 1.1rem;
         }
 
+        .welcome-title {
+            font-size: 1.5rem;
+        }
+
+        .welcome-text {
+            font-size: 1rem;
+        }
+
         .benefits-list {
             grid-template-columns: 1fr;
             gap: 20px;
@@ -326,6 +371,14 @@
 
         .hero-description {
             font-size: 1rem;
+        }
+
+        .welcome-title {
+            font-size: 1.3rem;
+        }
+
+        .welcome-text {
+            font-size: 0.9rem;
         }
 
         .benefit-item {
@@ -365,6 +418,12 @@
     .benefit-item:nth-child(3) { animation-delay: 0.3s; }
     .benefit-item:nth-child(4) { animation-delay: 0.4s; }
 
+    .welcome-section {
+        animation: fadeInUp 0.8s ease-out;
+        animation-delay: 0.2s;
+        animation-fill-mode: both;
+    }
+
     .cta-section {
         animation: fadeInUp 0.8s ease-out;
         animation-delay: 0.5s;
@@ -392,6 +451,19 @@
             Помогите своему ребенку стать более уверенным и быстрым в решении математических задач! 
             Наши курсы ментальной арифметики помогут развить ключевые навыки для успешного обучения.
         </p>
+
+        <!-- Приветствие для авторизованных пользователей -->
+        {% if user.is_authenticated and user.teacher_profile and user.teacher_profile.status == 'approved' %}
+        <div class="welcome-section">
+            <h2 class="welcome-title">Добро пожаловать, {{ user.get_full_name|default:user.username }}!</h2>
+            <p class="welcome-text">Вы вошли в систему как учитель. Перейдите в <a href="{% url 'teacher_dashboard' %}" class="dashboard-link">личный кабинет</a> для управления классами и учениками.</p>
+        </div>
+        {% elif request.session.student_id %}
+        <div class="welcome-section">
+            <h2 class="welcome-title">Добро пожаловать!</h2>
+            <p class="welcome-text">Вы вошли в систему как ученик. Перейдите в <a href="{% url 'student_dashboard' %}" class="dashboard-link">личный кабинет</a> для выполнения заданий.</p>
+        </div>
+        {% endif %}
 
         <!-- Список преимуществ -->
         <div class="benefits-list">
@@ -424,7 +496,8 @@
             </div>
         </div>
 
-        <!-- Призыв к действию -->
+        <!-- Призыв к действию - показываем только для неавторизованных пользователей -->
+        {% if not user.is_authenticated and not request.session.student_id %}
         <div class="cta-section">
             <h3 class="cta-title">Готовы начать обучение?</h3>
             <div class="cta-buttons">
@@ -438,6 +511,7 @@
                 </a>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
