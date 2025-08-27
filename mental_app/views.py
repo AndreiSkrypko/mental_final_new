@@ -2243,19 +2243,30 @@ def flashcards(request):
         return render(request, 'flashcards.html', {'mode': 1})
     
     if request.method == 'POST':
-        mode = request.POST.get('mode', '1')
+        # Проверяем оба варианта для совместимости
+        mode = request.POST.get('next_mode') or request.POST.get('mode', '1')
         
         if mode == '1':  # Настройка игры
-            difficulty = request.POST.get('difficulty', 'easy')
+            difficulty = request.POST.get('difficulty', '2')  # 1=easy, 2=medium, 3=hard
             display_time = int(request.POST.get('display_time', '3'))
             card_count = int(request.POST.get('card_count', '10'))
             
+            # Преобразуем difficulty в строку для совместимости
+            if difficulty == '1':
+                difficulty_str = 'easy'
+            elif difficulty == '2':
+                difficulty_str = 'medium'
+            elif difficulty == '3':
+                difficulty_str = 'hard'
+            else:
+                difficulty_str = 'medium'
+            
             # Генерируем числа в зависимости от сложности
-            if difficulty == 'easy':
+            if difficulty_str == 'easy':
                 numbers = random.sample(range(1, 21), min(card_count, 20))  # 1-20
-            elif difficulty == 'medium':
+            elif difficulty_str == 'medium':
                 numbers = random.sample(range(1, 101), min(card_count, 100))  # 1-100
-            elif difficulty == 'hard':
+            elif difficulty_str == 'hard':
                 numbers = random.sample(range(1, 1001), min(card_count, 1000))  # 1-1000
             else:
                 numbers = random.sample(range(1, 101), min(card_count, 100))
@@ -2270,11 +2281,11 @@ def flashcards(request):
             request.session['flashcard_display_time'] = display_time
             request.session['flashcard_current_index'] = 0
             request.session['flashcard_answers'] = []
-            request.session['flashcard_difficulty'] = difficulty
+            request.session['flashcard_difficulty'] = difficulty_str
             request.session['flashcard_showing'] = True  # Флаг для показа карточек
             
             # Подготавливаем данные для отображения счетов
-            abacus_data = get_abacus_representation(signed_numbers[0], difficulty)
+            abacus_data = get_abacus_representation(signed_numbers[0], difficulty_str)
             
             return render(request, 'flashcards.html', {
                 'mode': 2,
@@ -2282,7 +2293,7 @@ def flashcards(request):
                 'display_time': display_time,
                 'total_cards': len(signed_numbers),
                 'current_card': 1,
-                'difficulty': difficulty,
+                'difficulty': difficulty_str,
                 'abacus_data': abacus_data
             })
         
@@ -2363,7 +2374,7 @@ def flashcards(request):
             else:
                 # Показ карточек закончен, переходим к вводу ответа
                 return render(request, 'flashcards.html', {
-                    'mode': 5,
+                    'mode': 4,
                     'total_cards': len(numbers),
                     'numbers': numbers
                 })
@@ -2399,7 +2410,7 @@ def flashcards(request):
             percentage_correct = 100 if correct else 0
             
             return render(request, 'flashcards.html', {
-                'mode': 6,
+                'mode': 5,
                 'answers': answers,
                 'total_cards': total_cards,
                 'correct_count': correct_count,
