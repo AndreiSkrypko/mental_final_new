@@ -2184,242 +2184,110 @@ def carry_over_payments(request, class_id, schedule_id):
         return redirect('class_list')
 
 
-def get_abacus_representation(number, difficulty):
-    """Преобразует число в представление для счетов (абакуса)"""
-    abs_number = abs(number)
-    
-    # Разбиваем число на разряды
-    hundreds = (abs_number // 100) % 10
-    tens = (abs_number // 10) % 10
-    ones = abs_number % 10
-    
-    # В настоящем абакусе:
-    # - Верхний ряд: 2 места (1 косточка = 5, 1 пустое)
-    # - Нижний ряд: 5 мест (4 косточки = 1,2,3,4, 1 пустое)
-    # - Комбинация дает числа 0-9
-    
-    def get_digit_representation(digit):
+# делаем функцию определения колонок, return добавим в рендер, колонки обозначают разряд числа и будут добавляться в переменную
+# columns, в зависимости от числа, каждая колонка должна ставить список в нужном порядке
+def generate_abacus_columns(number):
+    # Список для всех колонок
+    columns = []
+
+    while number > 0:
+        digit = number % 10
+
         if digit == 0:
-            # Все косточки неактивны
-            return {
-                'upper': [False, False],  # 2 верхних места
-                'lower': [False, False, False, False, False]  # 5 нижних мест
-            }
-        elif digit <= 4:
-            # Используем только нижние косточки
-            lower_beads = [i < digit for i in range(5)]  # 5 мест, первые digit активны
-            return {
-                'upper': [False, False],  # Верхние неактивны
-                'lower': lower_beads
-            }
-        else:
-            # Используем верхнюю косточку + нижние
-            upper_beads = [True, False]  # Первое место активно (5), второе пустое
-            remaining = digit - 5
-            lower_beads = [i < remaining for i in range(5)]  # 5 мест, первые remaining активны
-            return {
-                'upper': upper_beads,
-                'lower': lower_beads
-            }
-    
-    abacus_data = {
-        'hundreds': get_digit_representation(hundreds),
-        'tens': get_digit_representation(tens),
-        'ones': get_digit_representation(ones),
-        'sign': 'positive' if number >= 0 else 'negative'
-    }
-    
-    return abacus_data
+            column = [[1, 0], [0, 1, 1, 1, 1]]
+        elif digit == 1:
+            column = [[1, 0], [1, 0, 1, 1, 1]]
+        elif digit == 2:
+            column = [[1, 0], [1, 1, 0, 1, 1]]
+        elif digit == 3:
+            column = [[1, 0], [1, 1, 1, 0, 1]]
+        elif digit == 4:
+            column = [[1, 0], [1, 1, 1, 1, 0]]
+        elif digit == 5:
+            column = [[0, 1], [0, 1, 1, 1, 1]]
+        elif digit == 6:
+            column = [[0, 1], [1, 0, 1, 1, 1]]
+        elif digit == 7:
+            column = [[0, 1], [1, 1, 0, 1, 1]]
+        elif digit == 8:
+            column = [[0, 1], [1, 1, 1, 0, 1]]
+        elif digit == 9:
+            column = [[0, 1], [1, 1, 1, 1, 0]]
+
+        columns.insert(0, column)  # Вставляем колонку в начало (от младшего к старшему разряду)
+        number //= 10
+
+    return columns
 
 
 @login_required
-def flashcards(request):
-    """Игра Флэшкарты - показ счетов (абакуса) для тренировки ментальной арифметики"""
+def flashcards(request, mode):
+    """
+    Обрабатывает GET и POST запросы для страницы с флешкартами.
+    GET — начальная загрузка формы.
+    POST — обработка данных формы, генерация случайных чисел и колонок абакуса.
+    """
     # Проверяем авторизацию ученика или учителя
-    # @login_required уже гарантирует, что request.user.is_authenticated == True
     if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
         return redirect('student_login')
     
+    # Если пользователь только открыл страницу, обрабатываем GET-запрос
     if request.method == 'GET':
-        return render(request, 'flashcards.html', {'mode': 1})
+        # Отправляем шаблону flashcards.html данные с указанием, что нужно показать форму выбора параметров
+        return render(request, 'flashcards.html', {
+            "mode": 1  # Режим формы (выбор настроек)
+        })
     
+    # Если пользователь отправил форму с параметрами, обрабатываем POST-запрос
     if request.method == 'POST':
-        # Проверяем оба варианта для совместимости
-        mode = request.POST.get('next_mode') or request.POST.get('mode', '1')
+        # Получаем уровень сложности из формы и конвертируем в целое число
+        difficult_level = int(request.POST.get('difficult'))
+        # Получаем скорость показа абакуса из формы и конвертируем в число с плавающей точкой
+        speed = float(request.POST.get('speed'))
+        # Получаем количество чисел, которые нужно сгенерировать
+        quantity = int(request.POST.get('quantity'))
+        # Получаем максимально допустимую цифру для числа
+        max_digit = int(request.POST.get('max_digit'))
         
-        if mode == '1':  # Настройка игры
-            difficulty = request.POST.get('difficulty', '2')  # 1=easy, 2=medium, 3=hard
-            display_time = int(request.POST.get('display_time', '3'))
-            card_count = int(request.POST.get('card_count', '10'))
-            
-            # Преобразуем difficulty в строку для совместимости
-            if difficulty == '1':
-                difficulty_str = 'easy'
-            elif difficulty == '2':
-                difficulty_str = 'medium'
-            elif difficulty == '3':
-                difficulty_str = 'hard'
-            else:
-                difficulty_str = 'medium'
-            
-            # Генерируем числа в зависимости от сложности
-            if difficulty_str == 'easy':
-                numbers = random.sample(range(1, 21), min(card_count, 20))  # 1-20
-            elif difficulty_str == 'medium':
-                numbers = random.sample(range(1, 101), min(card_count, 100))  # 1-100
-            elif difficulty_str == 'hard':
-                numbers = random.sample(range(1, 1001), min(card_count, 1000))  # 1-1000
-            else:
-                numbers = random.sample(range(1, 101), min(card_count, 100))
-            
-            # Случайно выбираем знаки для чисел
-            signed_numbers = []
-            for num in numbers:
-                sign = random.choice([-1, 1])
-                signed_numbers.append(num * sign)
-            
-            request.session['flashcard_numbers'] = signed_numbers
-            request.session['flashcard_display_time'] = display_time
-            request.session['flashcard_current_index'] = 0
-            request.session['flashcard_answers'] = []
-            request.session['flashcard_difficulty'] = difficulty_str
-            request.session['flashcard_showing'] = True  # Флаг для показа карточек
-            
-            # Подготавливаем данные для отображения счетов
-            abacus_data = get_abacus_representation(signed_numbers[0], difficulty_str)
-            
-            return render(request, 'flashcards.html', {
-                'mode': 2,
-                'current_number': signed_numbers[0],
-                'display_time': display_time,
-                'total_cards': len(signed_numbers),
-                'current_card': 1,
-                'difficulty': difficulty_str,
-                'abacus_data': abacus_data
-            })
+        # Словарь, где для каждого уровня сложности задан свой диапазон чисел
+        difficulty_ranges = {
+            1: (1, 10),      # Простой уровень — числа от 1 до 9
+            2: (10, 100),    # Средний уровень — числа от 10 до 99
+            3: (100, 1000),  # Сложный уровень — числа от 100 до 999
+            4: (1000, 10000) # Очень сложный уровень — числа от 1000 до 9999
+        }
         
-        elif mode == '2':  # Отсчёт перед началом игры
-            # Переходим к показу первой карточки
-            numbers = request.session.get('flashcard_numbers', [])
-            current_index = 0
-            display_time = request.session.get('flashcard_display_time', 3)
-            difficulty = request.session.get('flashcard_difficulty', 'medium')
-            
-            if numbers and len(numbers) > 0:
-                current_number = numbers[0]
-                abacus_data = get_abacus_representation(current_number, difficulty)
-                
-                return render(request, 'flashcards.html', {
-                    'mode': 3,
-                    'current_number': current_number,
-                    'display_time': display_time,
-                    'total_cards': len(numbers),
-                    'current_card': 1,
-                    'difficulty': difficulty,
-                    'abacus_data': abacus_data
-                })
-            else:
-                return redirect('flashcards')
+        # Извлекаем минимальное и максимальное значение диапазона для выбранного уровня сложности
+        min_val, max_val = difficulty_ranges.get(difficult_level, (1, 10))
         
-        elif mode == '3':  # Показ карточки со счетами
-            numbers = request.session.get('flashcard_numbers', [])
-            current_index = request.session.get('flashcard_current_index', 0)
-            display_time = request.session.get('flashcard_display_time', 3)
-            difficulty = request.session.get('flashcard_difficulty', 'medium')
-            
-            if current_index < len(numbers):
-                current_number = numbers[current_index]
-                abacus_data = get_abacus_representation(current_number, difficulty)
-                
-                return render(request, 'flashcards.html', {
-                    'mode': 3,
-                    'current_number': current_number,
-                    'display_time': display_time,
-                    'total_cards': len(numbers),
-                    'current_card': current_index + 1,
-                    'difficulty': difficulty,
-                    'abacus_data': abacus_data
-                })
-            else:
-                # Показ карточек закончен, переходим к вводу ответа
-                return render(request, 'flashcards.html', {
-                    'mode': 4,
-                    'total_cards': len(numbers),
-                    'numbers': numbers
-                })
+        # Инициализируем пустой список для хранения итоговых чисел
+        numbers = []
         
-        elif mode == '4':  # Переход к следующей карточке
-            numbers = request.session.get('flashcard_numbers', [])
-            current_index = request.session.get('flashcard_current_index', 0)
-            display_time = request.session.get('flashcard_display_time', 3)
-            difficulty = request.session.get('flashcard_difficulty', 'medium')
-            
-            # Увеличиваем индекс текущей карточки
-            next_index = current_index + 1
-            request.session['flashcard_current_index'] = next_index
-            
-            if next_index < len(numbers):
-                # Показываем следующую карточку
-                current_number = numbers[next_index]
-                abacus_data = get_abacus_representation(current_number, difficulty)
-                
-                return render(request, 'flashcards.html', {
-                    'mode': 3,
-                    'current_number': current_number,
-                    'display_time': display_time,
-                    'total_cards': len(numbers),
-                    'current_card': next_index + 1,
-                    'difficulty': difficulty,
-                    'abacus_data': abacus_data
-                })
-            else:
-                # Показ карточек закончен, переходим к вводу ответа
-                return render(request, 'flashcards.html', {
-                    'mode': 4,
-                    'total_cards': len(numbers),
-                    'numbers': numbers
-                })
+        # Цикл для генерации заданного количества чисел
+        while len(numbers) < quantity:
+            # Генерируем случайное число в диапазоне сложности
+            num = random.randint(min_val, max_val - 1)
+            # Проверяем каждую цифру числа:
+            # если каждая цифра меньше или равна max_digit — добавляем число в список
+            if all(int(digit) <= max_digit for digit in str(num)):
+                numbers.append(num)
         
-        elif mode == '5':  # Ввод ответов для всех карточек
-            numbers = request.session.get('flashcard_numbers', [])
-            total_sum = request.POST.get('total_sum', '')
-            
-            # Вычисляем правильную сумму всех карточек
-            correct_total = sum(numbers)
-            
-            # Проверяем ответ пользователя
-            try:
-                user_total = int(total_sum) if total_sum else 0
-                correct = user_total == correct_total
-            except ValueError:
-                user_total = 0
-                correct = False
-            
-            # Создаем результат для отображения
-            answers = [{
-                'number': correct_total,
-                'user_answer': user_total,
-                'correct': correct
-            }]
-            
-            # Сохраняем результаты
-            request.session['flashcard_answers'] = answers
-            
-            # Показываем результаты
-            total_cards = len(numbers)
-            correct_count = 1 if correct else 0
-            percentage_correct = 100 if correct else 0
-            
-            return render(request, 'flashcards.html', {
-                'mode': 5,
-                'answers': answers,
-                'total_cards': total_cards,
-                'correct_count': correct_count,
-                'incorrect_count': 1 - correct_count,
-                'percentage_correct': percentage_correct
-            })
-    
-    return redirect('flashcards')
+        # После формирования списка чисел создаём список представлений абакуса для каждого числа
+        columns_list = [generate_abacus_columns(number) for number in numbers]
+        
+        # Сохраняем данные в сессии для возможного использования в будущем
+        request.session['flashcards_numbers'] = numbers
+        request.session['flashcards_columns'] = columns_list
+        request.session['flashcards_speed'] = speed
+        request.session['flashcards_difficult_level'] = difficult_level
+        
+        # Передаём готовые данные в шаблон для отображения абакусов на странице
+        return render(request, 'flashcards.html', {
+            "mode": 2,           # Режим отображения абакуса
+            "columns_list": columns_list,  # Список готовых колонок для каждого числа
+            "numbers": numbers,   # Список чисел для проверки или вывода
+            "speed": speed        # Скорость показа абакусов, передаём в шаблон для анимации
+        })
 
 @login_required
 def configure_class_games(request, class_id):

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path
+from django.shortcuts import redirect
 from mental_app import views
 
 # --- 1. Объяснение создания маршрута --- :
@@ -89,7 +90,10 @@ urlpatterns = [
 
     path('simply/<int:mode>/', views.simply, name='simply'),
 
-    path('flashcards/', views.flashcards, name='flashcards'),
+    path('flashcards/<int:mode>/', views.flashcards, name='flashcards'),
+    
+    # Редирект для обратной совместимости
+    path('flashcards/', lambda request: redirect('flashcards', mode=1), name='flashcards_redirect'),
 
     # Старые маршруты для обратной совместимости
     path('delete_student/<int:student_id>/', views.students_list, {'mode': 4}, name='delete_student'),
