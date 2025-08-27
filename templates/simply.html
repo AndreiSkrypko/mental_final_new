@@ -1108,6 +1108,51 @@
          text-align: center;
          margin-top: 15px;
      }
+     
+     /* Стили для результатов (как во флешкартах) */
+     .game-results {
+         text-align: center;
+         padding: 20px;
+         background: rgba(255,255,255,0.1);
+         border-radius: 15px;
+         backdrop-filter: blur(10px);
+         flex: 1;
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         max-width: 600px;
+         margin: 0 auto;
+         width: 100%;
+     }
+     
+     .results-summary {
+         margin-bottom: 30px;
+     }
+     
+     .results-summary h2 {
+         color: #2d3748;
+         font-size: 2.2rem;
+         margin-bottom: 20px;
+         font-weight: 700;
+     }
+     
+     .score-display {
+         font-size: 1.8em;
+         font-weight: bold;
+         color: #667eea;
+         margin: 20px 0;
+         padding: 20px;
+         background: rgba(102, 126, 234, 0.1);
+         border-radius: 15px;
+         border: 1px solid rgba(102, 126, 234, 0.2);
+     }
+     
+     .results-summary p {
+         color: #4a5568;
+         font-size: 1.1rem;
+         margin: 10px 0;
+         line-height: 1.6;
+     }
 </style>
 {% endblock %}
 
@@ -1642,21 +1687,17 @@
             </button>
             
             <div class="game-results">
-                <h2>Результат проверки</h2>
-                
-                {% if is_correct %}
-                    <div class="result-message correct">
-                        ✓ Верно! Молодец!
+                <div class="results-summary">
+                    <h2>Результат проверки</h2>
+                    <div class="score-display">
+                        {% if is_correct %}
+                            Поздравляем! Ответ правильный! 🎉
+                        {% else %}
+                            Попробуйте еще раз! 💪
+                        {% endif %}
                     </div>
-                {% else %}
-                    <div class="result-message incorrect">
-                        ✗ Неверно! Попробуйте снова.
-                    </div>
-                {% endif %}
-                
-                <div class="result-details">
-                    <p><strong>Ваш ответ:</strong> {{ user_answer }}</p>
-                    <p><strong>Правильный ответ:</strong> {{ correct_answer }}</p>
+                    <p>Правильный ответ: <strong>{{ correct_answer }}</strong></p>
+                    <p>Ваш ответ: <strong>{{ user_answer }}</strong></p>
                 </div>
                 
                 <div class="game-controls">
@@ -1666,18 +1707,16 @@
             </div>
 
             <script>
-                
-                
                 // Проверяем, что все данные загружены
                 document.addEventListener('DOMContentLoaded', function() {
+                    // Теперь используем новую структуру результатов
+                    const scoreDisplay = document.querySelector('.score-display');
+                    const userAnswer = document.querySelector('.results-summary p:first-of-type');
+                    const correctAnswer = document.querySelector('.results-summary p:last-of-type');
                     
-                    
-                    const resultMessage = document.querySelector('.result-message');
-                    const userAnswer = document.querySelector('.result-details p:first-child');
-                    const correctAnswer = document.querySelector('.result-details p:last-child');
-                    
-                    
-    
+                    if (scoreDisplay) {
+                        console.log('✅ Результаты загружены');
+                    }
                 });
             </script>
             {% endif %}
