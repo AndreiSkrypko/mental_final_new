@@ -1,13 +1,269 @@
 {% extends 'base.html' %}
 
-{% block title %}Абакус{% endblock %}
+{% block title %}Игра "Флешкарты"{% endblock %}
 
-{% block game %}
-Игра "Флешкарты"
-{% endblock %}
+{% block game %}Игра "Флешкарты"{% endblock %}
 
 {% block mycss %}
 <style>
+    /* Основные стили для игры */
+    .game-container {
+        min-height: 100vh;
+        padding: 10px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 95vw;
+        width: 100%;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease-out;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 18px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    .game-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .game-subtitle {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin: 3px 0 0 0;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .game-body {
+        padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Стили для полей формы */
+    .form-group {
+        margin-bottom: 12px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 6px;
+        text-align: center;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    /* Стили для слайдеров */
+    .setting-icon {
+        font-size: 0.9rem;
+        margin-right: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .setting-value {
+        font-weight: 600;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 2px 5px;
+        border-radius: 5px;
+        margin-left: 5px;
+        font-size: 0.8rem;
+    }
+
+    .slider-container {
+        margin-top: 6px;
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e0 100%);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        border: 2px solid white;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+
+    .slider::-webkit-slider-thumb:active {
+        transform: scale(0.95);
+    }
+
+    .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .slider::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+        font-size: 0.7rem;
+        color: #718096;
+        font-weight: 500;
+        width: 100%;
+    }
+
+    .slider-labels span {
+        text-align: center;
+        flex: 1;
+        padding: 0 4px;
+        font-size: 0.8rem;
+    }
+
+    .slider:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .slider:hover {
+        background: linear-gradient(90deg, #cbd5e0 0%, #a0aec0 100%);
+    }
+
+    /* Анимация для значений настроек */
+    .setting-value {
+        transition: all 0.3s ease;
+    }
+
+    .setting-value.updated {
+        animation: valueUpdate 0.6s ease-out;
+    }
+
+    @keyframes valueUpdate {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Стили для кнопки с иконкой */
+    .btn-icon {
+        margin-right: 5px;
+        font-size: 0.9rem;
+    }
+
+    /* Стили для кнопки */
+    .start-btn {
+        width: 100%;
+        max-width: 600px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 14px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .start-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .start-btn:hover::before {
+        left: 100%;
+    }
+
+    .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .start-btn:active {
+        transform: translateY(-1px);
+    }
+
     /* Центровка абакуса */
     .abacus-wrapper {
         display: flex;
@@ -99,6 +355,191 @@
         border-radius: 4px;
         transform: rotate(-45deg);
     }
+
+    /* Стили для формы ответа */
+    .answer-form {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        border-radius: 24px;
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto;
+        position: relative;
+        overflow: hidden;
+    }
+ 
+    .answer-form::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+        z-index: 0;
+    }
+ 
+    .answer-form h2 {
+        color: #2d3748;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 1;
+        font-weight: 700;
+    }
+ 
+    .answer-form p {
+        color: #4a5568;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 5px rgba(0,0,0,0.05);
+        position: relative;
+        z-index: 1;
+        line-height: 1.6;
+    }
+ 
+    .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px 25px;
+        font-size: 1.4rem;
+        border: 3px solid rgba(102, 126, 234, 0.3);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #2d3748;
+        text-align: center;
+        margin: 30px auto;
+        transition: all 0.4s ease;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    }
+ 
+    .answer-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.25);
+    }
+ 
+    .answer-input:hover {
+        border-color: #667eea;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    }
+ 
+    .answer-input::placeholder {
+        color: #a0aec0;
+        opacity: 0.8;
+        font-weight: 500;
+    }
+ 
+    .answer-form .game-controls {
+        position: relative;
+        z-index: 1;
+        margin-top: 30px;
+    }
+ 
+    .answer-form .btn {
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        display: inline-block;
+    }
+ 
+    .answer-form .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+ 
+    .answer-form .btn:hover::before {
+        left: 100%;
+    }
+ 
+    .answer-form .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+ 
+    .answer-form .btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* Стили для результатов */
+    .game-results {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 24px;
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 20px auto;
+    }
+
+    .results-summary h2 {
+        color: #2d3748;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        font-weight: 700;
+    }
+
+    .score-display {
+        margin: 30px 0;
+    }
+
+    .game-controls {
+        margin-top: 40px;
+    }
+
+    .game-controls .btn {
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        text-decoration: none;
+        display: inline-block;
+        margin: 0 10px;
+    }
+
+    .game-controls .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
     
     /* Кнопка повторить */
     .retry-button {
@@ -111,170 +552,389 @@
         cursor: pointer;
         box-shadow: 0 8px 12px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
     }
     
     .retry-button:hover {
         background-color: #45a049;
         transform: translateY(-4px);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Анимации */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .game-container {
+            padding: 8px;
+        }
+        
+        .game-header {
+            padding: 12px 15px;
+        }
+        
+        .game-title {
+            font-size: 1.6rem;
+        }
+        
+        .game-body {
+            padding: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        
+        .slider-container {
+            margin-top: 8px;
+        }
+        
+        .slider-labels {
+            font-size: 0.7rem;
+            margin-top: 6px;
+        }
+
+        .abacus-container {
+            gap: 20px;
+            padding: 15px;
+        }
+
+        .bead {
+            width: 24px;
+            height: 24px;
+        }
+
+        .stick {
+            height: 220px;
+        }
+
+        .separator-line {
+            top: 75px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-{% if mode == 1 %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-5">
-            <h5>
-                Выберите уровень игры:<br>
-                - сложность<br>
-                - скорость<br>
-                - количество примеров<br>
-                - цифры, из которых будут состоять числа<br>
-            </h5>
+<div class="game-container">
+    <div class="game-card">
+        <div class="game-header">
+            <h1 class="game-title">Игра "Флешкарты"</h1>
+            <p class="game-subtitle">Тренируйте навыки счета с Абакусом! Запоминайте числа и их представления.</p>
         </div>
-        <div class="col-7">
-            <h6>
-                Игра "Флешкарты" для тренировки навыков счета с Абакусом. 
-                Время — интервал в секундах, количество примеров = чисел, 
-                выбор цифры — ограничение до максимальной цифры.
-            </h6>
-        </div>
-    </div>
-    
-    <form action="{% url 'flashcards' mode=1 %}" method="post" class="mt-5">
-        {% csrf_token %}
-        <div class="row justify-content-center">
-            <div class="col-3">
-                <label for="difficult" class="form-label">Сложность: <span id="difficult-value">1</span></label>
-                <input type="range" class="form-range" id="difficult" name="difficult" min="1" max="4" value="1" step="1">
-                <script>
-                    const slider = document.getElementById("difficult");
-                    const output = document.getElementById("difficult-value");
-                    slider.addEventListener("input", () => updateRangeDisplay(slider.value));
-                    function updateRangeDisplay(value) {
-                        const ranges = ["1–10", "10–100", "100–1000", "1000–10000"];
-                        output.textContent = ranges[value - 1] || value;
-                    }
-                    updateRangeDisplay(slider.value);
-                </script>
-            </div>
-            <div class="col-3">
-                <label for="speed" class="form-label">Скорость: <span id="speed-value">1</span> сек</label>
-                <input type="range" class="form-range" id="speed" name="speed" min="0.1" max="10" step="0.1" value="1">
-                <script>
-                    const speedInput = document.getElementById('speed');
-                    const speedValue = document.getElementById('speed-value');
-                    speedInput.addEventListener('input', () => {
-                        speedValue.textContent = parseFloat(speedInput.value).toFixed(1);
-                    });
-                </script>
-            </div>
-            <div class="col-3">
-                <label for="quantity" class="form-label">Количество примеров: <span id="quantity-value">2</span></label>
-                <input type="range" class="form-range" id="quantity" name="quantity" min="2" max="99" step="1" value="2">
-                <script>
-                    const quantityInput = document.getElementById('quantity');
-                    const quantityValue = document.getElementById('quantity-value');
-                    quantityInput.addEventListener('input', () => {
-                        quantityValue.textContent = quantityInput.value;
-                    });
-                </script>
-            </div>
-            <div class="col-3">
-                <label for="max_digit" class="form-label">Максимальная цифра: <span id="max_digit-value">2</span></label>
-                <input type="range" class="form-range" id="max_digit" name="max_digit" min="2" max="9" step="1" value="2">
-                <script>
-                    const maxDigitInput = document.getElementById('max_digit');
-                    const maxDigitValue = document.getElementById('max_digit-value');
-                    maxDigitInput.addEventListener('input', () => {
-                        maxDigitValue.textContent = maxDigitInput.value;
-                    });
-                </script>
-            </div>
-        </div>
-        <div class="row justify-content-center mt-4">
-            <button type="submit" class="btn btn-primary btn-sm w-25">Начать</button>
-        </div>
-    </form>
-</div>
-
-{% elif mode == 2 %}
-<div class="abacus-wrapper">
-    <div id="abacus-display">
-        {% for columns in columns_list %}
-        <div class="abacus-set" style="display: none;">
-            <div class="abacus-container">
-                <div class="separator-line"></div>
-                {% for column in columns %}
-                <div class="column">
-                    <div class="stick"></div>
-                    <div class="beads-top">
-                        {% for bead in column.0 %}
-                        <div class="bead {% if bead == 1 %}active{% endif %}"></div>
-                        {% endfor %}
-                    </div>
-                    <div class="beads-bottom">
-                        {% for bead in column.1 %}
-                        <div class="bead {% if bead == 1 %}active{% endif %}"></div>
-                        {% endfor %}
+        
+        <div class="game-body">
+            {% if mode == 1 %}
+            <!-- Настройка игры -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="difficult" class="form-label">
+                        <span class="setting-icon">🎯</span>
+                        Сложность: <span class="setting-value" id="difficult-value">1–10</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="difficult" id="difficult" class="slider" 
+                               min="1" max="4" value="1" step="1">
+                        <div class="slider-labels">
+                            <span>1–10</span>
+                            <span>10–100</span>
+                            <span>100–1000</span>
+                            <span>1000–10000</span>
+                        </div>
                     </div>
                 </div>
-                {% endfor %}
+                
+                <div class="form-group">
+                    <label for="speed" class="form-label">
+                        <span class="setting-icon">⚡</span>
+                        Скорость показа: <span class="setting-value" id="speed-value">1.0 сек</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="speed" id="speed" class="slider" 
+                               min="0.1" max="10" step="0.1" value="1">
+                        <div class="slider-labels">
+                            <span>0.1с</span>
+                            <span>2.5с</span>
+                            <span>5с</span>
+                            <span>7.5с</span>
+                            <span>10с</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity" class="form-label">
+                        <span class="setting-icon">📊</span>
+                        Количество примеров: <span class="setting-value" id="quantity-value">2</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="quantity" id="quantity" class="slider" 
+                               min="2" max="99" step="1" value="2">
+                        <div class="slider-labels">
+                            <span>2</span>
+                            <span>25</span>
+                            <span>50</span>
+                            <span>75</span>
+                            <span>99</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="max_digit" class="form-label">
+                        <span class="setting-icon">🔤</span>
+                        Максимальная цифра: <span class="setting-value" id="max_digit-value">2</span>
+                    </label>
+                    <div class="slider-container">
+                        <input type="range" name="max_digit" id="max_digit" class="slider" 
+                               min="2" max="9" step="1" value="2">
+                        <div class="slider-labels">
+                            <span>2</span>
+                            <span>3</span>
+                            <span>4</span>
+                            <span>5</span>
+                            <span>6</span>
+                            <span>7</span>
+                            <span>8</span>
+                            <span>9</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="start-btn">
+                        <span class="btn-icon">🚀</span>
+                        Начать игру
+                    </button>
+                </div>
+            </form>
+
+            <script>
+                // Обновление значений слайдеров
+                const difficultSlider = document.getElementById("difficult");
+                const difficultValue = document.getElementById("difficult-value");
+                const speedSlider = document.getElementById("speed");
+                const speedValue = document.getElementById("speed-value");
+                const quantitySlider = document.getElementById("quantity");
+                const quantityValue = document.getElementById("quantity-value");
+                const maxDigitSlider = document.getElementById("max_digit");
+                const maxDigitValue = document.getElementById("max_digit-value");
+
+                const ranges = ["1–10", "10–100", "100–1000", "1000–10000"];
+
+                difficultSlider.addEventListener("input", () => {
+                    difficultValue.textContent = ranges[difficultSlider.value - 1] || difficultSlider.value;
+                    difficultValue.classList.add('updated');
+                    setTimeout(() => difficultValue.classList.remove('updated'), 600);
+                });
+
+                speedSlider.addEventListener("input", () => {
+                    speedValue.textContent = parseFloat(speedSlider.value).toFixed(1) + " сек";
+                    speedValue.classList.add('updated');
+                    setTimeout(() => speedValue.classList.remove('updated'), 600);
+                });
+
+                quantitySlider.addEventListener("input", () => {
+                    quantityValue.textContent = quantitySlider.value;
+                    quantityValue.classList.add('updated');
+                    setTimeout(() => quantityValue.classList.remove('updated'), 600);
+                });
+
+                maxDigitSlider.addEventListener("input", () => {
+                    maxDigitValue.textContent = maxDigitSlider.value;
+                    maxDigitValue.classList.add('updated');
+                    setTimeout(() => maxDigitValue.classList.remove('updated'), 600);
+                });
+            </script>
+
+            {% elif mode == 2 %}
+            <!-- Показ абакуса -->
+            <div class="abacus-wrapper">
+                <div id="abacus-display">
+                    {% for columns in columns_list %}
+                    <div class="abacus-set" style="display: none;">
+                        <div class="abacus-container">
+                            <div class="separator-line"></div>
+                            {% for column in columns %}
+                            <div class="column">
+                                <div class="stick"></div>
+                                <div class="beads-top">
+                                    {% for bead in column.0 %}
+                                    <div class="bead {% if bead == 1 %}active{% endif %}"></div>
+                                    {% endfor %}
+                                </div>
+                                <div class="beads-bottom">
+                                    {% for bead in column.1 %}
+                                    <div class="bead {% if bead == 1 %}active{% endif %}"></div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
+
+            <!-- Форма для ответа -->
+            <div id="answer-section" style="display: none;">
+                <div class="answer-form">
+                    <h2>🎯 Введите сумму всех чисел</h2>
+                    <p>💭 Вспомните все числа, которые вы видели на абакусе, и введите их сумму:</p>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="check_answer" value="1">
+                        <input type="number" 
+                               name="user_answer" 
+                               class="answer-input" 
+                               placeholder="Введите сумму чисел..."
+                               required
+                               autocomplete="off">
+                        
+                        <div class="game-controls">
+                            <button type="submit" class="btn">
+                                <span class="btn-icon">✅</span>
+                                Проверить ответ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Кнопка повторить -->
+            <div id="retry-section" style="display: none; text-align: center; margin-top: 20px;">
+                <a href="{% url 'flashcards' mode=1 %}" class="retry-button">
+                    <span class="btn-icon">🔄</span>
+                    Попробовать снова
+                </a>
+            </div>
+
+            <!-- Звук абакуса -->
+            <audio id="abacus-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const abacusSets = document.querySelectorAll('.abacus-set');
+                    const displaySpeed = {{ speed|safe }} * 1000;
+                    const sound = document.getElementById('abacus-sound');
+                    const answerSection = document.getElementById('answer-section');
+                    const retrySection = document.getElementById('retry-section');
+                    let index = 0;
+
+                    function tryPlaySound() {
+                        sound.currentTime = 0;
+                        sound.play().catch(() => {
+                            console.log('Автозвук заблокирован. Ждём клик пользователя.');
+                            document.addEventListener('click', function once() {
+                                sound.play();
+                                document.removeEventListener('click', once);
+                            });
+                        });
+                    }
+
+                    if (abacusSets.length > 0) {
+                        abacusSets[0].style.display = 'flex';
+                        abacusSets[0].style.justifyContent = 'center';
+
+                        const showNext = () => {
+                            abacusSets[index].style.display = 'none';
+                            index++;
+                            
+                            if (index < abacusSets.length) {
+                                abacusSets[index].style.display = 'flex';
+                                abacusSets[index].style.justifyContent = 'center';
+                                tryPlaySound();
+                                setTimeout(showNext, displaySpeed);
+                            } else {
+                                // Показываем форму для ответа
+                                answerSection.style.display = 'block';
+                            }
+                        };
+
+                        setTimeout(showNext, displaySpeed);
+                    }
+                });
+            </script>
+
+            {% elif mode == 3 %}
+            <!-- Результаты проверки -->
+            <div class="game-results">
+                <div class="results-summary">
+                    <h2>Результат проверки</h2>
+                    <div class="score-display">
+                        {% if is_correct %}
+                            <div style="color: #2ecc71; font-size: 1.5rem; margin: 20px 0;">
+                                🎉 Поздравляем! Ответ правильный!
+                            </div>
+                        {% else %}
+                            <div style="color: #e74c3c; font-size: 1.5rem; margin: 20px 0;">
+                                💪 Попробуйте еще раз!
+                            </div>
+                        {% endif %}
+                    </div>
+                    <p>Правильный ответ: <strong>{{ correct_sum }}</strong></p>
+                    <p>Ваш ответ: <strong>{{ user_answer }}</strong></p>
+                    
+                    {% if numbers %}
+                    <div style="margin: 20px 0; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 10px;">
+                        <p><strong>Числа, которые вы видели:</strong></p>
+                        <p style="font-size: 1.2rem; color: #667eea;">{{ numbers|join:", " }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="game-controls">
+                    <a href="{% url 'flashcards' mode=1 %}" class="btn" style="margin-right: 15px;">
+                        <span class="btn-icon">🔄</span>
+                        Играть снова
+                    </a>
+                    <a href="{% url 'index' %}" class="btn" style="background: linear-gradient(135deg, #95a5a6, #7f8c8d);">
+                        <span class="btn-icon">🏠</span>
+                        На главную
+                    </a>
+                </div>
+            </div>
+
+            {% if error %}
+            <div style="text-align: center; margin: 20px 0; padding: 15px; background: rgba(231, 76, 60, 0.1); border-radius: 10px; color: #e74c3c;">
+                <p>{{ error }}</p>
+                <a href="{% url 'flashcards' mode=1 %}" class="btn">
+                    <span class="btn-icon">🔄</span>
+                    Начать заново
+                </a>
+            </div>
+            {% endif %}
+            {% endif %}
         </div>
-        {% endfor %}
     </div>
 </div>
-
-<div id="retry-section" style="display: none; text-align: center; margin-top: 40px;">
-    <form method="get">
-        <button type="submit" class="retry-button">Попробовать снова</button>
-    </form>
-</div>
-
-<!-- Звук абакуса -->
-<audio id="abacus-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const abacusSets = document.querySelectorAll('.abacus-set');
-        const speed = {{ speed|safe }} * 1000;
-        const sound = document.getElementById('abacus-sound');
-        let index = 0;
-        
-        function tryPlaySound() {
-            sound.currentTime = 0;
-            sound.play().catch(() => {
-                console.log('Автозвук заблокирован. Ждём клик пользователя.');
-                document.addEventListener('click', function once() {
-                    sound.play();
-                    document.removeEventListener('click', once);
-                });
-            });
-        }
-        
-        if (abacusSets.length > 0) {
-            abacusSets[0].style.display = 'flex';
-            abacusSets[0].style.justifyContent = 'center';
-            
-            const showNext = () => {
-                abacusSets[index].style.display = 'none';
-                index++;
-                
-                if (index < abacusSets.length) {
-                    abacusSets[index].style.display = 'flex';
-                    abacusSets[index].style.justifyContent = 'center';
-                    tryPlaySound();
-                    setTimeout(showNext, speed);
-                } else {
-                    document.getElementById('retry-section').style.display = 'block';
-                }
-            };
-            
-            setTimeout(showNext, speed);
-        }
-    });
-</script>
-{% endif %}
 {% endblock %}

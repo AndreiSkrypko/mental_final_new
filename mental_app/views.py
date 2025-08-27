@@ -2240,6 +2240,38 @@ def flashcards(request, mode):
     
     # Если пользователь отправил форму с параметрами, обрабатываем POST-запрос
     if request.method == 'POST':
+        # Проверяем, является ли это проверкой ответа
+        if request.POST.get('check_answer'):
+            # Получаем ответ пользователя
+            try:
+                user_answer = int(request.POST.get('user_answer'))
+            except (TypeError, ValueError):
+                return render(request, 'flashcards.html', {
+                    "mode": 3,
+                    "error": "Введите корректное число."
+                })
+            
+            # Получаем правильную сумму из сессии
+            numbers = request.session.get('flashcards_numbers', [])
+            if not numbers:
+                return render(request, 'flashcards.html', {
+                    "mode": 3,
+                    "error": "Сессия истекла. Попробуйте начать заново."
+                })
+            
+            correct_sum = sum(numbers)
+            is_correct = (user_answer == correct_sum)
+            
+            # Переходим в финальный режим (mode = 3) — вывод результата
+            return render(request, 'flashcards.html', {
+                "mode": 3,
+                "is_correct": is_correct,
+                "correct_sum": correct_sum,
+                "user_answer": user_answer,
+                "numbers": numbers
+            })
+        
+        # Обычная обработка формы настроек
         # Получаем уровень сложности из формы и конвертируем в целое число
         difficult_level = int(request.POST.get('difficult'))
         # Получаем скорость показа абакуса из формы и конвертируем в число с плавающей точкой
