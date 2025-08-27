@@ -7,7 +7,7 @@
     /* Основные стили для игры */
     .game-container {
         min-height: 100vh;
-        padding: 20px;
+        padding: 10px;
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
         display: flex;
         flex-direction: column;
@@ -16,11 +16,12 @@
     .game-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
-        border-radius: 24px;
+        border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
         overflow: hidden;
-        max-width: 800px;
+        max-width: 95vw;
+        width: 100%;
         margin: 0 auto;
         animation: fadeInUp 0.8s ease-out;
         flex: 1;
@@ -31,7 +32,7 @@
     .game-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 25px;
+        padding: 12px 18px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -49,24 +50,28 @@
     }
 
     .game-title {
-        font-size: 2.2rem;
+        font-size: 1.6rem;
         font-weight: 700;
         margin: 0;
         position: relative;
         z-index: 2;
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 800px;
     }
 
     .game-subtitle {
-        font-size: 1rem;
+        font-size: 0.85rem;
         opacity: 0.9;
-        margin: 8px 0 0 0;
+        margin: 3px 0 0 0;
         position: relative;
         z-index: 2;
+        width: 100%;
+        max-width: 600px;
     }
 
     .game-body {
-        padding: 30px;
+        padding: 15px;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -75,7 +80,7 @@
 
     /* Стили для полей формы */
     .form-group {
-        margin-bottom: 25px;
+        margin-bottom: 12px;
         position: relative;
         display: flex;
         flex-direction: column;
@@ -84,10 +89,10 @@
 
     .form-label {
         display: block;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #2d3748;
-        margin-bottom: 12px;
+        margin-bottom: 6px;
         text-align: center;
         width: 100%;
         max-width: 600px;
@@ -219,16 +224,16 @@
     .start-btn {
         width: 100%;
         max-width: 600px;
-        padding: 16px 24px;
-        font-size: 1.1rem;
+        padding: 12px 20px;
+        font-size: 1rem;
         font-weight: 600;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
-        border-radius: 16px;
+        border-radius: 14px;
         color: white;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
         position: relative;
         overflow: hidden;
     }
@@ -344,7 +349,7 @@
     /* Стили для показа карточек */
     .flashcard-display {
         text-align: center;
-        padding: 15px;
+        padding: 20px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 15px;
         color: white;
@@ -352,25 +357,27 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+        justify-content: center;
     }
 
     .progress-info {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
 
     .card-counter {
         display: block;
-        font-size: 1em;
-        margin-bottom: 10px;
+        font-size: 1.1em;
+        margin-bottom: 15px;
         opacity: 0.9;
     }
 
     .progress-bar {
         width: 100%;
-        height: 6px;
+        height: 8px;
         background: rgba(255,255,255,0.3);
-        border-radius: 3px;
+        border-radius: 4px;
         overflow: hidden;
+        margin-bottom: 20px;
     }
 
     .progress-fill {
@@ -380,7 +387,7 @@
     }
 
     .abacus-display {
-        margin: 10px 0;
+        margin: 20px 0;
         padding: 20px;
         background: rgba(255,255,255,0.1);
         border-radius: 15px;
@@ -545,74 +552,157 @@
 
     /* Стили для таймера */
     .timer-display {
-        margin: 10px 0;
-        font-size: 1.1em;
-        opacity: 0.8;
+        margin: 20px 0;
+        font-size: 1.2em;
+        opacity: 0.9;
         text-align: center;
     }
     
     .countdown-timer {
-        font-size: 2em;
+        font-size: 3rem;
         font-weight: bold;
         color: #FFD700;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        margin-top: 10px;
-        padding: 10px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        margin-top: 15px;
+        padding: 15px;
         background: rgba(255,255,255,0.1);
-        border-radius: 10px;
+        border-radius: 15px;
         display: inline-block;
-        min-width: 60px;
+        min-width: 80px;
     }
 
     /* Стили для формы ответов */
     .answers-form {
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    
-    .answers-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-        margin: 20px 0;
-    }
-    
-    .answer-item {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        border-radius: 24px;
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        background: rgba(255,255,255,0.1);
-        padding: 15px;
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
+        justify-content: center;
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
     }
-    
-    .answer-item label {
-        color: #F5DEB3;
-        font-weight: bold;
-        font-size: 1em;
-        text-align: center;
+ 
+    .answers-form::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+        z-index: 0;
     }
-    
+ 
+    .answers-form h2 {
+        color: #2d3748;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 1;
+        font-weight: 700;
+    }
+ 
+    .answers-form p {
+        color: #4a5568;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 5px rgba(0,0,0,0.05);
+        position: relative;
+        z-index: 1;
+        line-height: 1.6;
+    }
+ 
     .answer-input {
-        padding: 10px;
-        border: 2px solid rgba(255,255,255,0.3);
-        border-radius: 8px;
-        background: rgba(255,255,255,0.1);
-        color: white;
-        font-size: 1em;
+        width: 100%;
+        max-width: 400px;
+        padding: 20px 25px;
+        font-size: 1.4rem;
+        border: 3px solid rgba(102, 126, 234, 0.3);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #2d3748;
         text-align: center;
+        margin: 30px auto;
+        transition: all 0.4s ease;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
     }
-    
+ 
     .answer-input:focus {
         outline: none;
-        border-color: #FFD700;
-        background: rgba(255,255,255,0.2);
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.25);
     }
-    
+ 
+    .answer-input:hover {
+        border-color: #667eea;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    }
+ 
     .answer-input::placeholder {
-        color: rgba(255,255,255,0.6);
+        color: #a0aec0;
+        opacity: 0.8;
+        font-weight: 500;
+    }
+ 
+    .answers-form .game-controls {
+        position: relative;
+        z-index: 1;
+        margin-top: 30px;
+    }
+ 
+    .answers-form .btn {
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+ 
+    .answers-form .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+ 
+    .answers-form .btn:hover::before {
+        left: 100%;
+    }
+ 
+    .answers-form .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+ 
+    .answers-form .btn:active {
+        transform: translateY(-1px);
     }
 
     /* Стили для результатов */
@@ -694,16 +784,17 @@
 
     /* Кнопки управления */
     .game-controls {
-        margin-top: 15px;
+        margin-top: 20px;
         display: flex;
-        gap: 10px;
+        gap: 15px;
         justify-content: center;
+        flex-wrap: wrap;
     }
     
     .btn {
-        padding: 10px 20px;
+        padding: 12px 24px;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 1em;
         font-weight: bold;
         cursor: pointer;
@@ -713,7 +804,7 @@
     }
     
     .btn-primary {
-        background: linear-gradient(135deg, #3498db, #2980b9);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
     }
     
@@ -751,19 +842,37 @@
     /* Адаптивность */
     @media (max-width: 768px) {
         .game-container {
-            padding: 15px;
+            padding: 8px;
         }
         
         .game-header {
-            padding: 20px;
+            padding: 12px 15px;
         }
         
         .game-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
         }
         
         .game-body {
-            padding: 20px;
+            padding: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        
+        .slider-container {
+            margin-top: 8px;
+        }
+        
+        .slider-labels {
+            font-size: 0.7rem;
+            margin-top: 6px;
         }
         
         .abacus-bead {
@@ -780,10 +889,6 @@
             gap: 20px;
         }
         
-        .answers-grid {
-            grid-template-columns: 1fr;
-        }
-        
         .exit-game-button {
             top: 15px;
             right: 15px;
@@ -797,6 +902,124 @@
         
         .countdown-number {
             font-size: 35vw;
+        }
+        
+        .game-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        /* Мобильные стили для слайдеров */
+        .slider {
+            height: 6px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+        }
+
+        .setting-value {
+            font-size: 0.8rem;
+            padding: 3px 6px;
+        }
+
+        .setting-icon {
+            font-size: 1rem;
+        }
+        
+        .start-btn {
+            padding: 12px 18px;
+            font-size: 0.95rem;
+        }
+    }
+    
+    /* Стили для больших экранов */
+    @media (min-width: 1200px) {
+        .game-card {
+            max-width: 80vw;
+        }
+        
+        .game-title {
+            max-width: 900px;
+            font-size: 2rem;
+        }
+        
+        .game-subtitle {
+            max-width: 700px;
+            font-size: 1rem;
+        }
+        
+        .form-label {
+            max-width: 800px;
+        }
+        
+        .slider-container {
+            max-width: 800px;
+        }
+        
+        .start-btn {
+            max-width: 800px;
+        }
+        
+        .game-body {
+            padding: 30px;
+        }
+        
+        .slider {
+            height: 10px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            width: 28px;
+            height: 28px;
+        }
+    }
+    
+    @media (min-width: 1600px) {
+        .game-card {
+            max-width: 70vw;
+        }
+        
+        .game-title {
+            max-width: 1100px;
+            font-size: 2.2rem;
+        }
+        
+        .game-subtitle {
+            max-width: 900px;
+            font-size: 1.1rem;
+        }
+        
+        .form-label {
+            max-width: 1000px;
+        }
+        
+        .slider-container {
+            max-width: 1000px;
+        }
+        
+        .start-btn {
+            max-width: 1000px;
+        }
+        
+        .slider {
+            height: 12px;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 32px;
+            height: 32px;
         }
     }
 </style>
