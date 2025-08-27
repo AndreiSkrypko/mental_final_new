@@ -886,7 +886,6 @@ SIMPLY_RANGES = {
     "1000-10000": (1000, 10000),
 }
 
-@login_required
 def simply(request, mode):
     if mode == 1:
         if request.method == 'POST':
@@ -907,7 +906,7 @@ def simply(request, mode):
             request.session['speed'] = float(speed) if speed else 1.0
             request.session['max_digit'] = int(max_digit) if max_digit else 9
             
-            # Сохраняем настройки в базу данных для долгосрочного хранения
+            # Сохраняем настройки в базу данных для долгосрочного хранения (только для авторизованных пользователей)
             try:
                 if request.user.is_authenticated:
                     settings_data = {
@@ -927,8 +926,6 @@ def simply(request, mode):
                         # Обновляем существующие настройки
                         game_settings.settings_data = settings_data
                         game_settings.save()
-                else:
-                    pass
             except Exception as e:
                 pass
             
@@ -944,7 +941,7 @@ def simply(request, mode):
             
             try:
                 if request.user.is_authenticated:
-                    # Пытаемся загрузить из базы данных
+                    # Пытаемся загрузить из базы данных для авторизованных пользователей
                     game_settings = GameSettings.objects.filter(
                         user=request.user,
                         game_type='simply'
@@ -952,10 +949,6 @@ def simply(request, mode):
                     
                     if game_settings and game_settings.settings_data:
                         saved_settings.update(game_settings.settings_data)
-                    else:
-                        pass
-                else:
-                    pass
             except Exception as e:
                 pass
             
