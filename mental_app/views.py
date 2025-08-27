@@ -896,7 +896,7 @@ def simply(request, mode):
             max_digit = request.POST.get('max_digit')
             
             # Очищаем только игровые данные из сессии, сохраняя аутентификацию
-            game_keys = ['range_key', 'num_examples', 'speed', 'max_digit', 'game_numbers', 'game_total', 'current_number_index', 'user_answer', 'is_correct', 'correct_answer']
+            game_keys = ['range_key', 'num_examples', 'speed', 'max_digit', 'game_numbers', 'game_total', 'current_number_index', 'user_answer', 'is_correct', 'correct_answer', 'current_sign']
             for key in game_keys:
                 if key in request.session:
                     del request.session[key]
@@ -1009,6 +1009,10 @@ def simply(request, mode):
         numbers = []
         available_digits = list(range(1, max_digit + 1))  # Цифры от 1 до max_digit
         
+        # Инициализируем знак для первого числа (начинаем с положительного)
+        if 'current_sign' not in request.session:
+            request.session['current_sign'] = 1
+        
         for i in range(num_examples):
             # Определяем количество разрядов для числа
             if range_key == 1:  # 1-10
@@ -1032,9 +1036,13 @@ def simply(request, mode):
             
             # Проверяем, что число попадает в нужный диапазон
             if min_num <= number <= max_num:
-                # 50% вероятность отрицательного числа
-                if random.choice([True, False]):
-                    number = -number
+                # Чередуем знаки: +, -, +, -, ...
+                current_sign = request.session.get('current_sign', 1)
+                number *= current_sign
+                
+                # Обновляем знак для следующего числа
+                request.session['current_sign'] = -current_sign
+                
                 numbers.append(number)
             else:
                 # Если число не попадает в диапазон, генерируем заново
