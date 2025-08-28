@@ -739,10 +739,12 @@
 {% block content %}
 <div class="game-container">
     <div class="game-card">
+        {% if mode != 2 %}
         <div class="game-header">
             <h1 class="game-title">Игра "Флешкарты"</h1>
             <p class="game-subtitle">Тренируйте навыки счета с Абакусом! Запоминайте числа и их представления.</p>
         </div>
+        {% endif %}
         
         <div class="game-body">
             {% if mode == 1 %}
