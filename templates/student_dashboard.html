@@ -557,11 +557,7 @@
                 <p class="game-description">
                     {{ game.description }}
                 </p>
-                {% if game.url == 'flashcards' %}
-                    <a href="{% url 'flashcards' %}" class="game-btn">Начать игру</a>
-                {% else %}
-                    <a href="{% url game.url 1 %}" class="game-btn">Начать игру</a>
-                {% endif %}
+                <a href="{% url game.url 1 %}" class="game-btn">Начать игру</a>
             </div>
             {% empty %}
             <div class="no-games-message">

@@ -51,8 +51,11 @@ def index(request):
 
 
 # Обработчик выбора и проверки умножения
-@login_required
 def multiplication_choose(request, mode):
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
     if mode == 1:  # Этап выбора чисел
         if request.method == 'GET':  # Если запрос GET
             return render(request, 'multiplication_choose.html', {"mode": 1})  # Отображаем форму выбора чисел
@@ -157,8 +160,11 @@ def multiplication_choose(request, mode):
 
 
 # Обработчик выбора и проверки умножения до 20
-@login_required
 def multiplication_to_20(request, mode):
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
     if mode == 1:  # Этап выбора чисел
         if request.method == 'GET':  # Если запрос GET
             return render(request, 'multiplication_to_20.html', {"mode": 1})  # Отображаем форму выбора чисел
@@ -267,8 +273,11 @@ def multiplication_to_20(request, mode):
 
 
 # Обработчик выбора и проверки возведения в квадрат
-@login_required
 def square(request, mode):
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
     if mode == 1:
         if request.method == 'GET':
             return render(request, 'square.html', {"mode": 1})
@@ -381,8 +390,11 @@ def square(request, mode):
 
 
 # Обработчик выбора и проверки умножение от базы
-@login_required
 def multiplication_base(request, mode):
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
     if mode == 1:
         if request.method == 'GET':
             return render(request, 'multiplication_base.html', {"mode": 1})
@@ -512,8 +524,11 @@ def generate_three_digit_pair():
 
 
 # Обработчик выбора и проверки хитрости
-@login_required
 def tricks(request, mode):
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
     if mode == 1:
         if request.method == 'GET':
             return render(request, 'tricks.html', {"mode": 1})
@@ -887,6 +902,10 @@ SIMPLY_RANGES = {
 }
 
 def simply(request, mode):
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
     if mode == 1:
         if request.method == 'POST':
             range_key = request.POST.get('range')
@@ -1782,7 +1801,8 @@ def student_attendance_list(request):
         except PaymentSettings.DoesNotExist:
             payment_settings = PaymentSettings.objects.create(
                 class_group=class_obj,
-                defaults={'payment_day': 0, 'monthly_fee': 0}
+                payment_day=15,
+                monthly_fee=0
             )
         
         # Группируем посещения по месяцам для создания табеля
@@ -2220,7 +2240,6 @@ def generate_abacus_columns(number):
     return columns
 
 
-@login_required
 def flashcards(request, mode):
     """
     Обрабатывает GET и POST запросы для страницы с флешкартами.
@@ -2491,4 +2510,8 @@ def multiplication_table(request):
     """
     Представление для игры "Таблица умножения"
     """
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
     return render(request, 'multiplication_table.html')
