@@ -2486,3 +2486,9 @@ def load_game_settings(user, game_type):
     except Exception as e:
         print(f"Ошибка загрузки настроек: {e}")
         return None
+
+def multiplication_table(request):
+    """
+    Представление для игры "Таблица умножения"
+    """
+    return render(request, 'multiplication_table.html')

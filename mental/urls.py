@@ -92,6 +92,8 @@ urlpatterns = [
 
     path('flashcards/<int:mode>/', views.flashcards, name='flashcards'),
     
+    path('multiplication_table/', views.multiplication_table, name='multiplication_table'),
+    
     # Редирект для обратной совместимости
     path('flashcards/', lambda request: redirect('flashcards', mode=1), name='flashcards_redirect'),
 

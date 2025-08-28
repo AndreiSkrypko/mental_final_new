@@ -1179,7 +1179,7 @@
                         </a>
                         
                         <!-- Все игры видны, но требуют авторизации (кроме "Просто") -->
-                        <a href="main_multiplication">
+                        <a href="/multiplication_table/">
                             <i class="fas fa-table"></i>
                             Таблица умножения
                         </a>
@@ -1239,13 +1239,14 @@
     // Автоматически скрываем навбар для страниц с играми
     if (window.location.pathname.includes('/simply/') || 
         window.location.pathname.includes('/multiplication/') ||
+        window.location.pathname.includes('/multiplication_table/') ||
         window.location.pathname.includes('/square/') ||
         window.location.pathname.includes('/tricks/') ||
         window.location.pathname.includes('/flashcards/')) {
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 window.hideNavbar();
-            }, 100);
+            }, 500);
         });
     }
 </script>

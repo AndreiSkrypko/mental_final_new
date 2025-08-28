@@ -1,0 +1,1220 @@
+{% extends 'base.html' %}
+
+{% block title %}Игра "Таблица умножения"{% endblock %}
+
+{% block mycss %}
+<style>
+    /* Основные стили для игры */
+    .game-container {
+        min-height: 100vh;
+        padding: 10px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 95vw;
+        width: 100%;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease-out;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .game-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 18px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    .game-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .game-subtitle {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin: 3px 0 0 0;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .game-body {
+        padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Стили для полей формы */
+    .form-group {
+        margin-bottom: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 12px;
+        text-align: center;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    /* Стили для режимов игры */
+    .game-modes {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .mode-option {
+        display: none;
+    }
+
+    .mode-label {
+        display: inline-block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #4a5568;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 15px 25px;
+        border-radius: 12px;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-width: 150px;
+    }
+
+    .mode-label:hover {
+        background: rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .mode-option:checked + .mode-label {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Стили для выбора чисел */
+    .numbers-selection {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        max-width: 500px;
+        margin: 0 auto 20px;
+    }
+
+    .number-checkbox {
+        display: none;
+    }
+
+    .number-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4a5568;
+    }
+
+    .number-label:hover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .number-checkbox:checked + .number-label {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transform: translateY(-2px);
+    }
+
+    /* Стили для кнопки начала игры */
+    .start-btn {
+        width: 100%;
+        max-width: 600px;
+        padding: 15px 25px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 14px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .start-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .start-btn:hover::before {
+        left: 100%;
+    }
+
+    .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .start-btn:active {
+        transform: translateY(-1px);
+    }
+
+    .start-btn:disabled {
+        background: #cbd5e0;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Стили для игрового экрана */
+    .game-screen {
+        display: none;
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .game-screen.active {
+        display: flex;
+    }
+
+    .question-display {
+        font-size: 5rem;
+        font-weight: bold;
+        margin: 30px 0;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+
+    .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px 25px;
+        font-size: 3rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #2d3748;
+        text-align: center;
+        margin: 30px auto;
+        transition: all 0.4s ease;
+        font-weight: 600;
+    }
+
+    .answer-input:focus {
+        outline: none;
+        border-color: #ffffff;
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 15px 40px rgba(255, 255, 255, 0.25);
+    }
+
+    .answer-input::placeholder {
+        color: #a0aec0;
+        opacity: 0.8;
+        font-weight: 500;
+    }
+
+    .game-info {
+        margin: 20px 0;
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .progress-bar {
+        width: 100%;
+        max-width: 400px;
+        height: 8px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 20px auto;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+        transition: width 0.3s ease;
+    }
+
+    /* Стили для результатов */
+    .game-results {
+        display: none;
+        text-align: center;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 600px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .game-results.active {
+        display: flex;
+    }
+
+    .results-summary h2 {
+        color: #ffffff;
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    .score-display {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #ffffff;
+        margin: 20px 0;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .results-summary p {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin: 10px 0;
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+
+    /* Кнопки управления */
+    .game-controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Кнопка "Выйти из игры" */
+    .exit-game-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .exit-game-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+        background: linear-gradient(135deg, #c2185b 0%, #e91e63 100%);
+    }
+    
+    .exit-game-button:active {
+        transform: translateY(0);
+    }
+    
+    .exit-game-button .exit-icon {
+        font-size: 18px;
+    }
+
+    /* Анимации */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .game-container {
+            padding: 8px;
+        }
+        
+        .game-header {
+            padding: 12px 15px;
+        }
+        
+        .game-title {
+            font-size: 1.4rem;
+        }
+        
+        .game-body {
+            padding: 15px;
+        }
+        
+        .game-modes {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .mode-label {
+            min-width: 200px;
+        }
+        
+        .numbers-selection {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .number-label {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+        
+        .question-display {
+            font-size: 2.5rem;
+            padding: 15px;
+        }
+        
+        .answer-input {
+            font-size: 1.3rem;
+            padding: 12px 16px;
+        }
+        
+        .game-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .exit-game-button {
+            top: 15px;
+            right: 15px;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        
+        .exit-game-button .exit-icon {
+            font-size: 16px;
+        }
+    }
+    
+    /* Стили для больших экранов */
+    @media (min-width: 1200px) {
+        .game-card {
+            max-width: 80vw;
+        }
+        
+        .game-title {
+            max-width: 900px;
+            font-size: 2rem;
+        }
+        
+        .game-subtitle {
+            max-width: 700px;
+            font-size: 1rem;
+        }
+        
+        .numbers-selection {
+            max-width: 600px;
+        }
+        
+        .number-label {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+        }
+    }
+    
+    /* Стили для игрового режима - большие размеры */
+    .game-screen .question-display {
+        font-size: 6rem !important;
+    }
+    
+    .game-screen .answer-input {
+        font-size: 4rem !important;
+        padding: 25px 30px !important;
+        max-width: 500px !important;
+    }
+    
+    .game-screen .game-info {
+        font-size: 1.3rem !important;
+    }
+    
+    .game-screen .progress-bar {
+        max-width: 500px !important;
+        height: 10px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="game-card">
+
+        
+        <div class="game-body">
+            <!-- Заголовок игры -->
+            <div class="game-header">
+                <h1 class="game-title">Игра "Таблица умножения"</h1>
+            </div>
+            
+            <!-- Настройка игры -->
+            <form id="gameSetupForm">
+                <div class="form-group">
+                    <label class="form-label">🎯 Выберите режим игры:</label>
+                    <div class="game-modes">
+                        <input type="radio" name="game_mode" id="mode_random" value="random" class="mode-option" checked>
+                        <label for="mode_random" class="mode-label">🎲 Случайно</label>
+                        
+                        <input type="radio" name="game_mode" id="mode_multiplication" value="multiplication" class="mode-option">
+                        <label for="mode_multiplication" class="mode-label">✖️ Только умножение</label>
+                        
+                        <input type="radio" name="game_mode" id="mode_division" value="division" class="mode-option">
+                        <label for="mode_division" class="mode-label">➗ Только деление</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">🔢 Выберите числа для игры (от 1 до 10):</label>
+                    <div class="numbers-selection">
+                        {% for i in "12345678910" %}
+                        <input type="checkbox" name="selected_numbers" id="num_{{ forloop.counter }}" value="{{ forloop.counter }}" class="number-checkbox">
+                        <label for="num_{{ forloop.counter }}" class="number-label">{{ forloop.counter }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Кнопка начала игры -->
+                <div class="form-group text-center">
+                    <button type="button" class="start-btn" id="startGameBtn" disabled>
+                        <span class="btn-icon">🚀</span>
+                        Начать игру
+                    </button>
+                </div>
+            </form>
+
+            <!-- Игровой экран -->
+            <div class="game-screen" id="gameScreen">
+                <div class="game-info">
+                    <div>Вопрос <span id="currentQuestion">1</span> из <span id="totalQuestions">10</span></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div class="question-display" id="questionDisplay"></div>
+                
+                <form id="answerForm">
+                    <input type="number" 
+                           name="user_answer" 
+                           class="answer-input" 
+                           placeholder="Введите ответ..."
+                           required
+                           autocomplete="off"
+                           id="answerInput">
+                    
+                    <div class="game-controls">
+                        <button type="submit" class="btn btn-primary" id="submitAnswerBtn">
+                            <span class="btn-icon">✅</span>
+                            Проверить ответ
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Результаты игры -->
+            <div class="game-results" id="gameResults">
+                <div class="results-summary">
+                    <h2>Результаты игры</h2>
+                    <div class="score-display" id="scoreDisplay"></div>
+                    <p>Правильных ответов: <strong id="correctAnswers">0</strong> из <strong id="totalAnswers">0</strong></p>
+                    <p>Процент правильных: <strong id="percentage">0%</strong></p>
+                </div>
+                
+                <div class="game-controls">
+                    <button type="button" class="btn btn-primary" id="playAgainBtn">Играть снова</button>
+                    <a href="{% url 'index' %}" class="btn btn-secondary" id="goHomeBtn">На главную</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Кнопка выхода из игры -->
+<button class="exit-game-button" onclick="exitGame()" style="display: none;">
+    <span class="exit-icon">🚪</span>
+    Выйти из игры
+</button>
+
+<script>
+// Глобальные переменные для игры
+let gameState = {
+    mode: 'random',
+    selectedNumbers: [],
+    currentQuestion: 1,
+    totalQuestions: 10,
+    correctAnswers: 0,
+    questions: [],
+    currentQuestionIndex: 0
+};
+
+// Система звуковых эффектов
+class GameSounds {
+    constructor() {
+        this.audioContext = null;
+        this.initAudio();
+    }
+
+    initAudio() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.log('Web Audio API не поддерживается');
+        }
+    }
+
+    // Звук для правильного ответа
+    playCorrectAnswerSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Приятная мелодия для правильного ответа
+        const frequencies = [523.25, 659.25, 783.99]; // До-Ми-Соль
+        
+        frequencies.forEach((freq, index) => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+            osc.type = 'sine';
+            
+            gain.gain.setValueAtTime(0, this.audioContext.currentTime);
+            gain.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+            
+            osc.start(this.audioContext.currentTime + index * 0.08);
+            osc.stop(this.audioContext.currentTime + index * 0.08 + 0.2);
+        });
+    }
+
+    // Звук для неправильного ответа
+    playIncorrectAnswerSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Мягкий звук для неправильного ответа
+        oscillator.frequency.setValueAtTime(220, this.audioContext.currentTime); // Ля
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, this.audioContext.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.4);
+    }
+
+    // Звук для начала игры
+    playGameStartSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Восходящая арпеджио для начала игры
+        const frequencies = [523.25, 659.25, 783.99, 1046.50]; // До-Ми-Соль-До
+        
+        frequencies.forEach((freq, index) => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+            osc.type = 'sine';
+            
+            gain.gain.setValueAtTime(0, this.audioContext.currentTime);
+            gain.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+            
+            osc.start(this.audioContext.currentTime + index * 0.1);
+            osc.stop(this.audioContext.currentTime + index * 0.1 + 0.3);
+        });
+    }
+
+    // Звук для завершения игры
+    playGameCompleteSound() {
+        if (!this.audioContext) return;
+
+        // Торжественная мелодия
+        const frequencies = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // До-Ми-Соль-До-Ми
+        
+        frequencies.forEach((freq, index) => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            
+            osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+            osc.type = 'sine';
+            
+            gain.gain.setValueAtTime(0, this.audioContext.currentTime);
+            gain.gain.linearRampToValueAtTime(0.25, this.audioContext.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.4);
+            
+            osc.start(this.audioContext.currentTime + index * 0.15);
+            osc.stop(this.audioContext.currentTime + index * 0.15 + 0.4);
+        });
+    }
+
+    // Приятный звук для нажатий на кнопки
+    playButtonClickSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Мягкий звук для кнопок
+        oscillator.frequency.setValueAtTime(330, this.audioContext.currentTime); // Ми
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, this.audioContext.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.15);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.15);
+    }
+
+    // Звук для выбора режима
+    playModeSelectSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Звук для выбора режима
+        oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime); // Ля
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, this.audioContext.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.2);
+    }
+
+    // Звук для выбора чисел
+    playNumberSelectSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Звук для выбора чисел
+        oscillator.frequency.setValueAtTime(523.25, this.audioContext.currentTime); // До
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.12, this.audioContext.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.18);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.18);
+    }
+
+    // Звук для ввода в поле ответа
+    playInputSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Звук для ввода
+        oscillator.frequency.setValueAtTime(587.33, this.audioContext.currentTime); // Ре
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.08, this.audioContext.currentTime + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.12);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.12);
+    }
+
+    // Звук для выхода из игры
+    playExitSound() {
+        if (!this.audioContext) return;
+
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Нисходящий тон для выхода
+        oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime); // Ля
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, this.audioContext.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + 0.3);
+    }
+}
+
+// Глобальный экземпляр звуков
+const gameSounds = new GameSounds();
+
+// Инициализация игры
+document.addEventListener('DOMContentLoaded', function() {
+    const startBtn = document.getElementById('startGameBtn');
+    const numberCheckboxes = document.querySelectorAll('.number-checkbox');
+    const modeOptions = document.querySelectorAll('.mode-option');
+    
+    // Обработчик изменения режима игры
+    modeOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            gameState.mode = this.value;
+            updateStartButton();
+            // Воспроизводим звук выбора режима
+            gameSounds.playModeSelectSound();
+        });
+    });
+    
+    // Обработчик изменения выбранных чисел
+    numberCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateStartButton();
+            // Воспроизводим звук выбора числа
+            gameSounds.playNumberSelectSound();
+        });
+    });
+    
+    // Обработчик начала игры
+    startBtn.addEventListener('click', function() {
+        // Воспроизводим звук начала игры
+        gameSounds.playGameStartSound();
+        startGame();
+    });
+    
+    // Обработчик отправки ответа
+    document.getElementById('answerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        checkAnswer();
+    });
+    
+    // Обработчик кнопки "Играть снова"
+    document.getElementById('playAgainBtn').addEventListener('click', function() {
+        // Воспроизводим звук нажатия кнопки
+        gameSounds.playButtonClickSound();
+        resetGame();
+    });
+
+    // Обработчик кнопки "На главную"
+    document.getElementById('goHomeBtn').addEventListener('click', function() {
+        // Воспроизводим звук нажатия кнопки
+        gameSounds.playButtonClickSound();
+    });
+    
+    // Обработчик ввода в поле ответа
+    const answerInput = document.getElementById('answerInput');
+    if (answerInput) {
+        answerInput.addEventListener('input', function() {
+            // Воспроизводим звук ввода
+            gameSounds.playInputSound();
+        });
+    }
+    
+    // Инициализация
+    updateStartButton();
+});
+
+// Обновление состояния кнопки начала игры
+function updateStartButton() {
+    const startBtn = document.getElementById('startGameBtn');
+    const selectedNumbers = Array.from(document.querySelectorAll('.number-checkbox:checked')).map(cb => parseInt(cb.value));
+    
+    if (selectedNumbers.length > 0) {
+        startBtn.disabled = false;
+        gameState.selectedNumbers = selectedNumbers;
+    } else {
+        startBtn.disabled = true;
+    }
+}
+
+// Начало игры
+function startGame() {
+    // Скрываем настройки и заголовок, показываем игровой экран
+    document.getElementById('gameSetupForm').style.display = 'none';
+    document.querySelector('.game-header').style.display = 'none';
+    document.getElementById('gameScreen').classList.add('active');
+    document.querySelector('.exit-game-button').style.display = 'flex';
+    
+    // Генерируем вопросы
+    generateQuestions();
+    
+    // Показываем первый вопрос
+    showQuestion();
+}
+
+// Генерация вопросов
+function generateQuestions() {
+    gameState.questions = [];
+    const { mode, selectedNumbers } = gameState;
+    
+    for (let i = 0; i < gameState.totalQuestions; i++) {
+        let question;
+        
+        if (mode === 'multiplication') {
+            // Только умножение
+            const num1 = selectedNumbers[Math.floor(Math.random() * selectedNumbers.length)];
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            question = {
+                type: 'multiplication',
+                question: `${num1} × ${num2} = ?`,
+                answer: num1 * num2,
+                num1: num1,
+                num2: num2
+            };
+        } else if (mode === 'division') {
+            // Только деление
+            const num1 = selectedNumbers[Math.floor(Math.random() * selectedNumbers.length)];
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const answer = num1 * num2; // Создаем число, которое делится нацело
+            question = {
+                type: 'division',
+                question: `${answer} ÷ ${num1} = ?`,
+                answer: num2,
+                dividend: answer,
+                divisor: num1
+            };
+        } else {
+            // Случайный режим
+            if (Math.random() < 0.5) {
+                // Умножение
+                const num1 = selectedNumbers[Math.floor(Math.random() * selectedNumbers.length)];
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                question = {
+                    type: 'multiplication',
+                    question: `${num1} × ${num2} = ?`,
+                    answer: num2,
+                    num1: num1,
+                    num2: num2
+                };
+            } else {
+                // Деление
+                const num1 = selectedNumbers[Math.floor(Math.random() * selectedNumbers.length)];
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                const answer = num1 * num2;
+                question = {
+                    type: 'division',
+                    question: `${answer} ÷ ${num1} = ?`,
+                    answer: num2,
+                    dividend: answer,
+                    divisor: num1
+                };
+            }
+        }
+        
+        gameState.questions.push(question);
+    }
+}
+
+// Показ вопроса
+function showQuestion() {
+    const currentQ = gameState.questions[gameState.currentQuestionIndex];
+    const questionDisplay = document.getElementById('questionDisplay');
+    const currentQuestionSpan = document.getElementById('currentQuestion');
+    const totalQuestionsSpan = document.getElementById('totalQuestions');
+    const progressFill = document.getElementById('progressFill');
+    
+    questionDisplay.textContent = currentQ.question;
+    currentQuestionSpan.textContent = gameState.currentQuestionIndex + 1;
+    totalQuestionsSpan.textContent = gameState.totalQuestions;
+    
+    // Обновляем прогресс
+    const progress = ((gameState.currentQuestionIndex + 1) / gameState.totalQuestions) * 100;
+    progressFill.style.width = progress + '%';
+    
+    // Очищаем поле ввода
+    document.getElementById('answerInput').value = '';
+    document.getElementById('answerInput').focus();
+}
+
+// Проверка ответа
+function checkAnswer() {
+    const userAnswer = parseInt(document.getElementById('answerInput').value);
+    const currentQ = gameState.questions[gameState.currentQuestionIndex];
+    
+    if (userAnswer === currentQ.answer) {
+        gameState.correctAnswers++;
+        // Показываем правильный ответ и воспроизводим звук
+        showCorrectAnswer();
+        gameSounds.playCorrectAnswerSound();
+    } else {
+        // Показываем неправильный ответ и воспроизводим звук
+        showIncorrectAnswer(currentQ.answer);
+        gameSounds.playIncorrectAnswerSound();
+    }
+    
+    // Переходим к следующему вопросу или завершаем игру
+    setTimeout(() => {
+        gameState.currentQuestionIndex++;
+        
+        if (gameState.currentQuestionIndex < gameState.totalQuestions) {
+            showQuestion();
+        } else {
+            endGame();
+        }
+    }, 2000);
+}
+
+// Показ правильного ответа
+function showCorrectAnswer() {
+    const questionDisplay = document.getElementById('questionDisplay');
+    const originalText = questionDisplay.textContent;
+    
+    questionDisplay.textContent = '✅ Правильно!';
+    questionDisplay.style.color = '#2ecc71';
+    
+    setTimeout(() => {
+        questionDisplay.textContent = originalText;
+        questionDisplay.style.color = 'white';
+    }, 1500);
+}
+
+// Показ неправильного ответа
+function showIncorrectAnswer(correctAnswer) {
+    const questionDisplay = document.getElementById('questionDisplay');
+    const originalText = questionDisplay.textContent;
+    
+    questionDisplay.textContent = `❌ Неправильно! Правильный ответ: ${correctAnswer}`;
+    questionDisplay.style.color = '#e74c3c';
+    
+    setTimeout(() => {
+        questionDisplay.textContent = originalText;
+        questionDisplay.style.color = 'white';
+    }, 1500);
+}
+
+// Завершение игры
+function endGame() {
+    // Скрываем игровой экран и показываем результаты
+    document.getElementById('gameScreen').classList.remove('active');
+    document.getElementById('gameResults').classList.add('active');
+    
+    // Обновляем результаты
+    const percentage = Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100);
+    
+    document.getElementById('correctAnswers').textContent = gameState.correctAnswers;
+    document.getElementById('totalAnswers').textContent = gameState.totalQuestions;
+    document.getElementById('percentage').textContent = percentage + '%';
+    
+    // Обновляем отображение результата
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    if (percentage >= 80) {
+        scoreDisplay.textContent = '🎉 Отлично! Вы справились на ' + percentage + '%!';
+        scoreDisplay.style.color = '#2ecc71';
+    } else if (percentage >= 60) {
+        scoreDisplay.textContent = '👍 Хорошо! Вы справились на ' + percentage + '%!';
+        scoreDisplay.style.color = '#f39c12';
+    } else {
+        scoreDisplay.textContent = '💪 Попробуйте еще раз! Вы справились на ' + percentage + '%!';
+        scoreDisplay.style.color = '#e74c3c';
+    }
+
+    // Воспроизводим звук завершения игры
+    setTimeout(() => {
+        gameSounds.playGameCompleteSound();
+    }, 500);
+}
+
+// Сброс игры
+function resetGame() {
+    // Скрываем результаты и показываем настройки и заголовок
+    document.getElementById('gameResults').classList.remove('active');
+    document.getElementById('gameSetupForm').style.display = 'block';
+    document.querySelector('.game-header').style.display = 'block';
+    
+    // Сбрасываем состояние игры
+    gameState.currentQuestion = 1;
+    gameState.correctAnswers = 0;
+    gameState.currentQuestionIndex = 0;
+    gameState.questions = [];
+    
+    // Сбрасываем чекбоксы
+    document.querySelectorAll('.number-checkbox').forEach(cb => cb.checked = false);
+    
+    // Скрываем кнопку выхода
+    document.querySelector('.exit-game-button').style.display = 'none';
+    
+    // Обновляем кнопку начала игры
+    updateStartButton();
+}
+
+// Функция для выхода из игры
+function exitGame() {
+    // Воспроизводим звук выхода
+    gameSounds.playExitSound();
+    
+    // Перенаправляем на главную страницу
+    window.location.href = '/';
+}
+</script>
+{% endblock %}
