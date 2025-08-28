@@ -2240,6 +2240,15 @@ def flashcards(request, mode):
     
     # Если пользователь отправил форму с параметрами, обрабатываем POST-запрос
     if request.method == 'POST':
+        # Проверяем, является ли это переходом от обратного отсчета к показу абакуса
+        if request.POST.get('start_game'):
+            return render(request, 'flashcards.html', {
+                "mode": 2,           # Режим отображения абакуса
+                "columns_list": request.session.get('flashcards_columns', []),
+                "numbers": request.session.get('flashcards_numbers', []),
+                "speed": request.session.get('flashcards_speed', 1.0)
+            })
+        
         # Проверяем, является ли это проверкой ответа
         if request.POST.get('check_answer'):
             # Получаем ответ пользователя
@@ -2273,13 +2282,13 @@ def flashcards(request, mode):
         
         # Обычная обработка формы настроек
         # Получаем уровень сложности из формы и конвертируем в целое число
-        difficult_level = int(request.POST.get('difficult'))
+        difficult_level = int(request.POST.get('difficult', 1))
         # Получаем скорость показа абакуса из формы и конвертируем в число с плавающей точкой
-        speed = float(request.POST.get('speed'))
+        speed = float(request.POST.get('speed', 1.0))
         # Получаем количество чисел, которые нужно сгенерировать
-        quantity = int(request.POST.get('quantity'))
+        quantity = int(request.POST.get('quantity', 10))
         # Получаем максимально допустимую цифру для числа
-        max_digit = int(request.POST.get('max_digit'))
+        max_digit = int(request.POST.get('max_digit', 9))
         
         # Словарь, где для каждого уровня сложности задан свой диапазон чисел
         difficulty_ranges = {
@@ -2313,9 +2322,9 @@ def flashcards(request, mode):
         request.session['flashcards_speed'] = speed
         request.session['flashcards_difficult_level'] = difficult_level
         
-        # Передаём готовые данные в шаблон для отображения абакусов на странице
+        # Передаём готовые данные в шаблон для отображения абакуса на странице
         return render(request, 'flashcards.html', {
-            "mode": 2,           # Режим отображения абакуса
+            "mode": 2.5,         # Режим обратного отсчета перед показом абакуса
             "columns_list": columns_list,  # Список готовых колонок для каждого числа
             "numbers": numbers,   # Список чисел для проверки или вывода
             "speed": speed        # Скорость показа абакусов, передаём в шаблон для анимации
