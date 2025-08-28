@@ -1155,8 +1155,8 @@
                 Карточка <span class="current" id="current-card">1</span> из <span class="total" id="total-cards">{{ columns_list|length }}</span>
             </div>
             
-            <!-- Индикатор прогресса -->
-            <div class="progress-indicator" id="progress-indicator">
+            <!-- Индикатор прогресса (скрыт при показе карточек) -->
+            <div class="progress-indicator" id="progress-indicator" style="display: none;">
                 {% for columns in columns_list %}
                 <div class="progress-dot" data-index="{{ forloop.counter0 }}"></div>
                 {% endfor %}
@@ -1251,6 +1251,9 @@
                         
                         // Обновляем счетчик
                         currentCardElement.textContent = '1';
+                        
+                        // Воспроизводим звук для первой карточки
+                        tryPlaySound();
                     }
 
                     function tryPlaySound() {
