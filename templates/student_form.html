@@ -23,6 +23,13 @@
         </div>
 
         <div class="form-body">
+            {% if error %}
+                <div class="error-message" style="background: #fee; border: 1px solid #fcc; padding: 15px; margin-bottom: 20px; border-radius: 8px; color: #c33;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Ошибка:</strong> {{ error }}
+                </div>
+            {% endif %}
+            
             <form method="post">
                 {% csrf_token %}
                 

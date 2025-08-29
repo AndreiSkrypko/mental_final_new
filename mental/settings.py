@@ -172,33 +172,42 @@ if not DEBUG:
         'disable_existing_loggers': False,
         'formatters': {
             'verbose': {
-                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {funcName} {lineno} {message}',
+                'style': '{',
+            },
+            'simple': {
+                'format': '{levelname} {message}',
                 'style': '{',
             },
         },
         'handlers': {
             'file': {
-                'level': 'ERROR',
+                'level': 'DEBUG',
                 'class': 'logging.FileHandler',
                 'filename': os.path.join(BASE_DIR, 'django.log'),
                 'formatter': 'verbose',
             },
             'console': {
-                'level': 'ERROR',
+                'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
-                'formatter': 'verbose',
+                'formatter': 'simple',
             },
         },
         'loggers': {
             'django': {
                 'handlers': ['file', 'console'],
-                'level': 'ERROR',
+                'level': 'INFO',
                 'propagate': True,
             },
             'mental_app': {
                 'handlers': ['file', 'console'],
-                'level': 'ERROR',
+                'level': 'DEBUG',
                 'propagate': True,
+            },
+            'django.db.backends': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
             },
         },
     }

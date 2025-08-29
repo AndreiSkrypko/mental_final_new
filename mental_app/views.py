@@ -786,14 +786,20 @@ def students_list(request, class_id=None):
 
 @login_required
 def student_create(request, class_id=None):
+    logger.debug(f"student_create called with class_id: {class_id}")
     try:
         teacher_profile = request.user.teacher_profile
+        logger.debug(f"Teacher profile: {teacher_profile}")
         if teacher_profile.status != 'approved':
+            logger.warning(f"Teacher {request.user.username} not approved, status: {teacher_profile.status}")
             return HttpResponseForbidden('Доступ запрещен')
         
         if request.method == 'POST':
+            logger.debug("Processing POST request for student creation")
             form = StudentForm(request.POST)
+            logger.debug(f"Form data: {request.POST}")
             if form.is_valid():
+                logger.debug("Form is valid, creating student")
                 student = form.save(commit=False)
                 if class_id:
                     student.student_class = get_object_or_404(Class, id=class_id, teacher=teacher_profile)
@@ -816,7 +822,9 @@ def student_create(request, class_id=None):
                                 'need_class_selection': True
                             })
                 
+                logger.debug(f"Saving student: {student}")
                 student.save()
+                logger.info(f"Student {student.surname} {student.name} successfully created")
                 messages.success(request, 'Ученик успешно добавлен!')
                 
                 # Если ученик добавлен в класс, предлагаем создать расписание
@@ -849,7 +857,17 @@ def student_create(request, class_id=None):
         
         return render(request, 'student_form.html', context)
     except TeacherProfile.DoesNotExist:
+        logger.error(f"TeacherProfile not found for user {request.user.username}")
         return HttpResponseForbidden('Доступ запрещен')
+    except Exception as e:
+        logger.error(f"Unexpected error in student_create: {str(e)}", exc_info=True)
+        messages.error(request, 'Произошла ошибка при создании ученика')
+        return render(request, 'student_form.html', {
+            'form': form if 'form' in locals() else StudentForm(),
+            'title': 'Добавить ученика',
+            'class_id': class_id,
+            'error': str(e)
+        })
 
 @login_required
 def student_edit(request, student_id):

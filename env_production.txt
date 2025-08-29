@@ -1,0 +1,21 @@
+# Django settings для продакшена
+DEBUG=False
+SECRET_KEY=django-insecure-q9)jf0!)5m)46zs1qw)=_*q7$wt@&z47*b(7&fpx-i_yn$vxcv
+ALLOWED_HOSTS=localhost,127.0.0.1,ваш-домен.com
+
+# Database settings
+DATABASE_URL=sqlite:///db.sqlite3
+
+# Static and media files
+STATIC_URL=/static/
+MEDIA_URL=/media/
+
+# Security settings
+CSRF_COOKIE_SECURE=False
+SESSION_COOKIE_SECURE=False
+SECURE_BROWSER_XSS_FILTER=True
+SECURE_CONTENT_TYPE_NOSNIFF=True
+SECURE_SSL_REDIRECT=False
+SECURE_HSTS_SECONDS=0
+SECURE_HSTS_INCLUDE_SUBDOMAINS=False
+SECURE_HSTS_PRELOAD=False
