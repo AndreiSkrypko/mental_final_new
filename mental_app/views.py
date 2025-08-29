@@ -1910,6 +1910,10 @@ def student_attendance_list(request):
                 if year == current_year and month == current_month:
                     continue
                 
+                # Пропускаем будущие месяцы - они не должны учитываться в задолженности
+                if (year > current_year) or (year == current_year and month > current_month):
+                    continue
+                
                 # Если есть месячная оплата, добавляем её
                 if payment_settings.monthly_fee > 0:
                     month_debt = payment_settings.monthly_fee
