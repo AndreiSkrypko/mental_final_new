@@ -1882,13 +1882,17 @@ def student_attendance_list(request):
             # Если установлена месячная оплата
             monthly_payment = payment_settings.monthly_fee
             lessons_payment = 0
-            current_month_payment = monthly_payment
+            # Вычитаем стоимость уже оплаченных занятий из месячной оплаты
+            paid_lessons_cost = paid_lessons * lesson_fee if lesson_fee > 0 else 0
+            current_month_payment = max(0, monthly_payment - paid_lessons_cost)
         else:
             # Если оплата по занятиям - считаем по стоимости за занятие
             monthly_payment = 0
             # Считаем ВСЕ занятия текущего месяца (включая пропуски)
             lessons_payment = total_lessons * lesson_fee if lesson_fee > 0 else 0
-            current_month_payment = lessons_payment
+            # Вычитаем стоимость уже оплаченных занятий
+            paid_lessons_cost = paid_lessons * lesson_fee if lesson_fee > 0 else 0
+            current_month_payment = max(0, lessons_payment - paid_lessons_cost)
         
         # Расчет задолженности за предыдущие месяцы
         previous_months_debt = 0
@@ -1943,7 +1947,8 @@ def student_attendance_list(request):
             'lesson_fee': lesson_fee,
             'monthly_fee': payment_settings.monthly_fee,
             'current_month': current_month,
-            'current_year': current_year
+            'current_year': current_year,
+            'paid_lessons_cost': paid_lessons * lesson_fee if lesson_fee > 0 else 0
         }
         
         return render(request, 'student_attendance_list.html', {

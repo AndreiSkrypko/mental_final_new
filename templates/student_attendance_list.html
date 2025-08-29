@@ -76,6 +76,16 @@
                     </div>
                     {% endif %}
                     
+                    <div class="payment-card paid">
+                        <div class="payment-icon paid">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Уже оплачено</div>
+                            <div class="payment-value">{{ payment_info.paid_lessons_cost|floatformat:2 }} ₽</div>
+                        </div>
+                    </div>
+                    
                     <div class="payment-card">
                         <div class="payment-icon current-month">
                             <i class="fas fa-calendar-day"></i>
@@ -356,10 +366,16 @@
     .payment-icon.total { background: #2f3542; }
     .payment-icon.current-month { background: #00d2d3; }
     .payment-icon.debt { background: #ff6b6b; }
+    .payment-icon.paid { background: #2ed573; }
     
     .payment-card.debt {
         border-color: #ff6b6b;
         background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    }
+    
+    .payment-card.paid {
+        border-color: #2ed573;
+        background: linear-gradient(135deg, #f0fff4 0%, #dcffe4 100%);
     }
     
     .payment-card.total {
