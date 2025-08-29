@@ -66,8 +66,13 @@ urlpatterns = [
     path('teacher/attendance/update/', views.attendance_update, name='attendance_update'),
     path('teacher/classes/<int:class_id>/attendance/add-date/', views.attendance_add_date, name='attendance_add_date'),
     path('teacher/classes/<int:class_id>/attendance/delete-date/', views.attendance_delete_date, name='attendance_delete_date'),
-
-
+    
+    # Маршруты для месячного расписания
+    path('teacher/classes/<int:class_id>/monthly-schedule/', views.monthly_schedule_list, name='monthly_schedule_list'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/create/', views.monthly_schedule_create, name='monthly_schedule_create'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/<int:schedule_id>/edit/', views.monthly_schedule_edit, name='monthly_schedule_edit'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/<int:schedule_id>/delete/', views.monthly_schedule_delete, name='monthly_schedule_delete'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/<int:schedule_id>/carry-over/', views.carry_over_payments, name='carry_over_payments'),
 
     # Маршруты для учеников
     path('student/login/', views.student_login, name='student_login'),
