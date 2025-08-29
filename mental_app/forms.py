@@ -2,6 +2,45 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import TeacherProfile, Class, Students, StudentAccount, Homework, Attendance, PaymentSettings, ClassGameAccess
+import calendar
+from datetime import datetime, date
+
+def generate_lesson_dates_from_days(month, year, days_str):
+    """
+    Генерирует даты занятий на основе дней недели класса
+    days_str: строка с днями недели (например: "Пн, Ср, Пт" или "Понедельник, Среда")
+    """
+    # Словарь для перевода дней недели
+    day_mapping = {
+        'пн': 0, 'понедельник': 0, 'monday': 0,
+        'вт': 1, 'вторник': 1, 'tuesday': 1,
+        'ср': 2, 'среда': 2, 'wednesday': 2,
+        'чт': 3, 'четверг': 3, 'thursday': 3,
+        'пт': 4, 'пятница': 4, 'friday': 4,
+        'сб': 5, 'суббота': 5, 'saturday': 5,
+        'вс': 6, 'воскресенье': 6, 'sunday': 6
+    }
+    
+    # Парсим дни недели
+    target_weekdays = set()
+    for day in days_str.lower().split(','):
+        day = day.strip()
+        if day in day_mapping:
+            target_weekdays.add(day_mapping[day])
+    
+    if not target_weekdays:
+        return []
+    
+    # Получаем календарь месяца
+    cal = calendar.monthcalendar(year, month)
+    lesson_dates = []
+    
+    for week in cal:
+        for i, day in enumerate(week):
+            if day != 0 and i in target_weekdays:
+                lesson_dates.append(day)
+    
+    return sorted(lesson_dates)
 
 class TeacherRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, label='Имя')
@@ -212,14 +251,8 @@ class PaymentSettingsForm(forms.ModelForm):
     """Форма для настройки оплаты класса"""
     class Meta:
         model = PaymentSettings
-        fields = ['monthly_fee', 'payment_day']
+        fields = ['payment_day']
         widgets = {
-            'monthly_fee': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'min': '0',
-                'placeholder': '0.00'
-            }),
             'payment_day': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '1',
@@ -228,7 +261,6 @@ class PaymentSettingsForm(forms.ModelForm):
             }),
         }
         labels = {
-            'monthly_fee': 'Ежемесячная плата (руб.)',
             'payment_day': 'День оплаты'
         }
 
@@ -259,14 +291,27 @@ class MonthlyScheduleForm(forms.Form):
         label='Год'
     )
     
+    auto_generate = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'id': 'auto_generate'
+        }),
+        label='Автоматически сгенерировать даты на основе дней недели класса',
+        help_text='Если отмечено, даты будут созданы автоматически на основе дней занятий класса'
+    )
+    
     lesson_dates = forms.CharField(
+        required=False,
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 5,
-            'placeholder': 'Введите даты занятий через запятую (например: 1, 3, 5, 8, 10, 12, 15, 17, 19, 22, 24, 26, 29, 31)'
+            'placeholder': 'Введите даты занятий через запятую (например: 1, 3, 5, 8, 10, 12, 15, 17, 19, 22, 24, 26, 29, 31)',
+            'id': 'lesson_dates_field'
         }),
-        label='Даты занятий',
-        help_text='Укажите числа месяца, когда будут проходить занятия (через запятую)'
+        label='Даты занятий (вручную)',
+        help_text='Укажите числа месяца, когда будут проходить занятия (через запятую). Используйте только если автоматическая генерация отключена.'
     )
 
 

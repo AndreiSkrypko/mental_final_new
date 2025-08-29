@@ -30,30 +30,13 @@
                                 </div>
                             {% endif %}
                             <div class="form-text">
-                                Установите цену за одно занятие. Если установлена месячная оплата, это поле можно оставить 0.
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.monthly_fee.id_for_label }}" class="form-label">
-                                <strong>{{ form.monthly_fee.label }}</strong>
-                            </label>
-                            {{ form.monthly_fee }}
-                            {% if form.monthly_fee.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.monthly_fee.errors %}
-                                        <small>{{ error }}</small>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <div class="form-text">
-                                Установите фиксированную месячную оплату. Если установлено 0, будет использоваться оплата по занятиям.
+                                Установите день месяца, когда должна производиться оплата за занятия.
                             </div>
                         </div>
 
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            <strong>Важно:</strong> Система автоматически рассчитает оплату для каждого ученика на основе этих настроек.
+                            <strong>Важно:</strong> Система автоматически рассчитает оплату для каждого ученика на основе стоимости за занятие и количества посещенных занятий.
                         </div>
 
                         <div class="d-flex justify-content-between">
@@ -108,20 +91,13 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <h6>Оплата по занятиям:</h6>
                             <ul class="list-unstyled">
-                                <li>• Цена за занятие: <span id="example-lesson-price">0</span> руб.</li>
+                                <li>• Цена за занятие: <span id="example-lesson-price">{{ class_obj.lesson_fee|default:"0" }}</span> руб.</li>
                                 <li>• 10 занятий = <span id="example-lesson-total">0</span> руб.</li>
                                 <li>• 15 занятий = <span id="example-lesson-total-15">0</span> руб.</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Месячная оплата:</h6>
-                            <ul class="list-unstyled">
-                                <li>• Фиксированная сумма: <span id="example-monthly-price">0</span> руб.</li>
-                                <li>• Независимо от количества занятий</li>
-                                <li>• Удобно для планирования бюджета</li>
+                                <li>• Оплата производится каждый <strong>{{ form.payment_day.value|default:"15" }}</strong> день месяца</li>
                             </ul>
                         </div>
                     </div>
@@ -135,18 +111,12 @@
 // Обновление примеров расчета в реальном времени
 document.addEventListener('DOMContentLoaded', function() {
     function updateExamples() {
-        const lessonPrice = parseFloat(document.getElementById('{{ form.payment_day.id_for_label }}').value) || 0;
-        const monthlyPrice = parseFloat(document.getElementById('{{ form.monthly_fee.id_for_label }}').value) || 0;
+        const lessonPrice = parseFloat('{{ class_obj.lesson_fee|default:"0" }}') || 0;
         
         document.getElementById('example-lesson-price').textContent = lessonPrice;
-        document.getElementById('example-lesson-total').textContent = lessonPrice * 10;
-        document.getElementById('example-lesson-total-15').textContent = lessonPrice * 15;
-        document.getElementById('example-monthly-price').textContent = monthlyPrice;
+        document.getElementById('example-lesson-total').textContent = (lessonPrice * 10).toFixed(2);
+        document.getElementById('example-lesson-total-15').textContent = (lessonPrice * 15).toFixed(2);
     }
-    
-    // Обновляем примеры при изменении полей
-    document.getElementById('{{ form.payment_day.id_for_label }}').addEventListener('input', updateExamples);
-    document.getElementById('{{ form.monthly_fee.id_for_label }}').addEventListener('input', updateExamples);
     
     // Инициализируем примеры
     updateExamples();

@@ -54,17 +54,6 @@
                         </div>
                     </div>
                     
-                    {% if payment_info.monthly_fee > 0 %}
-                    <div class="payment-card">
-                        <div class="payment-icon monthly">
-                            <i class="fas fa-calendar-month"></i>
-                        </div>
-                        <div class="payment-content">
-                            <div class="payment-label">Месячная оплата</div>
-                            <div class="payment-value">{{ payment_info.monthly_fee }} ₽</div>
-                        </div>
-                    </div>
-                    {% else %}
                     <div class="payment-card">
                         <div class="payment-icon lesson">
                             <i class="fas fa-coins"></i>
@@ -74,7 +63,6 @@
                             <div class="payment-value">{{ payment_info.lesson_fee|floatformat:2 }} ₽</div>
                         </div>
                     </div>
-                    {% endif %}
                     
                     <div class="payment-card paid">
                         <div class="payment-icon paid">

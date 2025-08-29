@@ -100,7 +100,6 @@ class Homework(models.Model):
 class PaymentSettings(models.Model):
     """Настройки оплаты для классов"""
     class_group = models.OneToOneField(Class, on_delete=models.CASCADE, related_name='payment_settings', verbose_name='Класс')
-    monthly_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name='Ежемесячная плата')
     payment_day = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(31)],
         default=15,
@@ -112,7 +111,7 @@ class PaymentSettings(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f'{self.class_group.name} - {self.monthly_fee} руб.'
+        return f'{self.class_group.name} - настройки оплаты'
     
     class Meta:
         verbose_name = 'Настройки оплаты'

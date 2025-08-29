@@ -65,10 +65,11 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 
 class PaymentSettingsAdmin(admin.ModelAdmin):
-    list_display = ['class_group', 'monthly_fee', 'payment_day', 'is_active', 'created_at']
+    list_display = ['class_group', 'payment_day', 'is_active', 'created_at']
     list_filter = ['is_active', 'created_at']
+    list_editable = ['is_active', 'payment_day']
     search_fields = ['class_group__name']
-    list_editable = ['is_active', 'monthly_fee', 'payment_day']
+    readonly_fields = ['created_at', 'updated_at']
 
 
 # Убираем MonthlyScheduleAdmin, так как модель больше не существует

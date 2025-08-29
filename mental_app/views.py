@@ -1793,7 +1793,7 @@ def payment_settings_edit(request, class_id):
         # Получаем или создаем настройки оплаты
         payment_settings, created = PaymentSettings.objects.get_or_create(
             class_group=class_obj,
-            defaults={'payment_day': 0, 'monthly_fee': 0}
+            defaults={'payment_day': 15}
         )
         
         if request.method == 'POST':
@@ -1847,8 +1847,7 @@ def student_attendance_list(request):
         except PaymentSettings.DoesNotExist:
             payment_settings = PaymentSettings.objects.create(
                 class_group=class_obj,
-                payment_day=15,
-                monthly_fee=0
+                payment_day=15
             )
         
         # Группируем посещения по месяцам для создания табеля
@@ -1880,12 +1879,8 @@ def student_attendance_list(request):
                 paid_lessons = sum(1 for a in month_attendances_list if a.is_paid)
                 carried_over = sum(1 for a in month_attendances_list if a.payment_carried_over)
                 
-                # Расчет суммы оплаты для месяца
-                if payment_settings.monthly_fee > 0:
-                    month_payment = payment_settings.monthly_fee
-                else:
-                    # Считаем по количеству оплаченных занятий
-                    month_payment = paid_lessons * lesson_fee if lesson_fee > 0 else 0
+                # Расчет суммы оплаты для месяца по количеству занятий
+                month_payment = attended_lessons * lesson_fee if lesson_fee > 0 else 0
                 
                 attendance_table[month_name] = {
                     'year': year,
@@ -1915,22 +1910,13 @@ def student_attendance_list(request):
         attended_lessons = month_attendances.filter(is_present=True).count()
         paid_lessons = month_attendances.filter(is_paid=True).count()
         
-        # Расчет оплаты за текущий месяц
-        if payment_settings.monthly_fee > 0:
-            # Если установлена месячная оплата
-            monthly_payment = payment_settings.monthly_fee
-            lessons_payment = 0
-            # Вычитаем стоимость уже оплаченных занятий из месячной оплаты
-            paid_lessons_cost = paid_lessons * lesson_fee if lesson_fee > 0 else 0
-            current_month_payment = max(0, monthly_payment - paid_lessons_cost)
-        else:
-            # Если оплата по занятиям - считаем по стоимости за занятие
-            monthly_payment = 0
-            # Считаем ВСЕ занятия текущего месяца (включая пропуски)
-            lessons_payment = total_lessons * lesson_fee if lesson_fee > 0 else 0
-            # Вычитаем стоимость уже оплаченных занятий
-            paid_lessons_cost = paid_lessons * lesson_fee if lesson_fee > 0 else 0
-            current_month_payment = max(0, lessons_payment - paid_lessons_cost)
+        # Расчет оплаты за текущий месяц по количеству занятий
+        monthly_payment = 0
+        # Считаем ВСЕ занятия текущего месяца (включая пропуски)
+        lessons_payment = total_lessons * lesson_fee if lesson_fee > 0 else 0
+        # Вычитаем стоимость уже оплаченных занятий
+        paid_lessons_cost = paid_lessons * lesson_fee if lesson_fee > 0 else 0
+        current_month_payment = max(0, lessons_payment - paid_lessons_cost)
         
         # Расчет задолженности за предыдущие месяцы
         previous_months_debt = 0
@@ -1952,23 +1938,14 @@ def student_attendance_list(request):
                 if (year > current_year) or (year == current_year and month > current_month):
                     continue
                 
-                # Если есть месячная оплата, добавляем её
-                if payment_settings.monthly_fee > 0:
-                    month_debt = payment_settings.monthly_fee
-                else:
-                    # Если оплата по занятиям - считаем по количеству занятий в месяце
-                    month_lessons = month_data['total_lessons']
-                    month_debt = month_lessons * lesson_fee if lesson_fee > 0 else 0
+                # Считаем задолженность по количеству занятий в месяце
+                month_lessons = month_data['total_lessons']
+                month_debt = month_lessons * lesson_fee if lesson_fee > 0 else 0
                 
                 # Вычитаем уже оплаченные занятия
                 paid_in_month = month_data['paid_lessons']
-                if payment_settings.monthly_fee > 0:
-                    # Если месячная оплата, то если есть хотя бы одно оплаченное занятие, месяц считается оплаченным
-                    if paid_in_month > 0:
-                        month_debt = 0
-                else:
-                    # Если оплата по занятиям, вычитаем стоимость оплаченных занятий
-                    month_debt -= paid_in_month * lesson_fee if lesson_fee > 0 else 0
+                # Вычитаем стоимость оплаченных занятий
+                month_debt -= paid_in_month * lesson_fee if lesson_fee > 0 else 0
                 
                 # Добавляем к общей задолженности (только положительные значения)
                 if month_debt > 0:
@@ -1987,7 +1964,6 @@ def student_attendance_list(request):
             'previous_months_debt': previous_months_debt,
             'total_payment': total_payment,
             'lesson_fee': lesson_fee,
-            'monthly_fee': payment_settings.monthly_fee,
             'current_month': current_month,
             'current_year': current_year,
             'paid_lessons_cost': paid_lessons * lesson_fee if lesson_fee > 0 else 0
@@ -2017,7 +1993,7 @@ def monthly_schedule_create(request, class_id):
             if form.is_valid():
                 month = int(form.cleaned_data['month'])
                 year = int(form.cleaned_data['year'])
-                lesson_dates_str = form.cleaned_data['lesson_dates']
+                auto_generate = form.cleaned_data['auto_generate']
                 
                 # Проверяем, не существует ли уже расписание для этого месяца
                 if MonthlySchedule.objects.filter(class_group=class_obj, month=month, year=year).exists():
@@ -2031,13 +2007,31 @@ def monthly_schedule_create(request, class_id):
                     year=year
                 )
                 
-                # Парсим даты занятий
-                try:
-                    lesson_dates = [int(date.strip()) for date in lesson_dates_str.split(',') if date.strip().isdigit()]
-                except ValueError:
-                    messages.error(request, 'Неверный формат дат')
-                    monthly_schedule.delete()
-                    return redirect('monthly_schedule_create', class_id=class_id)
+                # Генерируем даты занятий
+                if auto_generate:
+                    # Автоматически генерируем даты на основе дней недели класса
+                    from .forms import generate_lesson_dates_from_days
+                    lesson_dates = generate_lesson_dates_from_days(month, year, class_obj.days)
+                    
+                    if not lesson_dates:
+                        messages.error(request, 'Не удалось автоматически сгенерировать даты. Проверьте дни недели в настройках класса.')
+                        monthly_schedule.delete()
+                        return redirect('monthly_schedule_create', class_id=class_id)
+                else:
+                    # Ручной ввод дат
+                    lesson_dates_str = form.cleaned_data['lesson_dates']
+                    if not lesson_dates_str:
+                        messages.error(request, 'Укажите даты занятий или включите автоматическую генерацию')
+                        monthly_schedule.delete()
+                        return redirect('monthly_schedule_create', class_id=class_id)
+                    
+                    # Парсим даты занятий
+                    try:
+                        lesson_dates = [int(date.strip()) for date in lesson_dates_str.split(',') if date.strip().isdigit()]
+                    except ValueError:
+                        messages.error(request, 'Неверный формат дат')
+                        monthly_schedule.delete()
+                        return redirect('monthly_schedule_create', class_id=class_id)
                 
                 # Получаем всех учеников класса
                 students = Students.objects.filter(student_class=class_obj)
@@ -2125,8 +2119,7 @@ def monthly_schedule_list(request, class_id):
         payment_settings, created = PaymentSettings.objects.get_or_create(
             class_group=class_obj,
             defaults={
-                'payment_day': 15,
-                'monthly_fee': 0.00
+                'payment_day': 15
             }
         )
         

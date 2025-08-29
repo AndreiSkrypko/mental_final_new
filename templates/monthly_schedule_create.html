@@ -478,10 +478,28 @@
                 </div>
 
                                  <div class="form-group">
-                     <label for="{{ form.lesson_dates.id_for_label }}">
-                         <i class="fas fa-list-ol"></i>
-                         {{ form.lesson_dates.label }}
-                     </label>
+                    <label for="{{ form.auto_generate.id_for_label }}">
+                        <i class="fas fa-magic"></i>
+                        {{ form.auto_generate.label }}
+                    </label>
+                    {{ form.auto_generate }}
+                    {% if form.auto_generate.help_text %}
+                        <div class="help-text">{{ form.auto_generate.help_text }}</div>
+                    {% endif %}
+                    {% if form.auto_generate.errors %}
+                        <div class="alert alert-danger mt-2">
+                            {% for error in form.auto_generate.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" id="lesson_dates_group">
+                    <label for="{{ form.lesson_dates.id_for_label }}">
+                        <i class="fas fa-list-ol"></i>
+                        {{ form.lesson_dates.label }}
+                    </label>
                     {{ form.lesson_dates }}
                     {% if form.lesson_dates.help_text %}
                         <div class="help-text">{{ form.lesson_dates.help_text }}</div>
@@ -553,4 +571,41 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const autoGenerateCheckbox = document.getElementById('auto_generate');
+    const lessonDatesGroup = document.getElementById('lesson_dates_group');
+    const lessonDatesField = document.getElementById('lesson_dates_field');
+    
+    function toggleLessonDatesField() {
+        if (autoGenerateCheckbox.checked) {
+            lessonDatesGroup.style.display = 'none';
+            lessonDatesField.value = '';
+        } else {
+            lessonDatesGroup.style.display = 'block';
+        }
+    }
+    
+    // Инициализируем состояние
+    toggleLessonDatesField();
+    
+    // Обрабатываем изменения
+    autoGenerateCheckbox.addEventListener('change', toggleLessonDatesField);
+    
+    // Показываем информацию о днях недели класса
+    const classDays = '{{ class_obj.days }}';
+    if (classDays) {
+        const infoBox = document.createElement('div');
+        infoBox.className = 'info-box mt-3';
+        infoBox.innerHTML = `
+            <h4>📅 Дни занятий класса:</h4>
+            <p><strong>${classDays}</strong></p>
+            <p>При автоматической генерации даты будут созданы на основе этих дней недели.</p>
+        `;
+        autoGenerateCheckbox.parentNode.parentNode.appendChild(infoBox);
+    }
+});
+</script>
+
 {% endblock %}
