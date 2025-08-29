@@ -35,7 +35,7 @@ class TeacherLoginForm(forms.Form):
 class ClassForm(forms.ModelForm):
     class Meta:
         model = Class
-        fields = ['name', 'time', 'days', 'academic_year']
+        fields = ['name', 'time', 'days', 'academic_year', 'lesson_fee']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Например: А, Б, В, 1А, 2Б, Математический'
@@ -49,6 +49,11 @@ class ClassForm(forms.ModelForm):
             }),
             'academic_year': forms.TextInput(attrs={
                 'placeholder': '2024-2025, 2024/2025, 2024 или любой формат'
+            }),
+            'lesson_fee': forms.NumberInput(attrs={
+                'placeholder': '0.00',
+                'min': '0',
+                'step': '0.01'
             })
         }
 

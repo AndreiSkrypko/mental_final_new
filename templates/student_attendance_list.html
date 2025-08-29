@@ -70,11 +70,57 @@
                             <i class="fas fa-coins"></i>
                         </div>
                         <div class="payment-content">
-                            <div class="payment-label">Цена за занятие</div>
-                            <div class="payment-value">{{ payment_info.payment_day }} ₽</div>
+                            <div class="payment-label">Стоимость за занятие</div>
+                            <div class="payment-value">{{ payment_info.lesson_fee|floatformat:2 }} ₽</div>
                         </div>
                     </div>
                     {% endif %}
+                    
+                    <div class="payment-card">
+                        <div class="payment-icon current-month">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">
+                                {% if payment_info.current_month == 1 %}За январь
+                                {% elif payment_info.current_month == 2 %}За февраль
+                                {% elif payment_info.current_month == 3 %}За март
+                                {% elif payment_info.current_month == 4 %}За апрель
+                                {% elif payment_info.current_month == 5 %}За май
+                                {% elif payment_info.current_month == 6 %}За июнь
+                                {% elif payment_info.current_month == 7 %}За июль
+                                {% elif payment_info.current_month == 8 %}За август
+                                {% elif payment_info.current_month == 9 %}За сентябрь
+                                {% elif payment_info.current_month == 10 %}За октябрь
+                                {% elif payment_info.current_month == 11 %}За ноябрь
+                                {% elif payment_info.current_month == 12 %}За декабрь
+                                {% endif %} {{ payment_info.current_year }}
+                            </div>
+                            <div class="payment-value">{{ payment_info.current_month_payment|floatformat:2 }} ₽</div>
+                        </div>
+                    </div>
+                    
+                    {% if payment_info.previous_months_debt > 0 %}
+                    <div class="payment-card debt">
+                        <div class="payment-icon debt">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Задолженность за предыдущие месяцы</div>
+                            <div class="payment-value">{{ payment_info.previous_months_debt|floatformat:2 }} ₽</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="payment-card total">
+                        <div class="payment-icon total">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="payment-content">
+                            <div class="payment-label">Общая сумма к оплате</div>
+                            <div class="payment-value">{{ payment_info.total_payment|floatformat:2 }} ₽</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% endif %}
@@ -116,6 +162,10 @@
                                     <i class="fas fa-credit-card"></i>
                                     Оплачено: {{ month_data.paid_lessons }}
                                 </span>
+                                <span class="stat-item payment">
+                                    <i class="fas fa-ruble-sign"></i>
+                                    Сумма: {{ month_data.month_payment|floatformat:2 }} ₽
+                                </span>
                             </div>
                         </div>
                         
@@ -127,6 +177,7 @@
                                         <th>День недели</th>
                                         <th>Посещение</th>
                                         <th>Оплата</th>
+                                        <th>Стоимость</th>
                                         <th>Перенос</th>
                                         <th>Примечания</th>
                                     </tr>
@@ -170,6 +221,17 @@
                                                 <span class="status-badge unpaid">
                                                     <i class="fas fa-clock"></i>
                                                     Не оплачено
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="cost-cell">
+                                            {% if attendance.is_paid %}
+                                                <span class="cost-amount paid">
+                                                    {{ month_data.lesson_fee|floatformat:2 }} ₽
+                                                </span>
+                                            {% else %}
+                                                <span class="cost-amount unpaid">
+                                                    -
                                                 </span>
                                             {% endif %}
                                         </td>
@@ -291,6 +353,19 @@
     .payment-icon.paid { background: #ffa502; }
     .payment-icon.monthly { background: #667eea; }
     .payment-icon.lesson { background: #ff4757; }
+    .payment-icon.total { background: #2f3542; }
+    .payment-icon.current-month { background: #00d2d3; }
+    .payment-icon.debt { background: #ff6b6b; }
+    
+    .payment-card.debt {
+        border-color: #ff6b6b;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    }
+    
+    .payment-card.total {
+        border-color: #2f3542;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
 
     .payment-content {
         flex: 1;
@@ -353,6 +428,7 @@
 
     .stat-item.present { color: #2ed573; }
     .stat-item.paid { color: #ffa502; }
+    .stat-item.payment { color: #667eea; }
 
     .attendance-table {
         width: 100%;
@@ -434,6 +510,19 @@
         background: rgba(200, 200, 200, 0.1);
         color: #999;
         border: 1px solid rgba(200, 200, 200, 0.3);
+    }
+
+    .cost-amount {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .cost-amount.paid {
+        color: #2ed573;
+    }
+
+    .cost-amount.unpaid {
+        color: #999;
     }
 
     .notes-text {

@@ -28,10 +28,11 @@ class TeacherProfileAdmin(admin.ModelAdmin):
     )
 
 class ClassAdmin(admin.ModelAdmin):
-    list_display = ['name', 'time', 'days', 'teacher', 'academic_year', 'created_at']
+    list_display = ['name', 'time', 'days', 'teacher', 'academic_year', 'lesson_fee', 'created_at']
     list_filter = ['time', 'days', 'academic_year', 'created_at']
     search_fields = ['name', 'teacher__user__first_name', 'teacher__user__last_name']
     readonly_fields = ['created_at']
+    list_editable = ['lesson_fee']
 
 class StudentsAdmin(admin.ModelAdmin):
     list_display = ['surname', 'name', 'age', 'student_class', 'parent_phone_number']

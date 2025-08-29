@@ -1789,6 +1789,14 @@ def student_attendance_list(request):
         student = Students.objects.get(id=student_id)
         class_obj = student.student_class
         
+        # Проверяем, что у ученика есть класс
+        if not class_obj:
+            messages.error(request, 'Ученик не привязан к классу')
+            return redirect('student_login')
+        
+        # Получаем стоимость за занятие из класса
+        lesson_fee = getattr(class_obj, 'lesson_fee', 0) or 0
+        
         # Получаем все посещения ученика в этом классе
         attendances = Attendance.objects.filter(
             student=student,
@@ -1822,17 +1830,36 @@ def student_attendance_list(request):
         
         # Создаем структуру табеля
         attendance_table = {}
-        for (year, month), month_attendances_list in monthly_attendances.items():
-            month_name = f"{year}-{month:02d}"
-            attendance_table[month_name] = {
-                'year': year,
-                'month': month,
-                'attendances': month_attendances_list,
-                'total_lessons': len(month_attendances_list),
-                'attended_lessons': sum(1 for a in month_attendances_list if a.is_present),
-                'paid_lessons': sum(1 for a in month_attendances_list if a.is_paid),
-                'carried_over': sum(1 for a in month_attendances_list if a.payment_carried_over)
-            }
+        
+        # Проверяем, что есть данные для группировки
+        if monthly_attendances:
+            for (year, month), month_attendances_list in monthly_attendances.items():
+                month_name = f"{year}-{month:02d}"
+                
+                # Расчет оплаты для каждого месяца
+                total_lessons = len(month_attendances_list)
+                attended_lessons = sum(1 for a in month_attendances_list if a.is_present)
+                paid_lessons = sum(1 for a in month_attendances_list if a.is_paid)
+                carried_over = sum(1 for a in month_attendances_list if a.payment_carried_over)
+                
+                # Расчет суммы оплаты для месяца
+                if payment_settings.monthly_fee > 0:
+                    month_payment = payment_settings.monthly_fee
+                else:
+                    # Считаем по количеству оплаченных занятий
+                    month_payment = paid_lessons * lesson_fee if lesson_fee > 0 else 0
+                
+                attendance_table[month_name] = {
+                    'year': year,
+                    'month': month,
+                    'attendances': month_attendances_list,
+                    'total_lessons': total_lessons,
+                    'attended_lessons': attended_lessons,
+                    'paid_lessons': paid_lessons,
+                    'carried_over': carried_over,
+                    'month_payment': month_payment,
+                    'lesson_fee': lesson_fee
+                }
         
         # Расчет оплаты для текущего месяца
         from datetime import datetime
@@ -1850,17 +1877,59 @@ def student_attendance_list(request):
         attended_lessons = month_attendances.filter(is_present=True).count()
         paid_lessons = month_attendances.filter(is_paid=True).count()
         
-        # Расчет оплаты
+        # Расчет оплаты за текущий месяц
         if payment_settings.monthly_fee > 0:
             # Если установлена месячная оплата
             monthly_payment = payment_settings.monthly_fee
             lessons_payment = 0
+            current_month_payment = monthly_payment
         else:
-            # Если оплата по занятиям
+            # Если оплата по занятиям - считаем по стоимости за занятие
             monthly_payment = 0
-            lessons_payment = attended_lessons * payment_settings.payment_day
+            # Считаем ВСЕ занятия текущего месяца (включая пропуски)
+            lessons_payment = total_lessons * lesson_fee if lesson_fee > 0 else 0
+            current_month_payment = lessons_payment
         
-        total_payment = monthly_payment + lessons_payment
+        # Расчет задолженности за предыдущие месяцы
+        previous_months_debt = 0
+        
+        # Проверяем, что есть данные для расчета задолженности
+        if attendance_table:
+            for month_key, month_data in attendance_table.items():
+                # Парсим ключ месяца (формат: "2025-08")
+                try:
+                    year, month = map(int, month_key.split('-'))
+                except (ValueError, AttributeError):
+                    continue
+                
+                # Пропускаем текущий месяц
+                if year == current_year and month == current_month:
+                    continue
+                
+                # Если есть месячная оплата, добавляем её
+                if payment_settings.monthly_fee > 0:
+                    month_debt = payment_settings.monthly_fee
+                else:
+                    # Если оплата по занятиям - считаем по количеству занятий в месяце
+                    month_lessons = month_data['total_lessons']
+                    month_debt = month_lessons * lesson_fee if lesson_fee > 0 else 0
+                
+                # Вычитаем уже оплаченные занятия
+                paid_in_month = month_data['paid_lessons']
+                if payment_settings.monthly_fee > 0:
+                    # Если месячная оплата, то если есть хотя бы одно оплаченное занятие, месяц считается оплаченным
+                    if paid_in_month > 0:
+                        month_debt = 0
+                else:
+                    # Если оплата по занятиям, вычитаем стоимость оплаченных занятий
+                    month_debt -= paid_in_month * lesson_fee if lesson_fee > 0 else 0
+                
+                # Добавляем к общей задолженности (только положительные значения)
+                if month_debt > 0:
+                    previous_months_debt += month_debt
+        
+        # Общая сумма к оплате
+        total_payment = current_month_payment + previous_months_debt
         
         payment_info = {
             'total_lessons': total_lessons,
@@ -1868,8 +1937,10 @@ def student_attendance_list(request):
             'paid_lessons': paid_lessons,
             'monthly_payment': monthly_payment,
             'lessons_payment': lessons_payment,
+            'current_month_payment': current_month_payment,
+            'previous_months_debt': previous_months_debt,
             'total_payment': total_payment,
-            'payment_day': payment_settings.payment_day,
+            'lesson_fee': lesson_fee,
             'monthly_fee': payment_settings.monthly_fee,
             'current_month': current_month,
             'current_year': current_year

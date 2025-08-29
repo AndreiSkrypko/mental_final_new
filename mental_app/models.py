@@ -31,6 +31,7 @@ class Class(models.Model):
     time = models.TimeField(verbose_name='Время занятий', help_text='Время начала занятий')
     days = models.CharField(max_length=100, verbose_name='Дни занятий', help_text='Например: "Пн, Ср, Пт" или "Вторник, Четверг"')
     academic_year = models.CharField(max_length=20, verbose_name='Учебный год', help_text='Например: 2024-2025, 2024/2025, 2024')
+    lesson_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name='Стоимость за занятие', help_text='Стоимость одного занятия в рублях')
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

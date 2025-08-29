@@ -96,6 +96,24 @@
                             Например: 2024-2025, 2024/2025, 2024 или любой удобный для вас формат
                         </div>
                     </div>
+
+                    <div class="form-group full-width">
+                        <label for="{{ form.lesson_fee.id_for_label }}" class="form-label">
+                            <i class="fas fa-ruble-sign"></i>
+                            Стоимость за занятие
+                        </label>
+                        {{ form.lesson_fee }}
+                        {% if form.lesson_fee.errors %}
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                {{ form.lesson_fee.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="help-text">
+                            <i class="fas fa-lightbulb"></i>
+                            Укажите стоимость одного занятия в рублях (например: 500.00)
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-actions">
