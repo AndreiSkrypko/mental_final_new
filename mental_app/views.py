@@ -1,18 +1,36 @@
 import random
 import time
+import logging
 from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseServerError
 from django.utils import timezone
+from functools import wraps
 from .models import (
     Students, Class, TeacherProfile, StudentAccount, 
     Homework, PaymentSettings, ClassGameAccess, 
     Attendance, GameSettings
 )
 from .forms import StudentForm, TeacherRegistrationForm, TeacherLoginForm, ClassForm, TeacherProfileUpdateForm, StudentAccountForm, StudentLoginForm, HomeworkForm, AttendanceForm, AttendanceDateForm, PaymentSettingsForm, MonthlyScheduleForm, MonthlyAttendanceForm
+
+# Логгер для ошибок
+logger = logging.getLogger(__name__)
+
+def handle_errors(view_func):
+    """Декоратор для обработки ошибок в представлениях"""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        try:
+            return view_func(request, *args, **kwargs)
+        except Exception as e:
+            logger.error(f"Ошибка в представлении {view_func.__name__}: {str(e)}", exc_info=True)
+            if request.is_ajax():
+                return JsonResponse({'error': 'Произошла ошибка сервера'}, status=500)
+            return HttpResponseServerError(render(request, '500.html'))
+    return wrapper
 
 # Определяем словарь диапазонов чисел
 RANGES = {
@@ -43,6 +61,7 @@ RANGES = {
 
 
 # Обработчик главной страницы
+@handle_errors
 def index(request):
     if request.method == 'GET':  # Если запрос GET
         return render(request, 'index.html')  # Отображаем шаблон index.html
@@ -1778,6 +1797,7 @@ def payment_settings_edit(request, class_id):
         return redirect('class_list')
 
 
+@handle_errors
 def student_attendance_list(request):
     """Список посещений для ученика"""
     try:
