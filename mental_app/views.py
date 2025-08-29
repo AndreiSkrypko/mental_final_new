@@ -12,7 +12,7 @@ from functools import wraps
 from .models import (
     Students, Class, TeacherProfile, StudentAccount, 
     Homework, PaymentSettings, ClassGameAccess, 
-    Attendance, GameSettings
+    Attendance, GameSettings, MonthlySchedule
 )
 from .forms import StudentForm, TeacherRegistrationForm, TeacherLoginForm, ClassForm, TeacherProfileUpdateForm, StudentAccountForm, StudentLoginForm, HomeworkForm, AttendanceForm, AttendanceDateForm, PaymentSettingsForm, MonthlyScheduleForm, MonthlyAttendanceForm
 
@@ -2122,13 +2122,13 @@ def monthly_schedule_list(request, class_id):
         students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
         
         # Получаем настройки оплаты
-        try:
-            payment_settings = PaymentSettings.objects.get(class_group=class_obj)
-        except PaymentSettings.DoesNotExist:
-            payment_settings = PaymentSettings.objects.create(
-                class_group=class_obj,
-                defaults={'payment_day': 0, 'monthly_fee': 0}
-            )
+        payment_settings, created = PaymentSettings.objects.get_or_create(
+            class_group=class_obj,
+            defaults={
+                'payment_day': 15,
+                'monthly_fee': 0.00
+            }
+        )
         
         context = {
             'class_obj': class_obj,
