@@ -1058,9 +1058,8 @@ def simply(request, mode):
         numbers = []
         available_digits = list(range(1, max_digit + 1))  # Цифры от 1 до max_digit
         
-        # Инициализируем знак для первого числа (начинаем с положительного)
-        if 'current_sign' not in request.session:
-            request.session['current_sign'] = 1
+        # Начинаем с положительного числа
+        current_sum = 0
         
         for i in range(num_examples):
             # Определяем количество разрядов для числа
@@ -1085,14 +1084,23 @@ def simply(request, mode):
             
             # Проверяем, что число попадает в нужный диапазон
             if min_num <= number <= max_num:
-                # Чередуем знаки: +, -, +, -, ...
-                current_sign = request.session.get('current_sign', 1)
-                number *= current_sign
+                # Определяем знак числа
+                if i == 0:
+                    # Первое число всегда положительное
+                    sign = 1
+                else:
+                    # Для последующих чисел проверяем, можно ли сделать отрицательным
+                    # Если текущая сумма больше числа, то можно сделать отрицательным
+                    if current_sum >= number:
+                        # Можем выбрать любой знак
+                        sign = random.choice([-1, 1])
+                    else:
+                        # Можем только положительный знак, чтобы сумма не стала отрицательной
+                        sign = 1
                 
-                # Обновляем знак для следующего числа
-                request.session['current_sign'] = -current_sign
-                
-                numbers.append(number)
+                final_number = number * sign
+                numbers.append(final_number)
+                current_sum += final_number
             else:
                 # Если число не попадает в диапазон, генерируем заново
                 i -= 1
