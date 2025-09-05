@@ -126,6 +126,10 @@ class ClassGameAccess(models.Model):
         ('flashcards', 'Флэшкарты'),
         ('multiplication_base', 'Умножение от базы'),
         ('multiplication_to_20', 'Умножение до 20'),
+        ('brothers', 'Братья'),
+        ('friends', 'Друзья'),
+        ('friend_brother', 'Друг+брат'),
+        ('multiplication_table', 'Таблица умножения'),
     ]
     
     class_group = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='game_access', verbose_name='Класс')

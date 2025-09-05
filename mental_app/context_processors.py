@@ -1,4 +1,5 @@
 from .models import ClassGameAccess
+import json
 
 def available_games(request):
     """
@@ -30,7 +31,11 @@ def available_games(request):
             'square',
             'tricks',
             'flashcards',
-            'multiplication_base'
+            'multiplication_base',
+            'brothers',
+            'friends',
+            'friend_brother',
+            'multiplication_table'
         ]
     
     # Игра "simply" всегда доступна всем
@@ -38,5 +43,5 @@ def available_games(request):
         available_games_list.append('simply')
     
     return {
-        'available_games_list': available_games_list
+        'available_games_list': json.dumps(available_games_list)
     }

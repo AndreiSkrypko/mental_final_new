@@ -855,36 +855,172 @@
              font-size: 0.85em;
          }
          
-         /* Стили для доступных игр */
-         .dropdown-content a.available-game {
-             color: #059669;
-             background: rgba(5, 150, 105, 0.05);
-             border-left: 3px solid #059669;
-         }
-         
-         .dropdown-content a.available-game:hover {
-             background: rgba(5, 150, 105, 0.1);
-             color: #047857;
-         }
-         
-         .dropdown-content a.available-game i {
-             color: #059669;
-         }
-         
-         /* Стили для недоступных игр */
-         .dropdown-content a:not(.available-game) {
-             color: #6b7280;
-             opacity: 0.7;
-         }
-         
-         .dropdown-content a:not(.available-game):hover {
-             background: rgba(107, 114, 128, 0.1);
-             color: #4b5563;
-         }
-         
-         .dropdown-content a:not(.available-game) i {
-             color: #6b7280;
-         }
+                 /* Современные стили для выпадающего меню игр */
+        .dropdown-content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+            border-radius: 18px;
+            padding: 8px;
+            min-width: 280px;
+        }
+        
+        /* Базовые стили для всех игр в меню */
+        .dropdown-content a {
+            color: #4a5568;
+            padding: 14px 18px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 2px 0;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dropdown-content a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .dropdown-content a:hover::before {
+            left: 100%;
+        }
+        
+        .dropdown-content a i {
+            width: 18px;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        /* Стили для игры "Просто" - всегда зеленая и доступная */
+        .dropdown-content a[href="/simply/1/"] {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+        }
+        
+        .dropdown-content a[href="/simply/1/"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        
+        .dropdown-content a[href="/simply/1/"] i {
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* Стили для доступных игр (после авторизации) */
+        .dropdown-content a.available-game:not([href="/simply/1/"]) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+        }
+        
+        .dropdown-content a.available-game:not([href="/simply/1/"]):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.35);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+        
+        .dropdown-content a.available-game:not([href="/simply/1/"]) i {
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* Стили для недоступных игр */
+        .dropdown-content a:not(.available-game):not([href="/simply/1/"]) {
+            background: rgba(156, 163, 175, 0.1);
+            color: #9ca3af;
+            border-color: rgba(156, 163, 175, 0.2);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .dropdown-content a:not(.available-game):not([href="/simply/1/"]):hover {
+            background: rgba(156, 163, 175, 0.15);
+            color: #6b7280;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .dropdown-content a:not(.available-game):not([href="/simply/1/"]) i {
+            color: #9ca3af;
+        }
+        
+        /* Анимация появления элементов меню */
+        .dropdown-content a {
+            animation: slideInFromLeft 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .dropdown:hover .dropdown-content a:nth-child(1) { animation-delay: 0.05s; }
+        .dropdown:hover .dropdown-content a:nth-child(2) { animation-delay: 0.1s; }
+        .dropdown:hover .dropdown-content a:nth-child(3) { animation-delay: 0.15s; }
+        .dropdown:hover .dropdown-content a:nth-child(4) { animation-delay: 0.2s; }
+        .dropdown:hover .dropdown-content a:nth-child(5) { animation-delay: 0.25s; }
+        .dropdown:hover .dropdown-content a:nth-child(6) { animation-delay: 0.3s; }
+        .dropdown:hover .dropdown-content a:nth-child(7) { animation-delay: 0.35s; }
+        .dropdown:hover .dropdown-content a:nth-child(8) { animation-delay: 0.4s; }
+        .dropdown:hover .dropdown-content a:nth-child(9) { animation-delay: 0.45s; }
+        .dropdown:hover .dropdown-content a:nth-child(10) { animation-delay: 0.5s; }
+        .dropdown:hover .dropdown-content a:nth-child(11) { animation-delay: 0.55s; }
+        .dropdown:hover .dropdown-content a:nth-child(12) { animation-delay: 0.6s; }
+        
+        @keyframes slideInFromLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Улучшенная кнопка выпадающего меню */
+        .dropdown-trigger {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dropdown-trigger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .dropdown-trigger:hover::before {
+            left: 100%;
+        }
+        
+        .dropdown-trigger:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
          
          /* Скрытие навбара для игровых экранов */
          body.game-mode .modern-header,
@@ -949,6 +1085,14 @@
                           isAvailable = availableGames.includes('tricks');
                       } else if (href === '/multiplication_base/1/') {
                           isAvailable = availableGames.includes('multiplication_base');
+                      } else if (href === '/multiplication_table/') {
+                          isAvailable = availableGames.includes('multiplication_table');
+                      } else if (href === '#' && link.textContent.trim() === 'Братья') {
+                          isAvailable = availableGames.includes('brothers');
+                      } else if (href === '#' && link.textContent.trim() === 'Друзья') {
+                          isAvailable = availableGames.includes('friends');
+                      } else if (href === '#' && link.textContent.trim() === 'Друг+брат') {
+                          isAvailable = availableGames.includes('friend_brother');
                       }
                       
                       if (isAvailable) {
@@ -1044,6 +1188,14 @@
                           isAvailable = availableGames.includes('tricks');
                       } else if (href === '/multiplication_base/1/') {
                           isAvailable = availableGames.includes('multiplication_base');
+                      } else if (href === '/multiplication_table/') {
+                          isAvailable = availableGames.includes('multiplication_table');
+                      } else if (href === '#' && link.textContent.trim() === 'Братья') {
+                          isAvailable = availableGames.includes('brothers');
+                      } else if (href === '#' && link.textContent.trim() === 'Друзья') {
+                          isAvailable = availableGames.includes('friends');
+                      } else if (href === '#' && link.textContent.trim() === 'Друг+брат') {
+                          isAvailable = availableGames.includes('friend_brother');
                       }
                       
                       if (isAvailable) {
@@ -1080,6 +1232,80 @@
                     <i class="fas fa-home"></i>
                     Главная
                 </a>
+                
+                <!-- Главное меню "Игры" -->
+                <div class="dropdown">
+                    <button class="nav-button dropdown-trigger">
+                        <i class="fas fa-gamepad"></i>
+                        Игры
+                        <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        
+                        
+                        <!-- Игра "Просто" - доступна всем -->
+                        <a href="/simply/1/">
+                            <i class="fas fa-plus"></i>
+                            Просто
+                        </a>
+                        
+
+                        <a href="#">
+                            <i class="fas fa-plus"></i>
+                            Братья
+                        </a> 
+
+                        <a href="#">
+                            <i class="fas fa-plus"></i>
+                            Друзья
+                        </a>
+
+
+                        <a href="#">
+                            <i class="fas fa-plus"></i>
+                            Друг+брат
+                        </a>
+
+                        <!-- Все игры видны, но требуют авторизации (кроме "Просто") -->
+                        <a href="/multiplication_table/">
+                            <i class="fas fa-table"></i>
+                            Таблица умножения
+                        </a>
+                        <a href="/multiplication_choose/1/">
+                            <i class="fas fa-calculator"></i>
+                            Умножение
+                        </a>
+
+
+                        <a href="/multiplication_to_20/1/">
+                            <i class="fas fa-sort-numeric-up"></i>
+                            Умножение до 20
+                        </a>
+
+                        <a href="/multiplication_base/1/">
+                            <i class="fas fa-layer-group"></i>
+                            Умножение от базы
+                        </a>
+
+
+                        <a href="/tricks/1/">
+                            <i class="fas fa-magic"></i>
+                            Хитрости
+                        </a>
+
+
+                        <a href="/square/1/">
+                            <i class="fas fa-square"></i>
+                            Квадраты
+                        </a>
+                        
+                        <a href="/flashcards/">
+                            <i class="fas fa-credit-card"></i>
+                            Флэшкарты
+                        </a>
+                        
+                    </div>
+                </div>
                 
                                  {% if user.is_authenticated %}
                      {% if user.teacher_profile and user.teacher_profile.status == 'approved' %}
@@ -1132,86 +1358,6 @@
                          Вход для ученика
                      </a>
                  {% endif %}
-                
-                <!-- Главное меню "Игры" -->
-                <div class="dropdown">
-                    <button class="nav-button dropdown-trigger">
-                        <i class="fas fa-gamepad"></i>
-                        Игры
-                        <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
-                    </button>
-                    <div class="dropdown-content">
-                        <!-- Подменю "Умножение" -->
-                        <div class="dropdown-sub">
-                            <a href="#">
-                                <i class="fas fa-times"></i>
-                                Умножение
-                                <i class="fas fa-chevron-right" style="margin-left: auto;"></i>
-                            </a>
-                            <div class="dropdown-submenu">
-                                <a href="/multiplication_choose/1/">
-                                    <i class="fas fa-calculator"></i>
-                                    Умножение
-                                </a>
-                                <a href="/multiplication_to_20/1/">
-                                    <i class="fas fa-sort-numeric-up"></i>
-                                    Умножение до 20
-                                </a>
-                                <a href="/square/1/">
-                                    <i class="fas fa-square"></i>
-                                    Возведение в квадрат
-                                </a>
-                                <a href="/tricks/1/">
-                                    <i class="fas fa-magic"></i>
-                                    Хитрости
-                                </a>
-                                <a href="/multiplication_base/1/">
-                                    <i class="fas fa-layer-group"></i>
-                                    Умножение от базы
-                                </a>
-                            </div>
-                        </div>
-                        <!-- Остальные ссылки -->
-                        <!-- Игра "Просто" - доступна всем -->
-                        <a href="/simply/1/">
-                            <i class="fas fa-plus"></i>
-                            Просто
-                        </a>
-                        
-                        <!-- Все игры видны, но требуют авторизации (кроме "Просто") -->
-                        <a href="/multiplication_table/">
-                            <i class="fas fa-table"></i>
-                            Таблица умножения
-                        </a>
-                        <a href="/multiplication_choose/1/">
-                            <i class="fas fa-calculator"></i>
-                            Умножение
-                        </a>
-                        <a href="/square/1/">
-                            <i class="fas fa-square"></i>
-                            Квадраты
-                        </a>
-                        <a href="/tricks/1/">
-                            <i class="fas fa-magic"></i>
-                            Трюки
-                        </a>
-                        <a href="/flashcards/">
-                            <i class="fas fa-credit-card"></i>
-                            Флэшкарты
-                        </a>
-                        
-                        <!-- Для неавторизованных пользователей -->
-                        {% if not user.is_authenticated and not request.session.student_id %}
-                            <div class="auth-message">
-                                <p>Для доступа к играм пожалуйста авторизуйтесь</p>
-                                <div class="auth-buttons">
-                                    <a href="{% url 'teacher_login' %}" class="btn btn-primary">Войти как учитель</a>
-                                    <a href="{% url 'student_login' %}" class="btn btn-secondary">Войти как ученик</a>
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
             </div>
         </div>
     </div>
