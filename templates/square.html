@@ -98,45 +98,51 @@
         max-width: 600px;
     }
 
-    .checkbox-group {
+    /* Стили для выбора диапазонов */
+    .ranges-selection {
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
         justify-content: center;
-        margin-top: 10px;
+        margin-top: 15px;
         width: 100%;
-        max-width: 600px;
+        max-width: 700px;
     }
 
-    .checkbox-item {
+    .range-checkbox {
+        display: none;
+    }
+
+    .range-label {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 16px;
+        justify-content: center;
+        padding: 15px 25px;
         background: rgba(255, 255, 255, 0.9);
         border: 2px solid rgba(102, 126, 234, 0.2);
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s ease;
-        font-weight: 500;
-        color: #2d3748;
-    }
-
-    .checkbox-item:hover {
-        border-color: #667eea;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-    }
-
-    .checkbox-item input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #667eea;
-    }
-
-    .checkbox-item input[type="checkbox"]:checked + label {
-        color: #667eea;
+        font-size: 1.1rem;
         font-weight: 600;
+        color: #4a5568;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    .range-label:hover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
+
+    .range-checkbox:checked + .range-label {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transform: translateY(-2px);
     }
 
     /* Стили для кнопки */
@@ -636,6 +642,26 @@
         backdrop-filter: none;
         line-height: 1;
         animation: numberAppear 0.5s ease-out;
+        display: inline-block;
+        position: relative;
+        text-align: center;
+    }
+
+    .number-base {
+        color: #ffffff;
+        font-size: 1em;
+        display: inline-block;
+        position: relative;
+    }
+
+    .square-symbol {
+        color: #FFD700;
+        font-size: 0.4em;
+        position: absolute;
+        top: -0.3em;
+        right: -0.5em;
+        text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        font-weight: bold;
     }
     
     @keyframes numberAppear {
@@ -680,6 +706,12 @@
         .current-number-huge {
             font-size: 40vw;
         }
+
+        .square-symbol {
+            font-size: 0.3em;
+            top: -0.4em;
+            right: -0.4em;
+        }
         
         .game-controls-mini .btn {
             padding: 1.5vh 4vw;
@@ -707,6 +739,12 @@
         
         .current-number-huge {
             font-size: 50vw;
+        }
+
+        .square-symbol {
+            font-size: 0.25em;
+            top: -0.5em;
+            right: -0.3em;
         }
         
         .game-controls-mini .btn {
@@ -768,13 +806,14 @@
             margin-bottom: 6px;
         }
         
-        .checkbox-group {
+        .ranges-selection {
             gap: 10px;
         }
         
-        .checkbox-item {
-            padding: 10px 14px;
-            font-size: 0.9rem;
+        .range-label {
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            min-width: 100px;
         }
         
         .start-btn {
@@ -803,8 +842,8 @@
             max-width: 800px;
         }
         
-        .checkbox-group {
-            max-width: 800px;
+        .ranges-selection {
+            max-width: 900px;
         }
         
         .start-btn {
@@ -835,8 +874,8 @@
             max-width: 1000px;
         }
         
-        .checkbox-group {
-            max-width: 1000px;
+        .ranges-selection {
+            max-width: 1100px;
         }
         
         .start-btn {
@@ -848,48 +887,39 @@
 
 {% block content %}
 <div class="game-container">
-    <div class="game-card">
-        <div class="game-header">
-            <h1 class="game-title">Игра "Квадрат"</h1>
-            <p class="game-subtitle">Возводите числа в квадрат! Тренируйте ментальную арифметику.</p>
-        </div>
-        
+    <div class="game-card">        
         <div class="game-body">
             {% if mode == 1 %}
+            <!-- Заголовок игры -->
+            <div class="game-header">
+                <h1 class="game-title">Игра "Квадрат"</h1>
+                <p class="game-subtitle">Возводите числа в квадрат! Тренируйте ментальную арифметику.</p>
+            </div>
+            
             <!-- Настройка игры -->
             <form method="POST">
                 {% csrf_token %}
                 
                 <div class="form-group">
-                    <label for="ranges" class="form-label">
+                    <label class="form-label">
                         <span style="font-size: 1.2rem; margin-right: 8px;">🎯</span>
                         Выберите диапазоны чисел для тренировки:
                     </label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="range-1-9" name="number-ranges" value="1-9">
-                            <label for="range-1-9">1 - 9</label>
-                        </div>
+                    <div class="ranges-selection">
+                        <input type="checkbox" id="range-1-9" name="number-ranges" value="1-9" class="range-checkbox">
+                        <label for="range-1-9" class="range-label">1 - 9</label>
 
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="range-10-19" name="number-ranges" value="10-19">
-                            <label for="range-10-19">10 - 19</label>
-                        </div>
+                        <input type="checkbox" id="range-10-19" name="number-ranges" value="10-19" class="range-checkbox">
+                        <label for="range-10-19" class="range-label">10 - 19</label>
 
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="range-20-29" name="number-ranges" value="20-29">
-                            <label for="range-20-29">20 - 29</label>
-                        </div>
+                        <input type="checkbox" id="range-20-29" name="number-ranges" value="20-29" class="range-checkbox">
+                        <label for="range-20-29" class="range-label">20 - 29</label>
 
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="range-30-70" name="number-ranges" value="30-70">
-                            <label for="range-30-70">30 - 70</label>
-                        </div>
+                        <input type="checkbox" id="range-30-70" name="number-ranges" value="30-70" class="range-checkbox">
+                        <label for="range-30-70" class="range-label">30 - 70</label>
 
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="range-80-120" name="number-ranges" value="80-120">
-                            <label for="range-80-120">80 - 120</label>
-                        </div>
+                        <input type="checkbox" id="range-80-120" name="number-ranges" value="80-120" class="range-checkbox">
+                        <label for="range-80-120" class="range-label">80 - 120</label>
                     </div>
                 </div>
                 
@@ -969,7 +999,7 @@
                     </div>
                     
                     <div class="current-number-huge">
-                        {{ number }}² = ?
+                        <span class="number-base">{{ number }}</span><span class="square-symbol">²</span>
                     </div>
                 </div>
                 
@@ -1012,8 +1042,8 @@
             </button>
             
             <div class="answer-form">
-                <h2>🎯 Введите квадрат числа</h2>
-                <p>💭 Вспомните число, которое вы видели, и введите его квадрат:</p>
+                <h2>🎯 Чему равен квадрат числа?</h2>
+                <p>💭 Вспомните число, которое вы видели, и введите результат возведения в квадрат:</p>
                 
                 <form method="POST">
                     {% csrf_token %}

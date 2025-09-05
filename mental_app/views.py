@@ -307,21 +307,22 @@ def square(request, mode):
             if not selected_ranges:
                 return redirect('square', mode=1)
 
-            # Генерируем список чисел для возведения в квадрат
-            numbers = []
+            # Генерируем список возможных чисел из выбранных диапазонов
+            possible_numbers = []
             for r in selected_ranges:
-                numbers.extend(RANGES.get(r, []))
+                possible_numbers.extend(RANGES.get(r, []))
 
-            if not numbers:
+            if not possible_numbers:
                 return redirect('square', mode=1)
 
-            # Сохраняем числа и настройки в сессии
-            request.session['square_numbers'] = numbers
-            request.session['selected_ranges'] = selected_ranges
-            request.session['current_index'] = 0
-            request.session['total_count'] = len(numbers)
+            # Выбираем только одно случайное число
+            selected_number = random.choice(possible_numbers)
 
-            # Пропускаем отсчет и сразу показываем первое число
+            # Сохраняем число и настройки в сессии
+            request.session['square_number'] = selected_number
+            request.session['selected_ranges'] = selected_ranges
+
+            # Пропускаем отсчет и сразу показываем число
             return redirect('square', mode=3)
 
     elif mode == 2:
@@ -338,36 +339,24 @@ def square(request, mode):
             return redirect('square', mode=4)
 
         # Показ числа для возведения в квадрат
-        numbers = request.session.get('square_numbers', [])
-        current_index = request.session.get('current_index', 0)
-        total_count = request.session.get('total_count', 0)
+        current_number = request.session.get('square_number')
 
-        if not numbers or current_index >= total_count:
+        if current_number is None:
             return redirect('square', mode=1)
-
-        current_number = numbers[current_index]
-        
-        # Увеличиваем индекс и сохраняем в сессии для следующего перехода
-        request.session['current_index'] = current_index + 1
         
         return render(request, 'square.html', {
             'mode': 3,
             'number': current_number,
-            'current_index': current_index + 1,
-            'total_count': total_count
+            'current_index': 1,
+            'total_count': 1
         })
 
     elif mode == 4:
         # Ввод ответа
-        numbers = request.session.get('square_numbers', [])
-        current_index = request.session.get('current_index', 0)
-        total_count = request.session.get('total_count', 0)
+        current_number = request.session.get('square_number')
 
-        if current_index > total_count:
+        if current_number is None:
             return redirect('square', mode=1)
-
-        # current_index теперь указывает на следующее число, поэтому берем предыдущее
-        current_number = numbers[current_index - 1]
 
         if request.method == 'POST':
             user_answer = request.POST.get('user_answer')
@@ -380,17 +369,12 @@ def square(request, mode):
                 is_correct = False
                 result_message = "Неверно! Попробуйте снова."
 
-            # Переходим к следующему числу или к результатам
-            if current_index < total_count:
-                # Есть еще числа для показа, переходим к следующему
-                return redirect('square', mode=3)
-            else:
-                # Все числа показаны, показываем результаты
-                request.session['is_correct'] = is_correct
-                request.session['user_answer'] = user_answer
-                request.session['correct_answer'] = correct_answer
-                request.session['result'] = result_message
-                return redirect('square', mode=5)
+            # Сохраняем результат и переходим к показу результатов
+            request.session['is_correct'] = is_correct
+            request.session['user_answer'] = user_answer
+            request.session['correct_answer'] = correct_answer
+            request.session['result'] = result_message
+            return redirect('square', mode=5)
 
         return render(request, 'square.html', {
             'mode': 4,
