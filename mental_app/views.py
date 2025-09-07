@@ -923,9 +923,7 @@ SIMPLY_RANGES = {
 }
 
 def simply(request, mode):
-    # Проверяем авторизацию ученика или учителя
-    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
-        return redirect('student_login')
+    # Игра "просто" доступна всем пользователям без авторизации
     
     if mode == 1:
         if request.method == 'POST':
