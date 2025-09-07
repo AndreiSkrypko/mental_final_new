@@ -2618,3 +2618,14 @@ def multiplication_table(request):
         return redirect('student_login')
     
     return render(request, 'multiplication_table.html')
+
+
+def brothers_game(request):
+    """
+    Представление для игры "Братья"
+    """
+    # Проверяем авторизацию ученика или учителя
+    if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
+        return redirect('student_login')
+    
+    return render(request, 'brothers_game.html')

@@ -1087,7 +1087,8 @@
                           isAvailable = availableGames.includes('multiplication_base');
                       } else if (href === '/multiplication_table/') {
                           isAvailable = availableGames.includes('multiplication_table');
-                      } else if (href === '#' && link.textContent.trim() === 'Братья') {
+
+                      } else if (href === '/brothers_game/') {
                           isAvailable = availableGames.includes('brothers');
                       } else if (href === '#' && link.textContent.trim() === 'Друзья') {
                           isAvailable = availableGames.includes('friends');
@@ -1190,7 +1191,7 @@
                           isAvailable = availableGames.includes('multiplication_base');
                       } else if (href === '/multiplication_table/') {
                           isAvailable = availableGames.includes('multiplication_table');
-                      } else if (href === '#' && link.textContent.trim() === 'Братья') {
+                      } else if (href === '/brothers_game/') {
                           isAvailable = availableGames.includes('brothers');
                       } else if (href === '#' && link.textContent.trim() === 'Друзья') {
                           isAvailable = availableGames.includes('friends');
@@ -1250,8 +1251,8 @@
                         </a>
                         
 
-                        <a href="#">
-                            <i class="fas fa-plus"></i>
+                        <a href="/brothers_game/">
+                            <i class="fas fa-users"></i>
                             Братья
                         </a> 
 
