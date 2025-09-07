@@ -1024,72 +1024,171 @@ def simply(request, mode):
         speed = request.session.get('speed', 1.0)
         max_digit = request.session.get('max_digit', 9)
         
-        # Определяем диапазон чисел
-        if range_key == 1:
+        # Определяем диапазон чисел и максимальную сумму
+        if range_key == 1:  # 1-10 (однозначные)
             min_num, max_num = 1, 10
-        elif range_key == 2:
+            max_sum = max_digit  # Для однозначных: от 0 до max_digit
+        elif range_key == 2:  # 10-100 (двузначные)
             min_num, max_num = 10, 100
-        elif range_key == 3:
+            max_sum = max_digit * 11  # Для двузначных: от 0 до max_digit*11 (например, для 3: 0-33)
+        elif range_key == 3:  # 100-1000 (трехзначные)
             min_num, max_num = 100, 1000
-        elif range_key == 4:
+            max_sum = max_digit * 111  # Для трехзначных: от 0 до max_digit*111 (например, для 3: 0-333)
+        elif range_key == 4:  # 1000-10000 (четырехзначные)
             min_num, max_num = 1000, 10000
+            max_sum = max_digit * 1111  # Для четырехзначных: от 0 до max_digit*1111
         else:
             min_num, max_num = 10, 100
+            max_sum = max_digit * 11
         
         # Генерируем числа, состоящие только из указанных цифр
         numbers = []
         available_digits = list(range(1, max_digit + 1))  # Цифры от 1 до max_digit
         
-        # Начинаем с положительного числа
+        # Определяем количество разрядов для чисел
+        if range_key == 1:  # 1-10
+            num_digits = 1
+        elif range_key == 2:  # 10-100
+            num_digits = 2
+        elif range_key == 3:  # 100-1000
+            num_digits = 3
+        elif range_key == 4:  # 1000-10000
+            num_digits = 4
+        else:
+            num_digits = 2
+        
+        # Генерируем целевую сумму в пределах от 0 до max_sum
+        target_sum = random.randint(0, max_sum)
+        
+        # Начинаем генерацию чисел с учетом целевой суммы
         current_sum = 0
+        attempts = 0
+        max_attempts = 1000  # Ограничиваем количество попыток
         
         for i in range(num_examples):
-            # Определяем количество разрядов для числа
-            if range_key == 1:  # 1-10
-                num_digits = 1
-            elif range_key == 2:  # 10-100
-                num_digits = 2
-            elif range_key == 3:  # 100-1000
-                num_digits = 3
-            elif range_key == 4:  # 1000-10000
-                num_digits = 4
-            else:
-                num_digits = 2
-            
-            # Генерируем число по разрядам
-            number = 0
-            for digit_pos in range(num_digits):
-                # Выбираем случайную цифру из доступных
-                digit = random.choice(available_digits)
-                # Добавляем цифру в соответствующий разряд
-                number += digit * (10 ** (num_digits - 1 - digit_pos))
-            
-            # Проверяем, что число попадает в нужный диапазон
-            if min_num <= number <= max_num:
-                # Определяем знак числа
-                if i == 0:
-                    # Первое число всегда положительное
-                    sign = 1
+            attempts = 0
+            while attempts < max_attempts:
+                attempts += 1
+                
+                # Генерируем число по разрядам
+                number = 0
+                for digit_pos in range(num_digits):
+                    # Выбираем случайную цифру из доступных
+                    digit = random.choice(available_digits)
+                    # Добавляем цифру в соответствующий разряд
+                    number += digit * (10 ** (num_digits - 1 - digit_pos))
+                
+                # Проверяем, что число попадает в нужный диапазон
+                if not (min_num <= number <= max_num):
+                    continue
+                
+                # Определяем возможные знаки для числа
+                remaining_numbers = num_examples - i - 1
+                
+                if i == num_examples - 1:  # Последнее число
+                    # Последнее число должно точно дать нужную сумму
+                    needed_value = target_sum - current_sum
+                    if abs(needed_value) == number:
+                        sign = 1 if needed_value > 0 else -1
+                        # Проверяем, что промежуточная сумма не уйдет в минус или не превысит max_sum
+                        temp_sum = current_sum + (number * sign)
+                        if 0 <= temp_sum <= max_sum:
+                            final_number = number * sign
+                            numbers.append(final_number)
+                            current_sum += final_number
+                            break
+                    continue
                 else:
-                    # Для последующих чисел проверяем, можно ли сделать отрицательным
-                    # Если текущая сумма больше числа, то можно сделать отрицательным
-                    if current_sum >= number:
-                        # Можем выбрать любой знак
-                        sign = random.choice([-1, 1])
-                    else:
-                        # Можем только положительный знак, чтобы сумма не стала отрицательной
-                        sign = 1
+                    # Для промежуточных чисел выбираем знак так, чтобы промежуточная сумма оставалась в пределах [0, max_sum]
+                    possible_signs = []
+                    
+                    # Проверяем положительный знак
+                    temp_sum_pos = current_sum + number
+                    if 0 <= temp_sum_pos <= max_sum:
+                        # Проверяем, что с оставшимися числами можно достичь целевой суммы
+                        remaining_range = remaining_numbers * max_num
+                        if temp_sum_pos - remaining_range <= target_sum <= temp_sum_pos + remaining_range:
+                            possible_signs.append(1)
+                    
+                    # Проверяем отрицательный знак
+                    temp_sum_neg = current_sum - number
+                    if 0 <= temp_sum_neg <= max_sum:
+                        # Проверяем, что с оставшимися числами можно достичь целевой суммы
+                        remaining_range = remaining_numbers * max_num
+                        if temp_sum_neg - remaining_range <= target_sum <= temp_sum_neg + remaining_range:
+                            possible_signs.append(-1)
+                    
+                    if possible_signs:
+                        sign = random.choice(possible_signs)
+                        final_number = number * sign
+                        numbers.append(final_number)
+                        current_sum += final_number
+                        break
+            
+            # Если не удалось найти подходящее число за разумное количество попыток
+            if attempts >= max_attempts:
+                # Перезапускаем генерацию с новой целевой суммой
+                numbers = []
+                current_sum = 0
+                target_sum = random.randint(0, max_sum)
+                i = -1  # Начинаем заново
+                continue
+        
+        # Если что-то пошло не так, используем простую генерацию
+        if len(numbers) != num_examples:
+            numbers = []
+            current_sum = 0
+            
+            for i in range(num_examples):
+                # Генерируем простое число
+                number = 0
+                for digit_pos in range(num_digits):
+                    digit = random.choice(available_digits)
+                    number += digit * (10 ** (num_digits - 1 - digit_pos))
+                
+                # Ограничиваем число диапазоном
+                number = max(min_num, min(number, max_num))
+                
+                # Определяем знак так, чтобы промежуточная сумма оставалась в пределах [0, max_sum]
+                possible_signs = []
+                
+                # Проверяем положительный знак
+                if current_sum + number <= max_sum:
+                    possible_signs.append(1)
+                
+                # Проверяем отрицательный знак (только если промежуточная сумма не уйдет в минус)
+                if current_sum - number >= 0:
+                    possible_signs.append(-1)
+                
+                # Если нет подходящих знаков, используем положительный
+                if not possible_signs:
+                    sign = 1
+                    # Корректируем число, чтобы не превысить max_sum
+                    if current_sum + number > max_sum:
+                        number = max_sum - current_sum
+                        if number < min_num:
+                            number = min_num
+                else:
+                    sign = random.choice(possible_signs)
                 
                 final_number = number * sign
                 numbers.append(final_number)
                 current_sum += final_number
-            else:
-                # Если число не попадает в диапазон, генерируем заново
-                i -= 1
-                continue
+                
+                # Дополнительная проверка: если сумма все еще выходит за пределы, корректируем
+                if current_sum < 0:
+                    current_sum = 0
+                elif current_sum > max_sum:
+                    current_sum = max_sum
         
-        # Вычисляем сумму всех чисел
+        # Вычисляем итоговую сумму
         game_total = sum(numbers)
+        
+        # Убеждаемся, что сумма в допустимых пределах
+        if game_total < 0:
+            game_total = 0
+        elif game_total > max_sum:
+            game_total = max_sum
         
         # Сохраняем данные в сессию
         request.session['game_numbers'] = numbers
@@ -1172,12 +1271,14 @@ def simply(request, mode):
         user_answer = request.session.get('user_answer', 0)
         is_correct = request.session.get('is_correct', False)
         correct_answer = request.session.get('correct_answer', 0)
+        game_numbers = request.session.get('game_numbers', [])
         
         context = {
             "mode": 4,
             "user_answer": user_answer,
             "is_correct": is_correct,
-            "correct_answer": correct_answer
+            "correct_answer": correct_answer,
+            "game_numbers": game_numbers
         }
         
         return render(request, 'simply.html', context)
