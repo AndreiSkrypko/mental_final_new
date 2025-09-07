@@ -1,0 +1,22 @@
+<!-- Универсальный блок для показа примера вычислений в играх -->
+<!-- Подключаем стили и скрипты -->
+<link rel="stylesheet" href="{% load static %}{% static 'css/game-examples.css' %}">
+
+<!-- Кнопка для показа примера -->
+<div class="example-section">
+    <button id="showExampleBtn" class="btn btn-info" onclick="toggleGameExample()">
+        <i class="fas fa-eye"></i>
+        Показать пример вычислений
+    </button>
+    
+    <!-- Блок с примером (изначально скрыт) -->
+    <div id="exampleBlock" class="example-block" style="display: none;">
+        <h3>📝 Пример вычислений:</h3>
+        <div class="calculation-steps" id="calculationSteps">
+            {{ example_content|safe }}
+        </div>
+    </div>
+</div>
+
+<!-- Подключаем JavaScript -->
+<script src="{% static 'js/game-examples.js' %}"></script>

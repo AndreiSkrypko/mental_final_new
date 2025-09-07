@@ -1,0 +1,103 @@
+/* Универсальные стили для блоков с примерами в играх */
+
+/* Стили для секции с примером */
+.example-section {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.example-block {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.example-block h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.calculation-steps {
+    padding: 20px 0;
+    text-align: center;
+}
+
+.simple-expression {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.expression-line {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.expression {
+    color: #333;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.equals {
+    color: #667eea;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.result {
+    color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 2px solid rgba(40, 167, 69, 0.2);
+    font-weight: bold;
+}
+
+/* Адаптивность для простого выражения */
+@media (max-width: 768px) {
+    .expression-line {
+        font-size: 1.2rem;
+        gap: 10px;
+    }
+    
+    .expression, .result {
+        padding: 8px 12px;
+        font-size: 1.1rem;
+    }
+    
+    .equals {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .expression-line {
+        flex-direction: column;
+        gap: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .expression, .result {
+        padding: 10px 15px;
+        font-size: 1.2rem;
+    }
+    
+    .equals {
+        font-size: 1.8rem;
+    }
+}

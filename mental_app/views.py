@@ -171,6 +171,8 @@ def multiplication_choose(request, mode):
                 'correct_answer': correct_answer,
                 'result': result_message,
                 'result_color': result_color,
+                'first_number': first,
+                'second_number': second,
                 'mode': 3
             })
 
@@ -383,12 +385,14 @@ def square(request, mode):
 
     elif mode == 5:
         # Результаты игры
+        square_number = request.session.get('square_number')
         return render(request, 'square.html', {
             'mode': 5,
             'is_correct': request.session.get('is_correct', False),
             'user_answer': request.session.get('user_answer', ''),
             'correct_answer': request.session.get('correct_answer', ''),
-            'result': request.session.get('result', '')
+            'result': request.session.get('result', ''),
+            'square_number': square_number
         })
 
 
@@ -602,6 +606,8 @@ def tricks(request, mode):
                 'correct_answer': correct_answer,
                 'result': result_message,
                 'result_color': result_color,
+                'first_number': first,
+                'second_number': second,
                 'mode': 3
             })
 
@@ -2411,6 +2417,10 @@ def carry_over_payments(request, class_id, schedule_id):
 def generate_abacus_columns(number):
     # Список для всех колонок
     columns = []
+    
+    # Специальная обработка для числа 0
+    if number == 0:
+        return [[[1, 0], [0, 1, 1, 1, 1]]]
 
     while number > 0:
         digit = number % 10
@@ -2498,7 +2508,8 @@ def flashcards(request, mode):
                 "is_correct": is_correct,
                 "correct_sum": correct_sum,
                 "user_answer": user_answer,
-                "numbers": numbers
+                "numbers": numbers,
+                "flashcards_numbers": numbers  # Для примера вычислений
             })
         
         # Обычная обработка формы настроек
@@ -2513,14 +2524,14 @@ def flashcards(request, mode):
         
         # Словарь, где для каждого уровня сложности задан свой диапазон чисел
         difficulty_ranges = {
-            1: (1, 10),      # Простой уровень — числа от 1 до 9
+            1: (0, 10),      # Простой уровень — числа от 0 до 9
             2: (10, 100),    # Средний уровень — числа от 10 до 99
             3: (100, 1000),  # Сложный уровень — числа от 100 до 999
             4: (1000, 10000) # Очень сложный уровень — числа от 1000 до 9999
         }
         
         # Извлекаем минимальное и максимальное значение диапазона для выбранного уровня сложности
-        min_val, max_val = difficulty_ranges.get(difficult_level, (1, 10))
+        min_val, max_val = difficulty_ranges.get(difficult_level, (0, 10))
         
         # Инициализируем пустой список для хранения итоговых чисел
         numbers = []
