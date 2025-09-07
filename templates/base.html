@@ -1040,6 +1040,28 @@
              padding: 0 !important;
              width: 0 !important;
          }
+         
+         /* Дополнительная защита: скрываем навбар на игровых страницах по URL */
+         body[data-page*="/simply/"] .modern-header,
+         body[data-page*="/simply/"] .nav-section,
+         body[data-page*="/multiplication/"] .modern-header,
+         body[data-page*="/multiplication/"] .nav-section,
+         body[data-page*="/multiplication_table/"] .modern-header,
+         body[data-page*="/multiplication_table/"] .nav-section,
+         body[data-page*="/square/"] .modern-header,
+         body[data-page*="/square/"] .nav-section,
+         body[data-page*="/tricks/"] .modern-header,
+         body[data-page*="/tricks/"] .nav-section,
+         body[data-page*="/flashcards/"] .modern-header,
+         body[data-page*="/flashcards/"] .nav-section,
+         body[data-page*="/brothers/"] .modern-header,
+         body[data-page*="/brothers/"] .nav-section,
+         body[data-page*="/brothers_game"] .modern-header,
+         body[data-page*="/brothers_game"] .nav-section {
+             display: none !important;
+             visibility: hidden !important;
+             opacity: 0 !important;
+         }
     </style>
     {% block mycss %}{% endblock %}
     
@@ -1058,7 +1080,7 @@
                   const gameLinks = dropdownContent.querySelectorAll('a[href]');
                   
                   // Получаем список доступных игр из Django контекста
-                  const availableGames = {{ available_games_list|safe }};
+                  const availableGames = {{ available_games_list|default:"[]"|safe }};
                   
                   gameLinks.forEach(link => {
                       const href = link.getAttribute('href');
@@ -1172,7 +1194,7 @@
               // Также отмечаем доступные игры в подменю
               if (dropdownSubmenu) {
                   const submenuLinks = dropdownSubmenu.querySelectorAll('a[href]');
-                  const availableGames = {{ available_games_list|safe }};
+                  const availableGames = {{ available_games_list|default:"[]"|safe }};
                   
                   submenuLinks.forEach(link => {
                       const href = link.getAttribute('href');
@@ -1209,7 +1231,7 @@
          });
      </script>
 </head>
-<body>
+<body data-page="{{ request.path }}">
 
 <!-- Современный хедер -->
 <header class="modern-header">
@@ -1389,11 +1411,15 @@
         window.location.pathname.includes('/multiplication_table/') ||
         window.location.pathname.includes('/square/') ||
         window.location.pathname.includes('/tricks/') ||
-        window.location.pathname.includes('/flashcards/')) {
+        window.location.pathname.includes('/flashcards/') ||
+        window.location.pathname.includes('/brothers/')) {
+        
+        // Немедленно скрываем навбар еще до загрузки DOM
+        document.body.classList.add('game-mode');
+        
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                window.hideNavbar();
-            }, 500);
+            // Дополнительно убеждаемся, что навбар скрыт
+            window.hideNavbar();
         });
     }
 </script>
