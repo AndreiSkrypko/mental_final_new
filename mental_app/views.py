@@ -928,6 +928,148 @@ SIMPLY_RANGES = {
     "1000-10000": (1000, 10000),
 }
 
+def generate_abacus_numbers(max_digit, num_examples):
+    """
+    Генерирует числа согласно правилам абакуса для чисел от 5 до 9.
+    
+    Правила абакуса:
+    - Число 5 = одна косточка (пятерка)
+    - Числа 1-4 = соответствующее количество единичных косточек
+    - Числа 6-9 = одна косточка (пятерка) + единичные косточки (6=5+1, 7=5+2, 8=5+3, 9=5+4)
+    
+    Правильные операции:
+    - ✅ +4+5-3+2-3+1-5 (используем 5 как отдельную единицу)
+    - ✅ +1+3+5-4+3-1-5 (правильное разложение)
+    - ❌ +5-4 (неправильно, так как 5 - это целая единица)
+    - ❌ 2+3 (неправильно, так как только 4 единичные косточки доступны)
+    """
+    import random
+    
+    numbers = []
+    current_sum = 0
+    
+    # Состояние абакуса: [есть_ли_пятерка, количество_единиц]
+    abacus_state = [False, 0]  # [пятерка, единицы от 0 до 4]
+    
+    # Возможные операции согласно правилам абакуса
+    def get_valid_operations(current_state, max_intermediate_sum):
+        """Возвращает список допустимых операций для текущего состояния абакуса"""
+        operations = []
+        has_five, units = current_state
+        
+        # Операции с пятеркой (приоритет для числа 5, если max_digit >= 5)
+        if max_digit >= 5:
+            if not has_five:  # Если пятерки нет, можем добавить
+                operations.append(('+', 5))
+            else:  # Если пятерка есть, можем убрать
+                operations.append(('-', 5))
+        
+        # Операции с единицами (от 1 до 4)
+        max_units = min(4, max_digit) if max_digit < 5 else 4
+        for i in range(1, max_units + 1):  # 1, 2, 3, 4 (или меньше, если max_digit < 5)
+            # Добавление единиц
+            if units + i <= 4:  # Не больше 4 единиц
+                operations.append(('+', i))
+            
+            # Вычитание единиц
+            if units - i >= 0:  # Не меньше 0 единиц
+                operations.append(('-', i))
+        
+        # Добавляем операции с выбранным числом напрямую (упрощенная логика)
+        if max_digit > 5:
+            # Для чисел 6-9: добавляем их как отдельные операции
+            # Проверяем только базовые ограничения
+            operations.append(('+', max_digit))
+            operations.append(('-', max_digit))
+        
+        # Фильтруем операции, чтобы промежуточный результат был от 0 до 9
+        valid_operations = []
+        for sign, value in operations:
+            new_sum = current_sum + (value if sign == '+' else -value)
+            if 0 <= new_sum <= 9:  # Промежуточная сумма всегда от 0 до 9
+                valid_operations.append((sign, value))
+        
+        return valid_operations
+    
+    def get_weighted_operations(valid_ops, max_digit):
+        """Возвращает операции с весами для более частого использования выбранного числа"""
+        weighted_ops = []
+        for op in valid_ops:
+            sign, value = op
+            if value == max_digit:
+                # Выбранное число встречается чаще
+                # Разные веса для разных чисел
+                if max_digit == 9:
+                    weight = 6  # Для числа 9 нужен больший вес
+                elif max_digit == 4:
+                    weight = 5  # Для числа 4 тоже увеличиваем вес
+                else:
+                    weight = 4  # Стандартный вес
+                weighted_ops.extend([op] * weight)
+            elif value == 5 and max_digit >= 5:
+                # Число 5 тоже важно для абакуса (вес 2)
+                weighted_ops.extend([op] * 2)
+            else:
+                # Остальные числа (вес 1)
+                weighted_ops.append(op)
+        
+        return weighted_ops
+    
+    # Генерируем последовательность операций
+    for i in range(num_examples):
+        # Получаем допустимые операции
+        valid_ops = get_valid_operations(abacus_state, 9)  # Промежуточная сумма всегда до 9
+        
+        if not valid_ops:
+            # Если нет допустимых операций, сбрасываем состояние
+            abacus_state = [False, 0]
+            current_sum = 0
+            valid_ops = get_valid_operations(abacus_state, 9)  # Промежуточная сумма всегда до 9
+        
+        if valid_ops:
+            # Получаем взвешенные операции для более частого использования 5
+            weighted_ops = get_weighted_operations(valid_ops, max_digit)
+            
+            # Выбираем случайную операцию из взвешенного списка
+            sign, value = random.choice(weighted_ops)
+            
+            # Применяем операцию к состоянию абакуса
+            if value == 5:
+                if sign == '+':
+                    abacus_state[0] = True
+                else:
+                    abacus_state[0] = False
+            elif value > 5:  # Числа 6, 7, 8, 9 - упрощенная логика
+                # Для простоты не обновляем строго состояние абакуса
+                # Просто используем число напрямую
+                pass
+            else:  # Операция с единицами (1-4)
+                if sign == '+':
+                    abacus_state[1] += value
+                else:
+                    abacus_state[1] -= value
+            
+            # Добавляем число в последовательность
+            final_number = value if sign == '+' else -value
+            numbers.append(final_number)
+            current_sum += final_number
+        else:
+            # Если все еще нет операций, добавляем простое число
+            safe_value = min(1, max_digit)
+            numbers.append(safe_value)
+            current_sum += safe_value
+            abacus_state[1] = min(4, abacus_state[1] + safe_value)
+    
+    # Корректируем итоговую сумму, если она превышает max_digit
+    total_sum = sum(numbers)
+    if total_sum > max_digit:
+        # Добавляем корректирующее число, чтобы итоговая сумма не превышала max_digit
+        correction = max_digit - total_sum
+        if correction != 0:
+            numbers.append(correction)
+    
+    return numbers
+
 def simply(request, mode):
     # Игра "просто" доступна всем пользователям без авторизации
     
@@ -1047,145 +1189,149 @@ def simply(request, mode):
             min_num, max_num = 10, 100
             max_sum = max_digit * 11
         
-        # Генерируем числа, состоящие только из указанных цифр
-        numbers = []
-        available_digits = list(range(1, max_digit + 1))  # Цифры от 1 до max_digit
-        
-        # Определяем количество разрядов для чисел
-        if range_key == 1:  # 1-10
-            num_digits = 1
-        elif range_key == 2:  # 10-100
-            num_digits = 2
-        elif range_key == 3:  # 100-1000
-            num_digits = 3
-        elif range_key == 4:  # 1000-10000
-            num_digits = 4
+        # Проверяем, нужно ли использовать логику абакуса для чисел 5-9
+        if range_key == 1 and max_digit >= 5:  # Однозначные числа от 5 до 9
+            numbers = generate_abacus_numbers(max_digit, num_examples)
         else:
-            num_digits = 2
-        
-        # Генерируем целевую сумму в пределах от 0 до max_sum
-        target_sum = random.randint(0, max_sum)
-        
-        # Начинаем генерацию чисел с учетом целевой суммы
-        current_sum = 0
-        attempts = 0
-        max_attempts = 1000  # Ограничиваем количество попыток
-        
-        for i in range(num_examples):
+            # Используем старую логику для других случаев
+            numbers = []
+            available_digits = list(range(1, max_digit + 1))  # Цифры от 1 до max_digit
+            
+            # Определяем количество разрядов для чисел
+            if range_key == 1:  # 1-10
+                num_digits = 1
+            elif range_key == 2:  # 10-100
+                num_digits = 2
+            elif range_key == 3:  # 100-1000
+                num_digits = 3
+            elif range_key == 4:  # 1000-10000
+                num_digits = 4
+            else:
+                num_digits = 2
+            
+            # Генерируем целевую сумму в пределах от 0 до max_sum
+            target_sum = random.randint(0, max_sum)
+            
+            # Начинаем генерацию чисел с учетом целевой суммы
+            current_sum = 0
             attempts = 0
-            while attempts < max_attempts:
-                attempts += 1
-                
-                # Генерируем число по разрядам
-                number = 0
-                for digit_pos in range(num_digits):
-                    # Выбираем случайную цифру из доступных
-                    digit = random.choice(available_digits)
-                    # Добавляем цифру в соответствующий разряд
-                    number += digit * (10 ** (num_digits - 1 - digit_pos))
-                
-                # Проверяем, что число попадает в нужный диапазон
-                if not (min_num <= number <= max_num):
-                    continue
-                
-                # Определяем возможные знаки для числа
-                remaining_numbers = num_examples - i - 1
-                
-                if i == num_examples - 1:  # Последнее число
-                    # Последнее число должно точно дать нужную сумму
-                    needed_value = target_sum - current_sum
-                    if abs(needed_value) == number:
-                        sign = 1 if needed_value > 0 else -1
-                        # Проверяем, что промежуточная сумма не уйдет в минус или не превысит max_sum
-                        temp_sum = current_sum + (number * sign)
-                        if 0 <= temp_sum <= max_sum:
+            max_attempts = 1000  # Ограничиваем количество попыток
+            
+            for i in range(num_examples):
+                attempts = 0
+                while attempts < max_attempts:
+                    attempts += 1
+                    
+                    # Генерируем число по разрядам
+                    number = 0
+                    for digit_pos in range(num_digits):
+                        # Выбираем случайную цифру из доступных
+                        digit = random.choice(available_digits)
+                        # Добавляем цифру в соответствующий разряд
+                        number += digit * (10 ** (num_digits - 1 - digit_pos))
+                    
+                    # Проверяем, что число попадает в нужный диапазон
+                    if not (min_num <= number <= max_num):
+                        continue
+                    
+                    # Определяем возможные знаки для числа
+                    remaining_numbers = num_examples - i - 1
+                    
+                    if i == num_examples - 1:  # Последнее число
+                        # Последнее число должно точно дать нужную сумму
+                        needed_value = target_sum - current_sum
+                        if abs(needed_value) == number:
+                            sign = 1 if needed_value > 0 else -1
+                            # Проверяем, что промежуточная сумма не уйдет в минус или не превысит max_sum
+                            temp_sum = current_sum + (number * sign)
+                            if 0 <= temp_sum <= max_sum:
+                                final_number = number * sign
+                                numbers.append(final_number)
+                                current_sum += final_number
+                                break
+                        continue
+                    else:
+                        # Для промежуточных чисел выбираем знак так, чтобы промежуточная сумма оставалась в пределах [0, max_sum]
+                        possible_signs = []
+                        
+                        # Проверяем положительный знак
+                        temp_sum_pos = current_sum + number
+                        if 0 <= temp_sum_pos <= max_sum:
+                            # Проверяем, что с оставшимися числами можно достичь целевой суммы
+                            remaining_range = remaining_numbers * max_num
+                            if temp_sum_pos - remaining_range <= target_sum <= temp_sum_pos + remaining_range:
+                                possible_signs.append(1)
+                        
+                        # Проверяем отрицательный знак
+                        temp_sum_neg = current_sum - number
+                        if 0 <= temp_sum_neg <= max_sum:
+                            # Проверяем, что с оставшимися числами можно достичь целевой суммы
+                            remaining_range = remaining_numbers * max_num
+                            if temp_sum_neg - remaining_range <= target_sum <= temp_sum_neg + remaining_range:
+                                possible_signs.append(-1)
+                        
+                        if possible_signs:
+                            sign = random.choice(possible_signs)
                             final_number = number * sign
                             numbers.append(final_number)
                             current_sum += final_number
                             break
+                
+                # Если не удалось найти подходящее число за разумное количество попыток
+                if attempts >= max_attempts:
+                    # Перезапускаем генерацию с новой целевой суммой
+                    numbers = []
+                    current_sum = 0
+                    target_sum = random.randint(0, max_sum)
+                    i = -1  # Начинаем заново
                     continue
-                else:
-                    # Для промежуточных чисел выбираем знак так, чтобы промежуточная сумма оставалась в пределах [0, max_sum]
+            
+            # Если что-то пошло не так, используем простую генерацию
+            if len(numbers) != num_examples:
+                numbers = []
+                current_sum = 0
+                
+                for i in range(num_examples):
+                    # Генерируем простое число
+                    number = 0
+                    for digit_pos in range(num_digits):
+                        digit = random.choice(available_digits)
+                        number += digit * (10 ** (num_digits - 1 - digit_pos))
+                    
+                    # Ограничиваем число диапазоном
+                    number = max(min_num, min(number, max_num))
+                    
+                    # Определяем знак так, чтобы промежуточная сумма оставалась в пределах [0, max_sum]
                     possible_signs = []
                     
                     # Проверяем положительный знак
-                    temp_sum_pos = current_sum + number
-                    if 0 <= temp_sum_pos <= max_sum:
-                        # Проверяем, что с оставшимися числами можно достичь целевой суммы
-                        remaining_range = remaining_numbers * max_num
-                        if temp_sum_pos - remaining_range <= target_sum <= temp_sum_pos + remaining_range:
-                            possible_signs.append(1)
+                    if current_sum + number <= max_sum:
+                        possible_signs.append(1)
                     
-                    # Проверяем отрицательный знак
-                    temp_sum_neg = current_sum - number
-                    if 0 <= temp_sum_neg <= max_sum:
-                        # Проверяем, что с оставшимися числами можно достичь целевой суммы
-                        remaining_range = remaining_numbers * max_num
-                        if temp_sum_neg - remaining_range <= target_sum <= temp_sum_neg + remaining_range:
-                            possible_signs.append(-1)
+                    # Проверяем отрицательный знак (только если промежуточная сумма не уйдет в минус)
+                    if current_sum - number >= 0:
+                        possible_signs.append(-1)
                     
-                    if possible_signs:
+                    # Если нет подходящих знаков, используем положительный
+                    if not possible_signs:
+                        sign = 1
+                        # Корректируем число, чтобы не превысить max_sum
+                        if current_sum + number > max_sum:
+                            number = max_sum - current_sum
+                            if number < min_num:
+                                number = min_num
+                    else:
                         sign = random.choice(possible_signs)
-                        final_number = number * sign
-                        numbers.append(final_number)
-                        current_sum += final_number
-                        break
-            
-            # Если не удалось найти подходящее число за разумное количество попыток
-            if attempts >= max_attempts:
-                # Перезапускаем генерацию с новой целевой суммой
-                numbers = []
-                current_sum = 0
-                target_sum = random.randint(0, max_sum)
-                i = -1  # Начинаем заново
-                continue
-        
-        # Если что-то пошло не так, используем простую генерацию
-        if len(numbers) != num_examples:
-            numbers = []
-            current_sum = 0
-            
-            for i in range(num_examples):
-                # Генерируем простое число
-                number = 0
-                for digit_pos in range(num_digits):
-                    digit = random.choice(available_digits)
-                    number += digit * (10 ** (num_digits - 1 - digit_pos))
-                
-                # Ограничиваем число диапазоном
-                number = max(min_num, min(number, max_num))
-                
-                # Определяем знак так, чтобы промежуточная сумма оставалась в пределах [0, max_sum]
-                possible_signs = []
-                
-                # Проверяем положительный знак
-                if current_sum + number <= max_sum:
-                    possible_signs.append(1)
-                
-                # Проверяем отрицательный знак (только если промежуточная сумма не уйдет в минус)
-                if current_sum - number >= 0:
-                    possible_signs.append(-1)
-                
-                # Если нет подходящих знаков, используем положительный
-                if not possible_signs:
-                    sign = 1
-                    # Корректируем число, чтобы не превысить max_sum
-                    if current_sum + number > max_sum:
-                        number = max_sum - current_sum
-                        if number < min_num:
-                            number = min_num
-                else:
-                    sign = random.choice(possible_signs)
-                
-                final_number = number * sign
-                numbers.append(final_number)
-                current_sum += final_number
-                
-                # Дополнительная проверка: если сумма все еще выходит за пределы, корректируем
-                if current_sum < 0:
-                    current_sum = 0
-                elif current_sum > max_sum:
-                    current_sum = max_sum
+                    
+                    final_number = number * sign
+                    numbers.append(final_number)
+                    current_sum += final_number
+                    
+                    # Дополнительная проверка: если сумма все еще выходит за пределы, корректируем
+                    if current_sum < 0:
+                        current_sum = 0
+                    elif current_sum > max_sum:
+                        current_sum = max_sum
         
         # Вычисляем итоговую сумму
         game_total = sum(numbers)
