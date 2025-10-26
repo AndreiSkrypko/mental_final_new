@@ -27,8 +27,12 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.05) 50%, transparent 100%);
-        animation: rotate 60s linear infinite;
+        background:
+            radial-gradient(60rem 60rem at 20% 30%, rgba(102,126,234,0.25), transparent 60%),
+            radial-gradient(50rem 50rem at 80% 20%, rgba(236,72,153,0.18), transparent 60%),
+            radial-gradient(65rem 65rem at 30% 80%, rgba(16,185,129,0.18), transparent 60%),
+            conic-gradient(from 180deg at 50% 50%, rgba(118,75,162,0.10), rgba(59,130,246,0.10), rgba(236,72,153,0.08), rgba(118,75,162,0.10));
+        animation: rotate 60s linear infinite, hueShift 20s ease-in-out infinite alternate;
         z-index: -1;
     }
 
@@ -37,17 +41,22 @@
         to { transform: rotate(360deg); }
     }
 
+    @keyframes hueShift {
+        0% { filter: hue-rotate(0deg) saturate(1); }
+        100% { filter: hue-rotate(25deg) saturate(1.15); }
+    }
+
     /* Основной контент */
     .hero-content {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(18px);
         border-radius: 30px;
         padding: 60px 50px;
         text-align: center;
-        max-width: 1200px;
+        max-width: 1100px;
         width: 100%;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.18);
+        border: 1px solid rgba(0, 0, 0, 0.06);
         position: relative;
         overflow: hidden;
     }
@@ -59,9 +68,23 @@
         left: 0;
         right: 0;
         height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        background: linear-gradient(90deg, #667eea, #10b981, #764ba2, #667eea);
         background-size: 200% 100%;
         animation: gradientMove 3s ease-in-out infinite;
+    }
+
+    .hero-content::after {
+        content: '';
+        position: absolute;
+        inset: -30%;
+        background:
+            radial-gradient(18rem 12rem at 20% 10%, rgba(255,255,255,0.35), transparent 60%),
+            radial-gradient(16rem 10rem at 80% 90%, rgba(102,126,234,0.16), transparent 60%),
+            radial-gradient(20rem 14rem at 10% 80%, rgba(236,72,153,0.12), transparent 60%);
+        pointer-events: none;
+        z-index: -1;
+        filter: blur(40px) saturate(1.1);
+        animation: bokehDrift 14s ease-in-out infinite alternate;
     }
 
     @keyframes gradientMove {
@@ -69,17 +92,30 @@
         50% { background-position: 100% 50%; }
     }
 
+    @keyframes bokehDrift {
+        0% { transform: translate3d(0, 0, 0) scale(1); }
+        100% { transform: translate3d(2%, -2%, 0) scale(1.03); }
+    }
+
     /* Заголовок */
     .hero-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-size: 3.2rem;
+        font-weight: 900;
+        background: linear-gradient(120deg, #111827, #2d3748, #111827);
+        background-size: 200% 200%;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 30px;
-        line-height: 1.2;
+        margin-bottom: 14px;
+        line-height: 1.15;
         position: relative;
+        letter-spacing: -0.02em;
+        animation: titleGradient 6s ease-in-out infinite;
+    }
+
+    @keyframes titleGradient {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
     }
 
     .hero-title::after {
@@ -96,14 +132,26 @@
 
     /* Описание */
     .hero-description {
-        font-size: 1.3rem;
-        color: #4a5568;
-        line-height: 1.7;
-        margin-bottom: 40px;
-        max-width: 700px;
+        font-size: 1.25rem;
+        color: #2d3748;
+        line-height: 1.75;
+        margin-bottom: 28px;
+        max-width: 760px;
         margin-left: auto;
         margin-right: auto;
-        font-weight: 400;
+        font-weight: 500;
+    }
+
+    .hero-subtitle {
+        display: inline-block;
+        padding: 8px 14px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+        color: #0f766e;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        border-radius: 999px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin-bottom: 18px;
     }
 
     /* Список преимуществ */
@@ -118,13 +166,14 @@
     }
 
     .benefit-item {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        padding: 25px 20px;
-        border-radius: 20px;
-        border: 1px solid rgba(102, 126, 234, 0.2);
-        transition: all 0.3s ease;
+        background: #ffffff;
+        padding: 22px 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition: all 0.25s ease;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
     }
 
     .benefit-item::before {
@@ -149,25 +198,26 @@
     }
 
     .benefit-icon {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 15px;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #667eea 0%, #10b981 100%);
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 15px;
+        margin: 0 auto 12px;
         color: white;
-        font-size: 24px;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        font-size: 22px;
+        box-shadow: 0 8px 22px rgba(16, 185, 129, 0.28);
     }
 
     .benefit-text {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2d3748;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1f2937;
         margin: 0;
         line-height: 1.4;
+        letter-spacing: -0.01em;
     }
 
     /* Приветствие для авторизованных пользователей */
@@ -245,31 +295,34 @@
     }
 
     .cta-button.primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #6d28d9 0%, #10b981 100%);
         color: white;
         border: none;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.35);
+        position: relative;
     }
 
     .cta-button.secondary {
-        background: rgba(255, 255, 255, 0.9);
-        color: #667eea;
-        border: 2px solid rgba(102, 126, 234, 0.3);
+        background: rgba(255, 255, 255, 0.98);
+        color: #374151;
+        border: 2px solid rgba(102, 126, 234, 0.35);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
     }
 
     .cta-button:hover {
-        transform: translateY(-3px);
+        transform: translateY(-3px) scale(1.01);
         text-decoration: none;
     }
 
     .cta-button.primary:hover {
-        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 18px 40px rgba(16, 185, 129, 0.45);
     }
 
     .cta-button.secondary:hover {
         background: #667eea;
         color: white;
         border-color: #667eea;
+        box-shadow: 0 16px 36px rgba(102,126,234,0.35);
     }
 
     /* Дополнительные декоративные элементы */
@@ -287,6 +340,7 @@
         position: absolute;
         opacity: 0.1;
         animation: float 6s ease-in-out infinite;
+        will-change: transform;
     }
 
     .shape:nth-child(1) {
@@ -446,12 +500,13 @@
     <!-- Основной контент -->
     <div class="hero-content">
         <!-- Заголовок -->
-        <h1 class="hero-title">Развивайте умственные способности вашего ребенка с помощью ментальной арифметики!</h1>
+        <div class="hero-subtitle">Игры и задания для быстрого счета</div>
+        <h1 class="hero-title">Ментальная арифметика — ясно, увлекательно, эффективно</h1>
 
         <!-- Описание -->
         <p class="hero-description">
-            Помогите своему ребенку стать более уверенным и быстрым в решении математических задач! 
-            Наши курсы ментальной арифметики помогут развить ключевые навыки для успешного обучения.
+            Тренируйте внимание, память и скорость счета в современных интерактивных упражнениях.
+            Попробуйте демо прямо сейчас — без регистрации и сложных настроек.
         </p>
 
         <!-- Приветствие для авторизованных пользователей -->
@@ -515,15 +570,19 @@
         <!-- Призыв к действию - показываем только для неавторизованных пользователей -->
         {% if not user.is_authenticated and not request.session.student_id %}
         <div class="cta-section">
-            <h3 class="cta-title">Готовы начать обучение?</h3>
+            <h3 class="cta-title">Начните с демо — затем подключайтесь к занятиям</h3>
             <div class="cta-buttons">
-                <a href="{% url 'teacher_register' %}" class="cta-button primary">
+                <a href="/simply/1/" class="cta-button primary">
+                    <i class="fas fa-play"></i>
+                    Попробовать демо
+                </a>
+                <a href="{% url 'teacher_register' %}" class="cta-button secondary">
                     <i class="fas fa-user-plus"></i>
-                    Зарегистрироваться как учитель
+                    Регистрация учителя
                 </a>
                 <a href="{% url 'teacher_login' %}" class="cta-button secondary">
                     <i class="fas fa-sign-in-alt"></i>
-                    Войти как учитель
+                    Вход для учителя
                 </a>
             </div>
         </div>

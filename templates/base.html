@@ -77,6 +77,19 @@
             overflow: visible;
         }
 
+        .modern-header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #10b981, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: gradientMove 6s ease-in-out infinite;
+            opacity: 0.9;
+        }
+
         .header-container {
             max-width: 1800px;
             margin: 0 auto;
@@ -232,6 +245,7 @@
             box-sizing: border-box;
             overflow: hidden;
             flex-shrink: 0;
+            position: relative;
         }
 
         .nav-button:hover {
@@ -241,6 +255,42 @@
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
             text-decoration: none;
         }
+        .nav-button::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 6px;
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #667eea, #10b981);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+        .nav-button:hover::after { transform: scaleX(1); }
+        .nav-button.active::after { transform: scaleX(1); }
+
+        .nav-button::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 6px;
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #667eea, #10b981);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .nav-button:hover::after { transform: scaleX(1); }
+        .nav-button.active::after { transform: scaleX(1); }
 
         .nav-button.primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -290,9 +340,9 @@
             position: absolute;
             top: 100%;
             left: 0;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            box-shadow: 0 22px 70px rgba(0, 0, 0, 0.14);
             min-width: 250px;
             max-width: calc(100vw - 40px);
             width: auto;
@@ -300,7 +350,7 @@
             visibility: hidden;
             transform: translateY(-10px);
             transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             z-index: 1000;
             box-sizing: border-box;
             overflow: visible;
@@ -993,10 +1043,9 @@
         
         /* Улучшенная кнопка выпадающего меню */
         .dropdown-trigger {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -1017,7 +1066,8 @@
         }
         
         .dropdown-trigger:hover {
-            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            background: #667eea;
+            color: white;
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
@@ -1080,7 +1130,7 @@
                   const gameLinks = dropdownContent.querySelectorAll('a[href]');
                   
                   // Получаем список доступных игр из Django контекста
-                  const availableGames = {{ available_games_list|default:"[]"|safe }};
+             const availableGames = JSON.parse('{{ available_games_list|default:"[]"|escapejs }}');
                   
                   gameLinks.forEach(link => {
                       const href = link.getAttribute('href');
@@ -1126,12 +1176,16 @@
                   });
               }
              
-             // Добавляем классы для определения типа пользователя
-             {% if user.is_authenticated and user.teacher_profile and user.teacher_profile.status == 'approved' %}
-                 document.body.classList.add('teacher-authenticated');
-             {% elif request.session.student_id %}
-                 document.body.classList.add('student-authenticated');
-             {% endif %}
+            // Подсветка активного пункта меню
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-section a.nav-button[href]')?.forEach(link => {
+                const href = link.getAttribute('href');
+                if (!href) return;
+                const isRoot = href === '/' && (currentPath === '/' || currentPath === '');
+                if (href === currentPath || isRoot) {
+                    link.classList.add('active');
+                }
+            });
              
              console.log('Dropdown elements:', {
                  dropdown: !!dropdown,
@@ -1194,7 +1248,7 @@
               // Также отмечаем доступные игры в подменю
               if (dropdownSubmenu) {
                   const submenuLinks = dropdownSubmenu.querySelectorAll('a[href]');
-                  const availableGames = {{ available_games_list|default:"[]"|safe }};
+                 const availableGames = JSON.parse('{{ available_games_list|default:"[]"|escapejs }}');
                   
                   submenuLinks.forEach(link => {
                       const href = link.getAttribute('href');
@@ -1229,9 +1283,9 @@
                   });
               }
          });
-     </script>
+    </script>
 </head>
-<body data-page="{{ request.path }}">
+<body data-page="{{ request.path }}" class="{% if user.is_authenticated and user.teacher_profile and user.teacher_profile.status == 'approved' %}teacher-authenticated{% elif request.session.student_id %}student-authenticated{% endif %}">
 
 <!-- Современный хедер -->
 <header class="modern-header">
@@ -1368,7 +1422,7 @@
                      </a>
                  {% else %}
                      <!-- Навигация для неавторизованных пользователей -->
-                     <a href="{% url 'teacher_register' %}" class="nav-button primary">
+                    <a href="{% url 'teacher_register' %}" class="nav-button">
                          <i class="fas fa-user-plus"></i>
                          Регистрация учителя
                      </a>

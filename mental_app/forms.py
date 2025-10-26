@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import TeacherProfile, Class, Students, StudentAccount, Homework, Attendance, PaymentSettings, ClassGameAccess
 import calendar
@@ -42,29 +41,21 @@ def generate_lesson_dates_from_days(month, year, days_str):
     
     return sorted(lesson_dates)
 
-class TeacherRegistrationForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=True, label='Имя')
-    last_name = forms.CharField(max_length=30, required=True, label='Фамилия')
-    email = forms.EmailField(required=True, label='Email')
-    phone = forms.CharField(max_length=15, required=False, label='Телефон')
-    school = forms.CharField(max_length=100, required=False, label='Школа')
-    subject = forms.CharField(max_length=100, required=False, label='Предмет')
-    
+class TeacherRegistrationForm(forms.ModelForm):
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = ('username', 'password')
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
+        username = self.cleaned_data['username']
+        password = self.cleaned_data['password']
+        user = User(username=username)
+        user.set_password(password)
         if commit:
             user.save()
-            TeacherProfile.objects.create(
-                user=user,
-                phone=self.cleaned_data['phone'],
-                school=self.cleaned_data['school'],
-                subject=self.cleaned_data['subject']
-            )
+            TeacherProfile.objects.create(user=user)
         return user
 
 class TeacherLoginForm(forms.Form):
