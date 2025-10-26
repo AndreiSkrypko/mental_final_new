@@ -1188,16 +1188,27 @@ def simply(request, mode):
             max_sum = max_digit  # Для однозначных: от 0 до max_digit
         elif range_key == 2:  # 10-100 (двузначные)
             min_num, max_num = 10, 100
-            max_sum = max_digit * 11  # Для двузначных: от 0 до max_digit*11 (например, для 3: 0-33)
+            # Для двузначных: максимальное число должно быть max_digit*11 (например, для 4: максимум 44)
+            actual_max_num = int(str(max_digit) + str(max_digit))  # 44 для max_digit=4
+            max_num = min(max_num, actual_max_num)  # Ограничиваем максимум
+            max_sum = actual_max_num  # Максимальная сумма равна максимальному числу
         elif range_key == 3:  # 100-1000 (трехзначные)
             min_num, max_num = 100, 1000
-            max_sum = max_digit * 111  # Для трехзначных: от 0 до max_digit*111 (например, для 3: 0-333)
+            # Для трехзначных: максимальное число должно быть max_digit*111 (например, для 4: максимум 444)
+            actual_max_num = int(str(max_digit) + str(max_digit) + str(max_digit))
+            max_num = min(max_num, actual_max_num)
+            max_sum = actual_max_num
         elif range_key == 4:  # 1000-10000 (четырехзначные)
             min_num, max_num = 1000, 10000
-            max_sum = max_digit * 1111  # Для четырехзначных: от 0 до max_digit*1111
+            # Для четырехзначных: максимальное число должно быть max_digit*1111 (например, для 4: максимум 4444)
+            actual_max_num = int(str(max_digit) + str(max_digit) + str(max_digit) + str(max_digit))
+            max_num = min(max_num, actual_max_num)
+            max_sum = actual_max_num
         else:
             min_num, max_num = 10, 100
-            max_sum = max_digit * 11
+            actual_max_num = int(str(max_digit) + str(max_digit))
+            max_num = min(max_num, actual_max_num)
+            max_sum = actual_max_num
         
         # Проверяем, нужно ли использовать логику абакуса для чисел 5-9
         if range_key == 1 and max_digit >= 5:  # Однозначные числа от 5 до 9
@@ -1232,13 +1243,30 @@ def simply(request, mode):
                 while attempts < max_attempts:
                     attempts += 1
                     
-                    # Генерируем число по разрядам
+                    # Генерируем число по разрядам с учетом ограничений max_digit
                     number = 0
+                    valid_number = True
+                    
                     for digit_pos in range(num_digits):
-                        # Выбираем случайную цифру из доступных
-                        digit = random.choice(available_digits)
+                        # Для первого разряда (самый старший) цифра не может быть 0
+                        if digit_pos == 0:
+                            # Для старшего разряда выбираем от 1 до max_digit
+                            available_first_digits = list(range(1, min(max_digit + 1, 10)))
+                        else:
+                            # Для остальных разрядов выбираем от 0 до max_digit
+                            available_first_digits = list(range(0, min(max_digit + 1, 10)))
+                        
+                        if not available_first_digits:
+                            valid_number = False
+                            break
+                            
+                        # Выбираем случайную цифру из доступных для этого разряда
+                        digit = random.choice(available_first_digits)
                         # Добавляем цифру в соответствующий разряд
                         number += digit * (10 ** (num_digits - 1 - digit_pos))
+                    
+                    if not valid_number:
+                        continue
                     
                     # Проверяем, что число попадает в нужный диапазон
                     if not (min_num <= number <= max_num):
@@ -1302,10 +1330,22 @@ def simply(request, mode):
                 current_sum = 0
                 
                 for i in range(num_examples):
-                    # Генерируем простое число
+                    # Генерируем простое число с учетом ограничений max_digit
                     number = 0
                     for digit_pos in range(num_digits):
-                        digit = random.choice(available_digits)
+                        # Для первого разряда (самый старший) цифра не может быть 0
+                        if digit_pos == 0:
+                            # Для старшего разряда выбираем от 1 до max_digit
+                            available_first_digits = list(range(1, min(max_digit + 1, 10)))
+                        else:
+                            # Для остальных разрядов выбираем от 0 до max_digit
+                            available_first_digits = list(range(0, min(max_digit + 1, 10)))
+                        
+                        if available_first_digits:
+                            digit = random.choice(available_first_digits)
+                        else:
+                            digit = 1 if digit_pos == 0 else 0  # Fallback значения
+                            
                         number += digit * (10 ** (num_digits - 1 - digit_pos))
                     
                     # Ограничиваем число диапазоном
