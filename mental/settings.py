@@ -142,6 +142,34 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
+# Кэширование для повышения производительности
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 300,  # 5 минут
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+        },
+    }
+}
+
+# Кэширование сессий
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+# Оптимизации для производительности
+CONN_MAX_AGE = 60  # Переиспользование соединений с БД
+USE_TZ = True
+
+# Оптимизация загрузки статических файлов
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+# Оптимизация шаблонов
+TEMPLATES[0]['OPTIONS']['string_if_invalid'] = ''  # Ускоряет рендеринг
+
 # Настройки аутентификации
 LOGIN_URL = '/teacher/login/'
 LOGIN_REDIRECT_URL = '/teacher/dashboard/'

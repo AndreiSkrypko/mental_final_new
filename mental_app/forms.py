@@ -4,42 +4,62 @@ from .models import TeacherProfile, Class, Students, StudentAccount, Homework, A
 import calendar
 from datetime import datetime, date
 
+# Кешированный словарь для перевода дней недели
+_DAY_MAPPING = {
+    'пн': 0, 'понедельник': 0, 'monday': 0,
+    'вт': 1, 'вторник': 1, 'tuesday': 1,
+    'ср': 2, 'среда': 2, 'wednesday': 2,
+    'чт': 3, 'четверг': 3, 'thursday': 3,
+    'пт': 4, 'пятница': 4, 'friday': 4,
+    'сб': 5, 'суббота': 5, 'saturday': 5,
+    'вс': 6, 'воскресенье': 6, 'sunday': 6
+}
+
 def generate_lesson_dates_from_days(month, year, days_str):
     """
-    Генерирует даты занятий на основе дней недели класса
+    Оптимизированная генерация дат занятий на основе дней недели класса
     days_str: строка с днями недели (например: "Пн, Ср, Пт" или "Понедельник, Среда")
     """
-    # Словарь для перевода дней недели
-    day_mapping = {
-        'пн': 0, 'понедельник': 0, 'monday': 0,
-        'вт': 1, 'вторник': 1, 'tuesday': 1,
-        'ср': 2, 'среда': 2, 'wednesday': 2,
-        'чт': 3, 'четверг': 3, 'thursday': 3,
-        'пт': 4, 'пятница': 4, 'friday': 4,
-        'сб': 5, 'суббота': 5, 'saturday': 5,
-        'вс': 6, 'воскресенье': 6, 'sunday': 6
-    }
+    # ОПТИМИЗАЦИЯ: используем кешированный словарь
+    day_mapping = _DAY_MAPPING
     
-    # Парсим дни недели
+    # Парсим дни недели с оптимизацией
     target_weekdays = set()
-    for day in days_str.lower().split(','):
-        day = day.strip()
+    days_list = [day.strip().lower() for day in days_str.split(',')]
+    
+    for day in days_list:
         if day in day_mapping:
             target_weekdays.add(day_mapping[day])
     
     if not target_weekdays:
         return []
     
-    # Получаем календарь месяца
-    cal = calendar.monthcalendar(year, month)
+    # ОПТИМИЗАЦИЯ: более эффективное создание дат
+    from datetime import date, timedelta
+    
+    # Находим первый день месяца
+    first_day = date(year, month, 1)
+    
+    # Определяем день недели первого дня (0 = понедельник)
+    first_weekday = first_day.weekday()
+    
+    # Получаем последний день месяца
+    if month == 12:
+        next_month = date(year + 1, 1, 1)
+    else:
+        next_month = date(year, month + 1, 1)
+    last_day = next_month - timedelta(days=1)
+    
     lesson_dates = []
+    current_date = first_day
     
-    for week in cal:
-        for i, day in enumerate(week):
-            if day != 0 and i in target_weekdays:
-                lesson_dates.append(day)
+    # Проходим по всем дням месяца
+    while current_date <= last_day:
+        if current_date.weekday() in target_weekdays:
+            lesson_dates.append(current_date.day)
+        current_date += timedelta(days=1)
     
-    return sorted(lesson_dates)
+    return lesson_dates
 
 class TeacherRegistrationForm(forms.ModelForm):
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput)

@@ -32,32 +32,38 @@ def handle_errors(view_func):
             return HttpResponseServerError(render(request, '500.html'))
     return wrapper
 
-# Определяем словарь диапазонов чисел
-RANGES = {
-    '1-9': list(range(1, 10)),
-    '10-19': list(range(10, 19)),
-    '20-29': list(range(20, 29)),
-    '30-70': list(range(30, 70)),
-    '80-120': list(range(80, 120)),
-    '10-99': list(range(10, 100)),
-    '100-999': list(range(100, 1000)),
-    '1000-9999': list(range(1000, 10000)),
-    '10000-99999': list(range(10000, 100000)),
-    '10': list(range(1, 10)),
-    '50': list(range(1, 50)),
-    '100': list(range(1, 100)),
-    '200': list(range(1, 200)),
-    '1000': list(range(1, 1000)),
-    'random': list(range(1, 101)),
-    'both-lower': list(range(1, 51)),
-    'one-lower-one-higher': list(range(1, 101)),
-    'both-higher': list(range(50, 151)),
-    '2-9': list(range(2, 10)),
-    "1-10": list(range(1, 10)),
-    "10-100": list(range(10, 100)),
-    "100-1000": list(range(100, 1000)),
-    "1000-10000": list(range(1000, 10000)),
-}
+# Кешированные диапазоны чисел для повышения производительности
+def _get_ranges():
+    """Возвращает кешированный словарь диапазонов чисел"""
+    if not hasattr(_get_ranges, '_cache'):
+        _get_ranges._cache = {
+            '1-9': tuple(range(1, 10)),
+            '10-19': tuple(range(10, 19)),
+            '20-29': tuple(range(20, 29)),
+            '30-70': tuple(range(30, 70)),
+            '80-120': tuple(range(80, 120)),
+            '10-99': tuple(range(10, 100)),
+            '100-999': tuple(range(100, 1000)),
+            '1000-9999': tuple(range(1000, 10000)),
+            '10000-99999': tuple(range(10000, 100000)),
+            '10': tuple(range(1, 10)),
+            '50': tuple(range(1, 50)),
+            '100': tuple(range(1, 100)),
+            '200': tuple(range(1, 200)),
+            '1000': tuple(range(1, 1000)),
+            'random': tuple(range(1, 101)),
+            'both-lower': tuple(range(1, 51)),
+            'one-lower-one-higher': tuple(range(1, 101)),
+            'both-higher': tuple(range(50, 151)),
+            '2-9': tuple(range(2, 10)),
+            "1-10": tuple(range(1, 10)),
+            "10-100": tuple(range(10, 100)),
+            "100-1000": tuple(range(100, 1000)),
+            "1000-10000": tuple(range(1000, 10000)),
+        }
+    return _get_ranges._cache
+
+RANGES = _get_ranges()
 
 
 # Обработчик главной страницы
@@ -673,7 +679,8 @@ def teacher_dashboard(request):
         if teacher_profile.status != 'approved':
             return redirect('teacher_login')
         
-        classes = Class.objects.filter(teacher=teacher_profile)
+        # Оптимизированные запросы с select_related
+        classes = Class.objects.filter(teacher=teacher_profile).select_related('teacher__user')
         total_students = Students.objects.filter(student_class__teacher=teacher_profile).count()
         
         context = {
@@ -692,7 +699,8 @@ def class_list(request):
         if teacher_profile.status != 'approved':
             return HttpResponseForbidden('Доступ запрещен')
         
-        classes = Class.objects.filter(teacher=teacher_profile)
+        # Оптимизированный запрос с select_related
+        classes = Class.objects.filter(teacher=teacher_profile).select_related('teacher__user')
         return render(request, 'class_list.html', {'classes': classes})
     except TeacherProfile.DoesNotExist:
         return HttpResponseForbidden('Доступ запрещен')
@@ -764,10 +772,12 @@ def students_list(request, class_id=None):
         
         if class_id:
             class_obj = get_object_or_404(Class, id=class_id, teacher=teacher_profile)
-            students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
+            # Оптимизированный запрос с select_related
+            students = Students.objects.filter(student_class=class_obj).select_related('student_class__teacher__user').order_by('surname', 'name')
             context = {'students': students, 'class_obj': class_obj}
         else:
-            students = Students.objects.filter(student_class__teacher=teacher_profile).order_by('surname', 'name')
+            # Оптимизированный запрос с select_related
+            students = Students.objects.filter(student_class__teacher=teacher_profile).select_related('student_class__teacher__user').order_by('surname', 'name')
             context = {'students': students}
         
         return render(request, 'students_list.html', context)
@@ -1627,12 +1637,14 @@ def delete_student_account(request, student_id):
 def homework_list(request, class_id):
     """Список домашних заданий для класса"""
     try:
-        class_obj = Class.objects.get(id=class_id)
+        # ОПТИМИЗАЦИЯ: используем select_related для класса
+        class_obj = Class.objects.select_related('teacher__user').get(id=class_id)
         # Проверяем, что учитель имеет доступ к этому классу
         if class_obj.teacher != request.user.teacher_profile:
             return HttpResponseForbidden("У вас нет доступа к этому классу")
         
-        homeworks = Homework.objects.filter(class_group=class_obj, is_active=True)
+        # ОПТИМИЗАЦИЯ: получаем домашние задания с select_related
+        homeworks = Homework.objects.filter(class_group=class_obj, is_active=True).select_related('class_group__teacher__user')
         return render(request, 'homework_list.html', {
             'class_obj': class_obj,
             'homeworks': homeworks
@@ -1751,30 +1763,38 @@ def attendance_list(request, class_id):
     if not hasattr(request.user, 'teacher_profile') or request.user.teacher_profile != class_obj.teacher:
         return HttpResponseForbidden("У вас нет доступа к этому классу")
     
-    # Получаем всех учеников класса
-    students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
+    # Получаем всех учеников класса с оптимизацией
+    students = Students.objects.filter(student_class=class_obj).select_related('student_class').order_by('surname', 'name')
     
     # Получаем все даты занятий для этого класса
     attendance_dates = Attendance.objects.filter(
         class_group=class_obj
     ).values_list('date', flat=True).distinct().order_by('date')
     
-    # Получаем данные о посещениях и оплатах
+    # ОПТИМИЗАЦИЯ: Получаем все записи посещений одним запросом
+    all_attendances = Attendance.objects.filter(
+        class_group=class_obj
+    ).select_related('student').values(
+        'student_id', 'date', 'is_present', 'is_paid'
+    )
+    
+    # Создаем словарь для быстрого доступа к данным посещений
+    attendance_lookup = {}
+    for att in all_attendances:
+        key = (att['student_id'], att['date'])
+        attendance_lookup[key] = {
+            'is_present': att['is_present'],
+            'is_paid': att['is_paid']
+        }
+    
+    # Формируем данные без дополнительных запросов к БД
     attendance_data = {}
     for student in students:
         student_attendances = {}
         for date in attendance_dates:
-            attendance = Attendance.objects.filter(
-                class_group=class_obj,
-                student=student,
-                date=date
-            ).first()
-            
-            if attendance:
-                student_attendances[date] = {
-                    'is_present': attendance.is_present,
-                    'is_paid': attendance.is_paid
-                }
+            key = (student.id, date)
+            if key in attendance_lookup:
+                student_attendances[date] = attendance_lookup[key]
         
         attendance_data[student.id] = {
             'attendances': student_attendances
@@ -2067,7 +2087,8 @@ def student_attendance_list(request):
         if not student_id:
             return redirect('student_login')
         
-        student = Students.objects.get(id=student_id)
+        # ОПТИМИЗАЦИЯ: используем select_related для избежания дополнительных запросов
+        student = Students.objects.select_related('student_class__teacher__user').get(id=student_id)
         class_obj = student.student_class
         
         # Проверяем, что у ученика есть класс
@@ -2078,11 +2099,11 @@ def student_attendance_list(request):
         # Получаем стоимость за занятие из класса
         lesson_fee = getattr(class_obj, 'lesson_fee', 0) or 0
         
-        # Получаем все посещения ученика в этом классе
+        # ОПТИМИЗАЦИЯ: получаем все посещения с select_related
         attendances = Attendance.objects.filter(
             student=student,
             class_group=class_obj
-        ).order_by('-date')
+        ).select_related('student', 'class_group').order_by('-date')
         
         # Получаем настройки оплаты для класса
         try:
@@ -2143,15 +2164,16 @@ def student_attendance_list(request):
         current_month = current_date.month
         current_year = current_date.year
         
-        # Получаем посещения за текущий месяц
-        month_attendances = attendances.filter(
+        # ОПТИМИЗАЦИЯ: получаем посещения за текущий месяц одним запросом
+        month_attendances_list = list(attendances.filter(
             date__month=current_month,
             date__year=current_year
-        )
+        ))
         
-        total_lessons = month_attendances.count()
-        attended_lessons = month_attendances.filter(is_present=True).count()
-        paid_lessons = month_attendances.filter(is_paid=True).count()
+        # Считаем статистику в Python, а не в БД
+        total_lessons = len(month_attendances_list)
+        attended_lessons = sum(1 for a in month_attendances_list if a.is_present)
+        paid_lessons = sum(1 for a in month_attendances_list if a.is_paid)
         
         # Расчет оплаты за текущий месяц по количеству занятий
         monthly_payment = 0
@@ -2345,18 +2367,19 @@ def monthly_schedule_create(request, class_id):
 def monthly_schedule_list(request, class_id):
     """Список месячных расписаний для класса"""
     try:
-        class_obj = Class.objects.get(id=class_id)
+        # ОПТИМИЗАЦИЯ: используем select_related для класса
+        class_obj = Class.objects.select_related('teacher__user').get(id=class_id)
         # Проверяем, что учитель имеет доступ к этому классу
         if class_obj.teacher != request.user.teacher_profile:
             return HttpResponseForbidden("У вас нет доступа к этому классу")
         
-        # Получаем все месячные расписания для класса
+        # ОПТИМИЗАЦИЯ: получаем все данные с select_related
         monthly_schedules = MonthlySchedule.objects.filter(
             class_group=class_obj
-        ).order_by('-year', '-month')
+        ).select_related('class_group').order_by('-year', '-month')
         
-        # Получаем всех учеников класса
-        students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
+        # Получаем всех учеников класса с оптимизацией
+        students = Students.objects.filter(student_class=class_obj).select_related('student_class').order_by('surname', 'name')
         
         # Получаем настройки оплаты
         payment_settings, created = PaymentSettings.objects.get_or_create(
