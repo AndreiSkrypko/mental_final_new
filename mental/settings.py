@@ -128,8 +128,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = os.getenv('STATIC_URL', 'static/')
+STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Добавляем WhiteNoise middleware для обслуживания статических файлов в продакшене (опционально)
+if not DEBUG:
+    # Если используете WhiteNoise для статических файлов
+    try:
+        import whitenoise
+        MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+        # Сжатие и кэширование статических файлов
+        STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    except ImportError:
+        # WhiteNoise не установлен, используем стандартные настройки
+        pass
 
 # Media files
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')

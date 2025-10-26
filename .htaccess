@@ -1,0 +1,74 @@
+# Django .htaccess для продакшена
+# Настройка для правильной работы статических файлов
+
+# Включаем mod_rewrite
+RewriteEngine On
+
+# Настройка для статических файлов Django
+# Если запрос к файлу /static/, проверяем сначала в staticfiles/, затем в static/
+RewriteCond %{REQUEST_URI} ^/static/(.*)$ [NC]
+RewriteCond %{DOCUMENT_ROOT}/staticfiles/%1 -f
+RewriteRule ^static/(.*)$ /staticfiles/$1 [L]
+
+RewriteCond %{REQUEST_URI} ^/static/(.*)$ [NC]
+RewriteCond %{DOCUMENT_ROOT}/static/%1 -f
+RewriteRule ^static/(.*)$ /static/$1 [L]
+
+# Настройка для медиа файлов
+RewriteCond %{REQUEST_URI} ^/media/(.*)$ [NC]
+RewriteCond %{DOCUMENT_ROOT}/media/%1 -f
+RewriteRule ^media/(.*)$ /media/$1 [L]
+
+# Все остальные запросы направляем к Django через passenger_wsgi.py
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /mental/passenger_wsgi.py/$1 [QSA,L]
+
+# Настройки кэширования для статических файлов
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # CSS и JavaScript кэшируем на месяц
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    
+    # Изображения кэшируем на год
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType image/vnd.microsoft.icon "access plus 1 year"
+    
+    # Шрифты кэшируем на год
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>
+
+# Сжатие файлов для экономии трафика
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE text/javascript
+</IfModule>
+
+# Безопасность - запрещаем доступ к служебным файлам Django
+<FilesMatch "\.(py|pyc|pyo|db|sqlite3|log)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Запрещаем доступ к папкам с настройками
+RedirectMatch 404 /\..*$
+RedirectMatch 404 /__pycache__/.*$
