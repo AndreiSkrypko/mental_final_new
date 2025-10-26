@@ -86,7 +86,7 @@
             height: 3px;
             background: linear-gradient(90deg, #667eea, #10b981, #764ba2, #667eea);
             background-size: 200% 100%;
-            animation: gradientMove 6s ease-in-out infinite;
+            /* animation: gradientMove 6s ease-in-out infinite; УДАЛЕНО - бесконечная анимация! */
             opacity: 0.9;
         }
 
@@ -118,7 +118,8 @@
         }
 
         .logo-section:hover {
-            transform: translateX(5px);
+            /* transform: translateX(5px); УДАЛЕНО - тяжелая анимация */
+            opacity: 0.9;
         }
 
         .logo-icon {
@@ -154,8 +155,8 @@
         }
 
         .logo-icon:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            /* transform: translateY(-2px) scale(1.05); УДАЛЕНО - тяжелая анимация */
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
             border-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -165,8 +166,8 @@
         }
 
         .logo-icon:hover i {
-            transform: scale(1.1);
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            /* transform: scale(1.1); УДАЛЕНО - тяжелая анимация */
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
         }
 
         .logo-text h1 {
@@ -251,8 +252,8 @@
         .nav-button:hover {
             background: #667eea;
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            /* transform: translateY(-2px); УДАЛЕНО - тяжелая анимация */
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
             text-decoration: none;
         }
         .nav-button::after {
@@ -300,8 +301,8 @@
         }
 
         .nav-button.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            /* transform: translateY(-2px); УДАЛЕНО - тяжелая анимация */
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
         }
 
         .nav-button.logout {
@@ -578,7 +579,7 @@
         }
 
         .modern-header {
-            animation: fadeInDown 0.6s ease-out;
+            /* animation: fadeInDown 0.6s ease-out; УДАЛЕНО для производительности */
         }
 
         /* Дополнительные эффекты */
@@ -630,8 +631,8 @@
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            /* transform: translateY(-2px); УДАЛЕНО - тяжелая анимация */
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
             color: white;
             text-decoration: none;
         }
@@ -645,7 +646,7 @@
         .btn-secondary:hover {
             background: #6c757d;
             color: white;
-            transform: translateY(-2px);
+            /* transform: translateY(-2px); УДАЛЕНО - тяжелая анимация */
             text-decoration: none;
         }
 
@@ -656,8 +657,8 @@
         }
 
         .btn-info:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
+            /* transform: translateY(-2px); УДАЛЕНО - тяжелая анимация */
+            box-shadow: 0 6px 20px rgba(23, 162, 184, 0.35);
             color: white;
             text-decoration: none;
         }
@@ -669,8 +670,8 @@
         }
 
         .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+            /* transform: translateY(-2px); УДАЛЕНО - тяжелая анимация */
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.35);
             color: white;
             text-decoration: none;
         }

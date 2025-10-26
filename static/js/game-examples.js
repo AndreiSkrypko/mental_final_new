@@ -1,33 +1,19 @@
 // Универсальные функции для показа примеров в играх
 
-// Функция для переключения видимости примера вычислений
+// ОПТИМИЗИРОВАННАЯ функция для переключения видимости примера (убраны тяжелые анимации)
 function toggleGameExample() {
     const exampleBlock = document.getElementById('exampleBlock');
     const showExampleBtn = document.getElementById('showExampleBtn');
     
     if (exampleBlock && showExampleBtn) {
         if (exampleBlock.style.display === 'none' || exampleBlock.style.display === '') {
-            // Показываем пример
+            // Показываем пример - мгновенно!
             exampleBlock.style.display = 'block';
             showExampleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Скрыть пример';
-            
-            // Анимация появления
-            exampleBlock.style.opacity = '0';
-            exampleBlock.style.transform = 'translateY(-10px)';
-            setTimeout(() => {
-                exampleBlock.style.transition = 'all 0.3s ease';
-                exampleBlock.style.opacity = '1';
-                exampleBlock.style.transform = 'translateY(0)';
-            }, 10);
         } else {
-            // Скрываем пример
-            exampleBlock.style.transition = 'all 0.3s ease';
-            exampleBlock.style.opacity = '0';
-            exampleBlock.style.transform = 'translateY(-10px)';
-            setTimeout(() => {
-                exampleBlock.style.display = 'none';
-                showExampleBtn.innerHTML = '<i class="fas fa-eye"></i> Показать пример вычислений';
-            }, 300);
+            // Скрываем пример - мгновенно!
+            exampleBlock.style.display = 'none';
+            showExampleBtn.innerHTML = '<i class="fas fa-eye"></i> Показать пример вычислений';
         }
     }
 }
