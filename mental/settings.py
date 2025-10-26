@@ -193,9 +193,29 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = False
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
-    # Cookie settings (отключаем для локального тестирования)
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
+    # Cookie settings для продакшена
+    # Если используете HTTPS, установите в True
+    CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    
+    # Дополнительные настройки CSRF для продакшена
+    CSRF_COOKIE_HTTPONLY = False  # Позволяет JavaScript работать с CSRF токеном
+    CSRF_COOKIE_SAMESITE = 'Lax'  # Защита от CSRF атак
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # Доверенные origins для CSRF (добавьте ваш домен)
+    CSRF_TRUSTED_ORIGINS = [
+        'http://localhost',
+        'http://127.0.0.1',
+    ]
+    
+    # Если у вас есть домен, добавьте его:
+    domain = os.getenv('MAIN_DOMAIN', '')
+    if domain:
+        CSRF_TRUSTED_ORIGINS.extend([
+            f'http://{domain}',
+            f'https://{domain}',
+        ])
     
     # Security headers
     SECURE_BROWSER_XSS_FILTER = True

@@ -1,7 +1,10 @@
 # Django settings для продакшена
 DEBUG=False
 SECRET_KEY=django-insecure-q9)jf0!)5m)46zs1qw)=_*q7$wt@&z47*b(7&fpx-i_yn$vxcv
-ALLOWED_HOSTS=localhost,127.0.0.1,ваш-домен.com
+
+# ВАЖНО: Замените на ваш реальный домен!
+ALLOWED_HOSTS=localhost,127.0.0.1,ваш-домен.com,vh141.hostenko.ua
+MAIN_DOMAIN=vh141.hostenko.ua
 
 # Database settings
 DATABASE_URL=sqlite:///db.sqlite3
