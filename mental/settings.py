@@ -32,11 +32,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-q9)jf0!)5m)46zs1qw)=_*q7$wt@&z47*b(7&fpx-i_yn$vxcv')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+# В продакшене обязательно DEBUG=False!
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 # Настройка разрешенных хостов для продакшена
-default_hosts = 'localhost,127.0.0.1,mental.robotlida.by'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default_hosts).split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,mental.robotlida.by').split(',')
 
 
 # Application definition
