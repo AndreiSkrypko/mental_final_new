@@ -2,9 +2,9 @@
 DEBUG=False
 SECRET_KEY=django-insecure-q9)jf0!)5m)46zs1qw)=_*q7$wt@&z47*b(7&fpx-i_yn$vxcv
 
-# ВАЖНО: Замените на ваш реальный домен!
-ALLOWED_HOSTS=localhost,127.0.0.1,ваш-домен.com,vh141.hostenko.ua
-MAIN_DOMAIN=vh141.hostenko.ua
+# Домен продакшена
+ALLOWED_HOSTS=localhost,127.0.0.1,mental.robotlida.by
+MAIN_DOMAIN=mental.robotlida.by
 
 # Database settings
 DATABASE_URL=sqlite:///db.sqlite3
@@ -13,7 +13,8 @@ DATABASE_URL=sqlite:///db.sqlite3
 STATIC_URL=/static/
 MEDIA_URL=/media/
 
-# Security settings
+# Security settings - FALSE для HTTP, TRUE для HTTPS
+# Если у вас есть SSL сертификат, установите True
 CSRF_COOKIE_SECURE=False
 SESSION_COOKIE_SECURE=False
 SECURE_BROWSER_XSS_FILTER=True

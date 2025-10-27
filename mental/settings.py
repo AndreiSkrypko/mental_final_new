@@ -34,7 +34,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-q9)jf0!)5m)46zs1qw)=_*q7$w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Настройка разрешенных хостов для продакшена
+default_hosts = 'localhost,127.0.0.1,mental.robotlida.by'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default_hosts).split(',')
 
 
 # Application definition
@@ -194,7 +196,7 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
     # Cookie settings для продакшена
-    # Если используете HTTPS, установите в True
+    # FALSE для HTTP (без SSL), TRUE для HTTPS (со SSL)
     CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
     SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
     
@@ -203,15 +205,17 @@ if not DEBUG:
     CSRF_COOKIE_SAMESITE = 'Lax'  # Защита от CSRF атак
     SESSION_COOKIE_SAMESITE = 'Lax'
     
-    # Доверенные origins для CSRF (добавьте ваш домен)
+    # Доверенные origins для CSRF - добавляем домен
     CSRF_TRUSTED_ORIGINS = [
         'http://localhost',
         'http://127.0.0.1',
+        'http://mental.robotlida.by',
+        'https://mental.robotlida.by',
     ]
     
-    # Если у вас есть домен, добавьте его:
+    # Дополнительно из переменной окружения если есть
     domain = os.getenv('MAIN_DOMAIN', '')
-    if domain:
+    if domain and f'http://{domain}' not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.extend([
             f'http://{domain}',
             f'https://{domain}',
