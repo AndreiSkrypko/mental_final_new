@@ -1244,17 +1244,14 @@ def simply(request, mode):
                     attempts += 1
                     
                     # Генерируем число по разрядам с учетом ограничений max_digit
+                    # Согласно описанию настройки: "Числа будут состоять только из цифр от 1 до выбранного значения"
                     number = 0
                     valid_number = True
                     
                     for digit_pos in range(num_digits):
-                        # Для первого разряда (самый старший) цифра не может быть 0
-                        if digit_pos == 0:
-                            # Для старшего разряда выбираем от 1 до max_digit
-                            available_first_digits = list(range(1, min(max_digit + 1, 10)))
-                        else:
-                            # Для остальных разрядов выбираем от 0 до max_digit
-                            available_first_digits = list(range(0, min(max_digit + 1, 10)))
+                        # Для всех разрядов выбираем только цифры от 1 до max_digit
+                        # (цифра 0 не используется, чтобы соответствовать описанию настройки)
+                        available_first_digits = list(range(1, min(max_digit + 1, 10)))
                         
                         if not available_first_digits:
                             valid_number = False
@@ -1333,18 +1330,14 @@ def simply(request, mode):
                     # Генерируем простое число с учетом ограничений max_digit
                     number = 0
                     for digit_pos in range(num_digits):
-                        # Для первого разряда (самый старший) цифра не может быть 0
-                        if digit_pos == 0:
-                            # Для старшего разряда выбираем от 1 до max_digit
-                            available_first_digits = list(range(1, min(max_digit + 1, 10)))
-                        else:
-                            # Для остальных разрядов выбираем от 0 до max_digit
-                            available_first_digits = list(range(0, min(max_digit + 1, 10)))
+                        # Для всех разрядов выбираем только цифры от 1 до max_digit
+                        # (согласно описанию настройки: "Числа будут состоять только из цифр от 1 до выбранного значения")
+                        available_first_digits = list(range(1, min(max_digit + 1, 10)))
                         
                         if available_first_digits:
                             digit = random.choice(available_first_digits)
                         else:
-                            digit = 1 if digit_pos == 0 else 0  # Fallback значения
+                            digit = 1  # Fallback значение (минимальная цифра)
                             
                         number += digit * (10 ** (num_digits - 1 - digit_pos))
                     
