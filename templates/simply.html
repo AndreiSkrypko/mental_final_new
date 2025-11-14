@@ -4,6 +4,50 @@
 
 {% block mycss %}
 <style>
+    /* КРИТИЧЕСКИЙ CSS - загружается первым для режима показа чисел (mode 5) */
+    /* Это предотвращает белый экран при загрузке страницы */
+    .number-display-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .current-number-huge {
+        font-size: 30vw;
+        font-weight: bold;
+        margin: 2vh 0;
+        text-shadow: 0 0 60px rgba(255,255,255,0.6);
+        padding: 0;
+        background: none;
+        border-radius: 0;
+        backdrop-filter: none;
+        line-height: 1;
+        animation: numberAppear 0.5s ease-out;
+    }
+    
+    @keyframes numberAppear {
+        from { 
+            opacity: 0; 
+            transform: scale(0.8); 
+        }
+        to { 
+            opacity: 1; 
+            transform: scale(1); 
+        }
+    }
+    
     /* Основные стили для игры */
     .game-container {
         min-height: 100vh;
@@ -930,23 +974,7 @@
          to { transform: scale(1.05); }
      }
      
-     .number-display-fullscreen {
-         position: fixed;
-         top: 0;
-         left: 0;
-         width: 100vw;
-         height: 100vh;
-         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         z-index: 9999;
-         margin: 0;
-         padding: 0;
-         border: none;
-         border-radius: 0;
-         box-shadow: none;
-     }
+     /* .number-display-fullscreen уже определен выше в критическом CSS */
      
      .number-content {
          text-align: center;
@@ -981,29 +1009,7 @@
          transition: width 0.3s ease;
      }
      
-     .current-number-huge {
-         font-size: 30vw;
-         font-weight: bold;
-         margin: 2vh 0;
-         text-shadow: 0 0 60px rgba(255,255,255,0.6);
-         padding: 0;
-         background: none;
-         border-radius: 0;
-         backdrop-filter: none;
-         line-height: 1;
-         animation: numberAppear 0.5s ease-out;
-     }
-     
-     @keyframes numberAppear {
-         from { 
-             opacity: 0; 
-             transform: scale(0.8); 
-         }
-         to { 
-             opacity: 1; 
-             transform: scale(1); 
-         }
-     }
+     /* .current-number-huge и @keyframes numberAppear уже определены выше в критическом CSS */
      
      .game-controls-mini {
          margin-top: 2vh;
@@ -1635,7 +1641,7 @@
                 Выйти из игры
             </button>
             
-            <div class="number-display-fullscreen">
+            <div class="number-display-fullscreen" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999;">
                 <div class="number-content">
                     <div class="number-counter-mini">Число {{ current_index }} из {{ total_count }}</div>
                     <div class="progress-bar-mini">
@@ -1648,16 +1654,24 @@
                      
                      <script>
                          // Озвучиваем число при его показе
-                         const currentNumberForAudio = parseInt('{{ current_number|default:0 }}');
-                         if (currentNumberForAudio !== 0) {
-                             // Небольшая задержка для лучшего восприятия
-                             setTimeout(() => {
-                                 speakNumber(currentNumberForAudio);
-                             }, 100);
-                         }
-                         
-                         // Звуковой эффект для кнопки "Следующее число"
+                         // Используем DOMContentLoaded и requestAnimationFrame для синхронизации с визуальным рендерингом
                          document.addEventListener('DOMContentLoaded', function() {
+                             const currentNumberForAudio = parseInt('{{ current_number|default:0 }}');
+                             const numberElement = document.querySelector('.current-number-huge');
+                             
+                             if (currentNumberForAudio !== 0 && numberElement) {
+                                 // Ждем полного рендеринга элемента и применения стилей
+                                 requestAnimationFrame(() => {
+                                     // Еще один кадр для гарантии, что стили применены и элемент виден
+                                     requestAnimationFrame(() => {
+                                         // Запускаем озвучку одновременно с началом анимации появления (0ms)
+                                         // Анимация numberAppear длится 0.5s, озвучка начнется сразу при появлении
+                                         speakNumber(currentNumberForAudio);
+                                     });
+                                 });
+                             }
+                             
+                             // Звуковой эффект для кнопки "Следующее число"
                              const nextBtn = document.getElementById('nextNumberBtn');
                              if (nextBtn) {
                                  nextBtn.addEventListener('click', function() {
