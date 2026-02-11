@@ -2,6 +2,7 @@ import random
 import time
 import logging
 from datetime import datetime
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -2940,4 +2941,17 @@ def brothers_game(request):
     if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
         return redirect('student_login')
     
-    return render(request, 'brothers_game.html')
+    # Цепочка примеров для Брат 4 (64 примера × 8 чисел)
+    brother4_chain = ''
+    chain_path = settings.BASE_DIR / 'цепочка_примеров_брат4.txt'
+    if chain_path.exists():
+        with open(chain_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother4_chain = line
+                    break
+    
+    return render(request, 'brothers_game.html', {
+        'brother4_chain': brother4_chain,
+    })
