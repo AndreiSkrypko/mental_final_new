@@ -850,8 +850,9 @@ function applyBrotherMethod(number, brother, digitRange) {
 function startSession({ brother, digitRange, count, speedSec }) {
     const tasks = [];
     
-    // Брат 4: используем цепочку из файла, стартуем только с позиций обнуления (0, 8, 16, ...)
-    if (brother === 4 && BROTHER4_CHAIN.length > 0) {
+    // Брат 4, однозначные (1..10): используем цепочку из файла, стартуем только с позиций обнуления (0, 8, 16, ...)
+    // Для двузначных и выше (10..100, 100..1000, 1000..10000) — своя логика, см. ниже
+    if (brother === 4 && digitRange === '1..10' && BROTHER4_CHAIN.length > 0) {
         const zeroPoints = getBrother4ZeroPoints();
         if (zeroPoints.length > 0) {
             const startIndex = getNextBrother4StartIndex();
@@ -1146,7 +1147,7 @@ function showAnswerScreen() {
     const answerScreen = document.getElementById('answerScreen');
     answerScreen.style.display = 'flex';
     
-    const isBrother4Chain = gameState.brother === 4 && BROTHER4_CHAIN.length > 0;
+    const isBrother4Chain = gameState.brother === 4 && gameState.digitRange === '1..10' && BROTHER4_CHAIN.length > 0;
     const instructionText = isBrother4Chain
         ? 'Вспомните все числа, которые вы видели, и введите их сумму:'
         : 'Вспомните все числа, которые вы видели, примените к каждому метод выбранного брата и введите общую сумму результатов:';
