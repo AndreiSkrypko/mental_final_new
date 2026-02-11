@@ -761,7 +761,31 @@
 </button>
 
 <script>
-// Цепочка примеров для Брат 4 (из файла цепочка_примеров_брат4.txt)
+// Цепочка примеров для Брат 1 однозначные (из файла цепочка_примеров_брат1.txt)
+const BROTHER1_CHAIN = (function() {
+    const raw = {% if brother1_chain %}"{{ brother1_chain|escapejs }}"{% else %}""{% endif %};
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+/g);
+    return matches ? matches.map(s => parseInt(s, 10)) : [];
+})();
+
+// Цепочка примеров для Брат 2 однозначные (из файла цепочка_примеров_брат2.txt)
+const BROTHER2_CHAIN = (function() {
+    const raw = {% if brother2_chain %}"{{ brother2_chain|escapejs }}"{% else %}""{% endif %};
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+/g);
+    return matches ? matches.map(s => parseInt(s, 10)) : [];
+})();
+
+// Цепочка примеров для Брат 3 однозначные (из файла цепочка_примеров_брат3.txt)
+const BROTHER3_CHAIN = (function() {
+    const raw = {% if brother3_chain %}"{{ brother3_chain|escapejs }}"{% else %}""{% endif %};
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+/g);
+    return matches ? matches.map(s => parseInt(s, 10)) : [];
+})();
+
+// Цепочка примеров для Брат 4 однозначные (из файла цепочка_примеров_брат4.txt)
 const BROTHER4_CHAIN = (function() {
     const raw = {% if brother4_chain %}"{{ brother4_chain|escapejs }}"{% else %}""{% endif %};
     if (!raw) return [];
@@ -769,19 +793,128 @@ const BROTHER4_CHAIN = (function() {
     return matches ? matches.map(s => parseInt(s, 10)) : [];
 })();
 
+// Цепочка примеров для Брат 1 двузначные (из файла цепочка_примеров_брат1_двузначные.txt)
+const BROTHER1_CHAIN_DVUZNACH = (function() {
+    const raw = {% if brother1_chain_dvuznach %}"{{ brother1_chain_dvuznach|escapejs }}"{% else %}""{% endif %};
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+/g);
+    return matches ? matches.map(s => parseInt(s, 10)) : [];
+})();
+
+// Цепочка примеров для Брат 2 двузначные (из файла цепочка_примеров_брат2_двузначные.txt)
+const BROTHER2_CHAIN_DVUZNACH = (function() {
+    const raw = {% if brother2_chain_dvuznach %}"{{ brother2_chain_dvuznach|escapejs }}"{% else %}""{% endif %};
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+/g);
+    return matches ? matches.map(s => parseInt(s, 10)) : [];
+})();
+
+// Цепочка примеров для Брат 3 двузначные (из файла цепочка_примеров_брат3_двузначные.txt)
+const BROTHER3_CHAIN_DVUZNACH = (function() {
+    const raw = {% if brother3_chain_dvuznach %}"{{ brother3_chain_dvuznach|escapejs }}"{% else %}""{% endif %};
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+/g);
+    return matches ? matches.map(s => parseInt(s, 10)) : [];
+})();
+
+// Цепочка примеров для Брат 4 двузначные (из файла цепочка_примеров_брат4_двузначные.txt)
+const BROTHER4_CHAIN_DVUZNACH = (function() {
+    const raw = {% if brother4_chain_dvuznach %}"{{ brother4_chain_dvuznach|escapejs }}"{% else %}""{% endif %};
+    if (!raw) return [];
+    const matches = raw.match(/[+-]\d+/g);
+    return matches ? matches.map(s => parseInt(s, 10)) : [];
+})();
+
 // Индексы "обнуления" в цепочке (каждые 8 чисел: 0, 8, 16, ...)
-function getBrother4ZeroPoints() {
+function getBrother4ZeroPoints(chain) {
     const points = [];
-    for (let i = 0; i < BROTHER4_CHAIN.length; i += 8) {
+    for (let i = 0; i < chain.length; i += 8) {
         points.push(i);
     }
     return points;
 }
 
-// Получить следующий стартовый индекс для новой игры (последовательно)
+// Получить следующий стартовый индекс для новой игры — Брат 1 однозначные (последовательно)
+function getNextBrother1StartIndex() {
+    const STORAGE_KEY = 'brothers_brother1_nextStart';
+    const zeroPoints = getBrother4ZeroPoints(BROTHER1_CHAIN);
+    let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    if (nextIdx >= zeroPoints.length) nextIdx = 0;
+    const start = zeroPoints[nextIdx];
+    sessionStorage.setItem(STORAGE_KEY, String(nextIdx + 1));
+    return start;
+}
+
+// Получить следующий стартовый индекс для новой игры — Брат 2 однозначные (последовательно)
+function getNextBrother2StartIndex() {
+    const STORAGE_KEY = 'brothers_brother2_nextStart';
+    const zeroPoints = getBrother4ZeroPoints(BROTHER2_CHAIN);
+    let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    if (nextIdx >= zeroPoints.length) nextIdx = 0;
+    const start = zeroPoints[nextIdx];
+    sessionStorage.setItem(STORAGE_KEY, String(nextIdx + 1));
+    return start;
+}
+
+// Получить следующий стартовый индекс для новой игры — Брат 3 однозначные (последовательно)
+function getNextBrother3StartIndex() {
+    const STORAGE_KEY = 'brothers_brother3_nextStart';
+    const zeroPoints = getBrother4ZeroPoints(BROTHER3_CHAIN);
+    let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    if (nextIdx >= zeroPoints.length) nextIdx = 0;
+    const start = zeroPoints[nextIdx];
+    sessionStorage.setItem(STORAGE_KEY, String(nextIdx + 1));
+    return start;
+}
+
+// Получить следующий стартовый индекс для новой игры — Брат 4 однозначные (последовательно)
 function getNextBrother4StartIndex() {
     const STORAGE_KEY = 'brothers_brother4_nextStart';
-    const zeroPoints = getBrother4ZeroPoints();
+    const zeroPoints = getBrother4ZeroPoints(BROTHER4_CHAIN);
+    let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    if (nextIdx >= zeroPoints.length) nextIdx = 0;
+    const start = zeroPoints[nextIdx];
+    sessionStorage.setItem(STORAGE_KEY, String(nextIdx + 1));
+    return start;
+}
+
+// Получить следующий стартовый индекс для новой игры — Брат 1 двузначные (последовательно)
+function getNextBrother1DvuznachStartIndex() {
+    const STORAGE_KEY = 'brothers_brother1_dvuznach_nextStart';
+    const zeroPoints = getBrother4ZeroPoints(BROTHER1_CHAIN_DVUZNACH);
+    let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    if (nextIdx >= zeroPoints.length) nextIdx = 0;
+    const start = zeroPoints[nextIdx];
+    sessionStorage.setItem(STORAGE_KEY, String(nextIdx + 1));
+    return start;
+}
+
+// Получить следующий стартовый индекс для новой игры — Брат 2 двузначные (последовательно)
+function getNextBrother2DvuznachStartIndex() {
+    const STORAGE_KEY = 'brothers_brother2_dvuznach_nextStart';
+    const zeroPoints = getBrother4ZeroPoints(BROTHER2_CHAIN_DVUZNACH);
+    let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    if (nextIdx >= zeroPoints.length) nextIdx = 0;
+    const start = zeroPoints[nextIdx];
+    sessionStorage.setItem(STORAGE_KEY, String(nextIdx + 1));
+    return start;
+}
+
+// Получить следующий стартовый индекс для новой игры — Брат 3 двузначные (последовательно)
+function getNextBrother3DvuznachStartIndex() {
+    const STORAGE_KEY = 'brothers_brother3_dvuznach_nextStart';
+    const zeroPoints = getBrother4ZeroPoints(BROTHER3_CHAIN_DVUZNACH);
+    let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    if (nextIdx >= zeroPoints.length) nextIdx = 0;
+    const start = zeroPoints[nextIdx];
+    sessionStorage.setItem(STORAGE_KEY, String(nextIdx + 1));
+    return start;
+}
+
+// Получить следующий стартовый индекс для новой игры — Брат 4 двузначные (последовательно)
+function getNextBrother4DvuznachStartIndex() {
+    const STORAGE_KEY = 'brothers_brother4_dvuznach_nextStart';
+    const zeroPoints = getBrother4ZeroPoints(BROTHER4_CHAIN_DVUZNACH);
     let nextIdx = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
     if (nextIdx >= zeroPoints.length) nextIdx = 0;
     const start = zeroPoints[nextIdx];
@@ -850,10 +983,104 @@ function applyBrotherMethod(number, brother, digitRange) {
 function startSession({ brother, digitRange, count, speedSec }) {
     const tasks = [];
     
+    // Брат 1, однозначные (1..10): используем цепочку из файла, стартуем только с позиций обнуления (0, 8, 16, ...)
+    if (brother === 1 && digitRange === '1..10' && BROTHER1_CHAIN.length > 0) {
+        const zeroPoints = getBrother4ZeroPoints(BROTHER1_CHAIN);
+        if (zeroPoints.length > 0) {
+            const startIndex = getNextBrother1StartIndex();
+            const numbers = BROTHER1_CHAIN.slice(startIndex, startIndex + count);
+            if (numbers.length > 0) {
+                return numbers.map((n) => ({
+                    displayNumber: n >= 0 ? '+' + n : '' + n,
+                    originalNumber: n,
+                    correctAnswer: n,
+                    steps: [n],
+                    usedBrotherMethod: false
+                }));
+            }
+        }
+        console.warn('Брат 1 однозначные: цепочка пуста, используем стандартную логику');
+    }
+    
+    // Брат 1, двузначные (10..100): используем цепочку двузначных, стартуем только с позиций обнуления
+    if (brother === 1 && digitRange === '10..100' && BROTHER1_CHAIN_DVUZNACH.length > 0) {
+        const zeroPoints = getBrother4ZeroPoints(BROTHER1_CHAIN_DVUZNACH);
+        if (zeroPoints.length > 0) {
+            const startIndex = getNextBrother1DvuznachStartIndex();
+            const numbers = BROTHER1_CHAIN_DVUZNACH.slice(startIndex, startIndex + count);
+            if (numbers.length > 0) {
+                return numbers.map((n) => ({
+                    displayNumber: n >= 0 ? '+' + n : '' + n,
+                    originalNumber: n,
+                    correctAnswer: n,
+                    steps: [n],
+                    usedBrotherMethod: false
+                }));
+            }
+        }
+        console.warn('Брат 1 двузначные: цепочка пуста, используем стандартную логику');
+    }
+    
+    // Брат 2, однозначные (1..10): используем цепочку из файла, стартуем только с позиций обнуления (0, 8, 16, ...)
+    if (brother === 2 && digitRange === '1..10' && BROTHER2_CHAIN.length > 0) {
+        const zeroPoints = getBrother4ZeroPoints(BROTHER2_CHAIN);
+        if (zeroPoints.length > 0) {
+            const startIndex = getNextBrother2StartIndex();
+            const numbers = BROTHER2_CHAIN.slice(startIndex, startIndex + count);
+            if (numbers.length > 0) {
+                return numbers.map((n) => ({
+                    displayNumber: n >= 0 ? '+' + n : '' + n,
+                    originalNumber: n,
+                    correctAnswer: n,
+                    steps: [n],
+                    usedBrotherMethod: false
+                }));
+            }
+        }
+        console.warn('Брат 2 однозначные: цепочка пуста, используем стандартную логику');
+    }
+    
+    // Брат 2, двузначные (10..100): используем цепочку двузначных, стартуем только с позиций обнуления
+    if (brother === 2 && digitRange === '10..100' && BROTHER2_CHAIN_DVUZNACH.length > 0) {
+        const zeroPoints = getBrother4ZeroPoints(BROTHER2_CHAIN_DVUZNACH);
+        if (zeroPoints.length > 0) {
+            const startIndex = getNextBrother2DvuznachStartIndex();
+            const numbers = BROTHER2_CHAIN_DVUZNACH.slice(startIndex, startIndex + count);
+            if (numbers.length > 0) {
+                return numbers.map((n) => ({
+                    displayNumber: n >= 0 ? '+' + n : '' + n,
+                    originalNumber: n,
+                    correctAnswer: n,
+                    steps: [n],
+                    usedBrotherMethod: false
+                }));
+            }
+        }
+        console.warn('Брат 2 двузначные: цепочка пуста, используем стандартную логику');
+    }
+    
+    // Брат 3, однозначные (1..10): используем цепочку из файла, стартуем только с позиций обнуления (0, 8, 16, ...)
+    if (brother === 3 && digitRange === '1..10' && BROTHER3_CHAIN.length > 0) {
+        const zeroPoints = getBrother4ZeroPoints(BROTHER3_CHAIN);
+        if (zeroPoints.length > 0) {
+            const startIndex = getNextBrother3StartIndex();
+            const numbers = BROTHER3_CHAIN.slice(startIndex, startIndex + count);
+            if (numbers.length > 0) {
+                return numbers.map((n) => ({
+                    displayNumber: n >= 0 ? '+' + n : '' + n,
+                    originalNumber: n,
+                    correctAnswer: n,
+                    steps: [n],
+                    usedBrotherMethod: false
+                }));
+            }
+        }
+        console.warn('Брат 3 однозначные: цепочка пуста, используем стандартную логику');
+    }
+    
     // Брат 4, однозначные (1..10): используем цепочку из файла, стартуем только с позиций обнуления (0, 8, 16, ...)
-    // Для двузначных и выше (10..100, 100..1000, 1000..10000) — своя логика, см. ниже
     if (brother === 4 && digitRange === '1..10' && BROTHER4_CHAIN.length > 0) {
-        const zeroPoints = getBrother4ZeroPoints();
+        const zeroPoints = getBrother4ZeroPoints(BROTHER4_CHAIN);
         if (zeroPoints.length > 0) {
             const startIndex = getNextBrother4StartIndex();
             const numbers = BROTHER4_CHAIN.slice(startIndex, startIndex + count);
@@ -867,7 +1094,45 @@ function startSession({ brother, digitRange, count, speedSec }) {
                 }));
             }
         }
-        console.warn('Брат 4: цепочка пуста или некорректна, используем стандартную логику');
+        console.warn('Брат 4 однозначные: цепочка пуста, используем стандартную логику');
+    }
+    
+    // Брат 3, двузначные (10..100): используем цепочку двузначных, стартуем только с позиций обнуления
+    if (brother === 3 && digitRange === '10..100' && BROTHER3_CHAIN_DVUZNACH.length > 0) {
+        const zeroPoints = getBrother4ZeroPoints(BROTHER3_CHAIN_DVUZNACH);
+        if (zeroPoints.length > 0) {
+            const startIndex = getNextBrother3DvuznachStartIndex();
+            const numbers = BROTHER3_CHAIN_DVUZNACH.slice(startIndex, startIndex + count);
+            if (numbers.length > 0) {
+                return numbers.map((n) => ({
+                    displayNumber: n >= 0 ? '+' + n : '' + n,
+                    originalNumber: n,
+                    correctAnswer: n,
+                    steps: [n],
+                    usedBrotherMethod: false
+                }));
+            }
+        }
+        console.warn('Брат 3 двузначные: цепочка пуста, используем стандартную логику');
+    }
+    
+    // Брат 4, двузначные (10..100): используем цепочку двузначных, стартуем только с позиций обнуления
+    if (brother === 4 && digitRange === '10..100' && BROTHER4_CHAIN_DVUZNACH.length > 0) {
+        const zeroPoints = getBrother4ZeroPoints(BROTHER4_CHAIN_DVUZNACH);
+        if (zeroPoints.length > 0) {
+            const startIndex = getNextBrother4DvuznachStartIndex();
+            const numbers = BROTHER4_CHAIN_DVUZNACH.slice(startIndex, startIndex + count);
+            if (numbers.length > 0) {
+                return numbers.map((n) => ({
+                    displayNumber: n >= 0 ? '+' + n : '' + n,
+                    originalNumber: n,
+                    correctAnswer: n,
+                    steps: [n],
+                    usedBrotherMethod: false
+                }));
+            }
+        }
+        console.warn('Брат 4 двузначные: цепочка пуста, используем стандартную логику');
     }
     
     const ranges = {
@@ -1147,8 +1412,22 @@ function showAnswerScreen() {
     const answerScreen = document.getElementById('answerScreen');
     answerScreen.style.display = 'flex';
     
-    const isBrother4Chain = gameState.brother === 4 && gameState.digitRange === '1..10' && BROTHER4_CHAIN.length > 0;
-    const instructionText = isBrother4Chain
+    const isBrotherChain = (gameState.brother === 1 && (
+            (gameState.digitRange === '1..10' && BROTHER1_CHAIN.length > 0) ||
+            (gameState.digitRange === '10..100' && BROTHER1_CHAIN_DVUZNACH.length > 0)
+        )) ||
+        (gameState.brother === 2 && (
+            (gameState.digitRange === '1..10' && BROTHER2_CHAIN.length > 0) ||
+            (gameState.digitRange === '10..100' && BROTHER2_CHAIN_DVUZNACH.length > 0)
+        )) ||
+        (gameState.brother === 3 && (
+            (gameState.digitRange === '1..10' && BROTHER3_CHAIN.length > 0) ||
+            (gameState.digitRange === '10..100' && BROTHER3_CHAIN_DVUZNACH.length > 0)
+        )) || (gameState.brother === 4 && (
+            (gameState.digitRange === '1..10' && BROTHER4_CHAIN.length > 0) ||
+            (gameState.digitRange === '10..100' && BROTHER4_CHAIN_DVUZNACH.length > 0)
+        ));
+    const instructionText = isBrotherChain
         ? 'Вспомните все числа, которые вы видели, и введите их сумму:'
         : 'Вспомните все числа, которые вы видели, примените к каждому метод выбранного брата и введите общую сумму результатов:';
     

@@ -2941,7 +2941,62 @@ def brothers_game(request):
     if not request.session.get('student_id') and not (hasattr(request.user, 'teacher_profile') and request.user.teacher_profile.status == 'approved'):
         return redirect('student_login')
     
-    # Цепочка примеров для Брат 4 (64 примера × 8 чисел)
+    # Цепочка примеров для Брат 1 однозначные (64 примера × 8 чисел)
+    brother1_chain = ''
+    chain1_path = settings.BASE_DIR / 'цепочка_примеров_брат1.txt'
+    if chain1_path.exists():
+        with open(chain1_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother1_chain = line
+                    break
+    
+    # Цепочка примеров для Брат 1 двузначные (64 примера × 8 чисел)
+    brother1_chain_dvuznach = ''
+    chain1_dvuznach_path = settings.BASE_DIR / 'цепочка_примеров_брат1_двузначные.txt'
+    if chain1_dvuznach_path.exists():
+        with open(chain1_dvuznach_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother1_chain_dvuznach = line
+                    break
+    
+    # Цепочка примеров для Брат 2 однозначные (64 примера × 8 чисел)
+    brother2_chain = ''
+    chain2_path = settings.BASE_DIR / 'цепочка_примеров_брат2.txt'
+    if chain2_path.exists():
+        with open(chain2_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother2_chain = line
+                    break
+    
+    # Цепочка примеров для Брат 2 двузначные (64 примера × 8 чисел)
+    brother2_chain_dvuznach = ''
+    chain2_dvuznach_path = settings.BASE_DIR / 'цепочка_примеров_брат2_двузначные.txt'
+    if chain2_dvuznach_path.exists():
+        with open(chain2_dvuznach_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother2_chain_dvuznach = line
+                    break
+    
+    # Цепочка примеров для Брат 3 однозначные (64 примера × 8 чисел)
+    brother3_chain = ''
+    chain3_path = settings.BASE_DIR / 'цепочка_примеров_брат3.txt'
+    if chain3_path.exists():
+        with open(chain3_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother3_chain = line
+                    break
+    
+    # Цепочка примеров для Брат 4 однозначные (64 примера × 8 чисел)
     brother4_chain = ''
     chain_path = settings.BASE_DIR / 'цепочка_примеров_брат4.txt'
     if chain_path.exists():
@@ -2952,6 +3007,35 @@ def brothers_game(request):
                     brother4_chain = line
                     break
     
+    # Цепочка примеров для Брат 3 двузначные (64 примера × 8 чисел)
+    brother3_chain_dvuznach = ''
+    chain3_dvuznach_path = settings.BASE_DIR / 'цепочка_примеров_брат3_двузначные.txt'
+    if chain3_dvuznach_path.exists():
+        with open(chain3_dvuznach_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother3_chain_dvuznach = line
+                    break
+    
+    # Цепочка примеров для Брат 4 двузначные (64 примера × 8 чисел)
+    brother4_chain_dvuznach = ''
+    chain_dvuznach_path = settings.BASE_DIR / 'цепочка_примеров_брат4_двузначные.txt'
+    if chain_dvuznach_path.exists():
+        with open(chain_dvuznach_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and (line.startswith('+') or line.startswith('-')):
+                    brother4_chain_dvuznach = line
+                    break
+    
     return render(request, 'brothers_game.html', {
+        'brother1_chain': brother1_chain,
+        'brother1_chain_dvuznach': brother1_chain_dvuznach,
+        'brother2_chain': brother2_chain,
+        'brother2_chain_dvuznach': brother2_chain_dvuznach,
+        'brother3_chain': brother3_chain,
+        'brother3_chain_dvuznach': brother3_chain_dvuznach,
         'brother4_chain': brother4_chain,
+        'brother4_chain_dvuznach': brother4_chain_dvuznach,
     })
