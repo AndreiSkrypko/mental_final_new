@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect
+from django.conf import settings
+from django.conf.urls.static import static
 from mental_app import views
 
 # --- 1. Объяснение создания маршрута --- :
@@ -108,3 +110,6 @@ urlpatterns = [
     path('delete_student/<int:student_id>/', views.students_list, {'mode': 4}, name='delete_student'),
     # Новый URL для удаления
 ]
+
+# Раздача статических файлов (CSS, JS, иконки админки) - всегда включена для runserver
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

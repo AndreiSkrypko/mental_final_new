@@ -139,8 +139,8 @@ if not DEBUG:
     try:
         import whitenoise
         MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-        # Сжатие и кэширование статических файлов
-        STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+        # Без Manifest - проще и надёжнее для админки Django
+        STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     except ImportError:
         # WhiteNoise не установлен, используем стандартные настройки
         pass
